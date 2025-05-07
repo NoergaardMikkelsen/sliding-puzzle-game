@@ -268,6 +268,7 @@ button[type="submit"]:hover {
 .consent-label input[type="checkbox"] {
   margin: 0;
   accent-color: #008a15;
+  width: 1rem;
 }
 
 .consent-group.form-group input[data-v-ea0eb02e] {
@@ -292,28 +293,5 @@ button[type="submit"]:hover {
   color: #005e12;
 }
 /* Drawer content text styling */
-.drawer-content h3,
-.drawer-content h4 {
-  text-align: left;
-  margin-top: 0;
-  margin-bottom: 0.7em;
-}
-.drawer-content h3 {
-  font-size: 1.25rem;
-  font-weight: 800;
-  color: #008a15;
-}
-.drawer-content h4 {
-  font-size: 1.08rem;
-  font-weight: 700;
-  color: #005e12;
-}
-.drawer-content p {
-  text-align: left;
-  margin-top: 0;
-  margin-bottom: 1em;
-  color: #333;
-  font-size: 1rem;
-  line-height: 1.6;
-}
+
 </style> 
