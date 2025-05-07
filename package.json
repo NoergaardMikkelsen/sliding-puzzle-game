@@ -1,0 +1,19 @@
+{
+  "name": "sliding-puzzle-game",
+  "version": "1.0.0",
+  "description": "A Vue.js sliding puzzle game with Supabase highscore leaderboard.",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "serve": "vite preview"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.39.7",
+    "gsap": "^3.13.0",
+    "vue": "^3.4.0"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-vue": "^5.2.3",
+    "vite": "^5.2.0"
+  }
+}
