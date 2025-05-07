@@ -62,7 +62,7 @@ function handleClose() {
   width: 100%;
   max-width: calc(100% - 1rem);
   min-height: calc(100% - 1rem);
-  border-radius: var(--border-radius) var(--border-radius) 0 0;
+  border-radius: 0.25rem 0.25rem 0 0;
   box-shadow: 0 -4px 24px rgba(0,0,0,0.18);
   padding: 4rem 1.5rem 2.5rem 1.5rem;
   margin-bottom: 0;
@@ -103,5 +103,30 @@ function handleClose() {
 .drawer-content h3,
 .drawer-content h4 {
   margin-bottom: 2rem;
+}
+
+.drawer-content h3,
+.drawer-content h4 {
+  text-align: left;
+  margin-top: 0;
+  margin-bottom: 0.7em;
+}
+.drawer-content h3 {
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: #008a15;
+}
+.drawer-content h4 {
+  font-size: 1.08rem;
+  font-weight: 700;
+  color: #005e12;
+}
+.drawer-content p {
+  text-align: left;
+  margin-top: 0;
+  margin-bottom: 1em;
+  color: #333;
+  font-size: 1rem;
+  line-height: 1.6;
 }
 </style> 
