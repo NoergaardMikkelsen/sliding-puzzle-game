@@ -25,8 +25,12 @@
       <button class="shuffle-btn" @click="shuffleTiles">Shuffle</button>
       <!-- Temporary button to trigger solved state for modal testing -->
       <button class="dev-solve-btn" @click="triggerSolved">Trigger Solved (Dev Only)</button>
-      <!-- Solved message -->
-      <div v-if="isSolved" class="solved-message">Puzzle Solved!</div>
+      <!-- Show the completion dialog modal when solved -->
+      <CompletionDialog
+        :visible="isSolved"
+        :time-ms="timerMs"
+        @submit="handleDialogSubmit"
+      />
     </div>
   </div>
 </template>
@@ -35,6 +39,7 @@
 import { ref, onMounted, computed, watch, nextTick } from 'vue';
 import gsap from 'gsap';
 import StartOverlay from './StartOverlay.vue'; // Import the new component
+import CompletionDialog from './CompletionDialog.vue'; // Import the completion dialog
 // Note: animateTilePop is not used for sliding, but can be kept if you want to use it elsewhere or switch back.
 // import { animateTilePop } from '../gsapTileAnimation'; 
 
@@ -183,6 +188,12 @@ function triggerSolved() {
   stopTimer();
 }
 
+// Handle dialog form submission
+function handleDialogSubmit(data) {
+  // For now, just log the data. You can add your own logic here.
+  console.log('Dialog form submitted:', data);
+}
+
 onMounted(() => {
   tiles.value = createTiles(); // Initialize with solved state first
   gameStarted.value = false;
@@ -306,19 +317,6 @@ onMounted(() => {
 .dev-solve-btn:hover {
   background: #ffcb42;
   transform: translateY(-2px) scale(1.03);
-}
-
-/* Message shown when puzzle is solved */
-.solved-message {
-  margin-top: 1.2rem;
-  color: var(--brand-dark);
-  font-weight: bold;
-  font-size: 1.2rem;
-  background: var(--light);
-  padding: 0.7rem 2rem;
-  border-radius: 1.5rem;
-  box-shadow: 0 2px 12px rgba(0,0,0,0.07);
-  display: inline-block;
 }
 
 </style>

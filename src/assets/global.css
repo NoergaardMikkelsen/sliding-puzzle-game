@@ -51,6 +51,8 @@ body {
   padding-top: 1rem; /* Add some space at the top for content */
 }
 
+
+
 /* Headings styling for a modern, bold look */
 h1 {
   font-family: inherit;
@@ -65,10 +67,32 @@ h2 {
   font-family: inherit;
   font-size: 2rem;
   font-weight: bold;
+  line-height: 1.1;
   color: var(--light); /* Make H2 light too */
   margin: 1.5rem 0 1rem 0;
   letter-spacing: -0.05em;
 } 
+
+h3 {
+  font-family: inherit;
+  font-size: 1.5rem;
+  font-weight: bold;
+  margin: 1rem 0 1rem 0;
+}
+
+h4 {
+  font-family: inherit;
+  font-size: 1.2rem;
+  font-weight: bold;
+  margin: 1.25rem 0 0.5rem 0;
+}
+
+p {
+  font-family: inherit;
+  font-size: 1rem;
+  line-height: 1.5;
+
+}
 
 .highlight {
     color: var(--light);

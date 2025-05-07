@@ -49,7 +49,7 @@ const emit = defineEmits(['start-game']);
   max-width: 480px;
   margin: 0 auto;
   text-align: center;
-  gap: 2.2rem; /* Spacing between elements */
+  gap: 1rem; /* Spacing between elements */
 }
 
 /* Headline for the start overlay */
