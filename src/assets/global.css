@@ -5,6 +5,7 @@
   --brand-dark: #008a15;
   --dark: #222;
   --light: #fff;
+  --black: #000;
   --radius: 0.25rem; 
 }
 
@@ -24,8 +25,8 @@ body {
   height: 100%; /* Crucial for children with height: 100% to work */
   overflow-x: hidden; /* Prevent horizontal scrollbars */
   font-family: Arial, Helvetica, sans-serif;
-  background-color: var(--brand); /* Set the base background to your brand color */
-  color: var(--dark);
+  background-color: var(--black); /* Set the base background to black */
+  color: var(--light);
 }
 
 /* 3. Vue App Mount Point Full Viewport */
@@ -34,7 +35,7 @@ body {
   height: 100%;
   display: flex; /* Helps ensure its child can also take full height if needed */
   flex-direction: column;
-  background-color: var(--brand); /* Ensure this also has the brand background */
+  background-color: var(--black); /* Ensure this also has the black background */
 }
 
 /* 4. Your Main Application Container */
@@ -42,7 +43,7 @@ body {
   width: 100%;
   flex-grow: 1; /* Allows it to take up available space in the #app flex container */
   min-height: 100vh; /* Fallback to ensure it's at least viewport height */
-  background-color: var(--brand); /* This should be the primary visible background */
+  background-color: var(--black); /* This should be the primary visible background */
   text-align: center;
   display: flex;
   flex-direction: column;
@@ -53,12 +54,37 @@ body {
 
 
 
+/* Responsive design breakpoints */
+@media (max-width: 768px) {
+  /* Mobile styles */
+  h1 {
+    font-size: 1.8rem;
+  }
+  
+  h2 {
+    font-size: 1.6rem;
+  }
+  
+  .puzzle-absolute {
+    width: min(90vw, 25rem) !important;
+    height: min(90vw, 25rem) !important;
+  }
+}
+
+@media (min-width: 769px) {
+  /* Desktop styles */
+  .puzzle-absolute {
+    width: min(50vw, 30rem) !important;
+    height: min(50vw, 30rem) !important;
+  }
+}
+
 /* Headings styling for a modern, bold look */
 h1 {
   font-family: inherit;
   font-size: 2.2rem;
   font-weight: bold;
-  color: var(--light); /* Make H1 light against the green background */
+  color: var(--light); /* Make H1 light against the black background */
   margin: 1rem 0; /* Adjusted margin for better spacing */
   letter-spacing: -1px;
 }
@@ -78,6 +104,7 @@ h3 {
   font-size: 1.5rem;
   font-weight: bold;
   margin: 1rem 0 1rem 0;
+  color: var(--light);
 }
 
 h4 {
@@ -85,18 +112,18 @@ h4 {
   font-size: 1.2rem;
   font-weight: bold;
   margin: 1.25rem 0 0.5rem 0;
+  color: var(--light);
 }
 
 p {
   font-family: inherit;
   font-size: 1rem;
   line-height: 1.5;
-
+  color: var(--light);
 }
 
 .highlight {
     color: var(--light);
     font-weight: bold;
     text-decoration: underline;
-    
 }

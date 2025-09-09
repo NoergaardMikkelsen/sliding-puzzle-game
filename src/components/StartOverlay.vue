@@ -12,7 +12,7 @@
       
       <!-- Puzzle preview image -->
       <img class="start-preview-img" src="/images/puzz.png" alt="Puzzle preview" />
-      <button class="start-btn" @click="$emit('start-game')">Start spillet!</button>
+      <button class="start-btn" @click="$emit('start-game')">Ready, set, play!</button>
     </div>
   </div>
 </template>
@@ -32,7 +32,7 @@ const emit = defineEmits(['start-game']);
   left: 0;
   width: 100vw;
   height: 100vh;
-  background-color: var(--brand, #3dcd57); /* Uses CSS variable for brand color */
+  background-color: var(--black); /* Uses black background */
   display: flex;
   align-items: center;
   justify-content: center;
@@ -80,11 +80,11 @@ const emit = defineEmits(['start-game']);
 
 /* Start button styling */
 .start-btn {
-  padding: 1rem 3.5rem;
-  background: var(--light);
-  color: var(--brand-dark, #008a15);
+  padding: 0.60rem 2rem;
+  background: var(--brand);
+  color: var(--light);
   border: none;
-  border-radius: 8px;
+  border-radius: 0.75rem;
   font-size: 1.3rem;
   font-weight: bold;
   cursor: pointer;
@@ -93,8 +93,8 @@ const emit = defineEmits(['start-game']);
   transition: background 0.15s, color 0.15s, transform 0.1s; /* Smooth transitions for hover effects */
 }
 .start-btn:hover {
-  background: #f7f7f7; /* Slightly different background on hover */
-  color: var(--brand); /* Brand color text on hover */
+  background: var(--brand-dark); /* Darker green on hover */
+  color: var(--light); /* Keep white text on hover */
   transform: translateY(-2px) scale(1.03); /* Slight lift and scale effect on hover */
 }
 
@@ -106,5 +106,32 @@ const emit = defineEmits(['start-game']);
   box-shadow: 0 4px 24px rgba(0,0,0,0.10); /* Larger shadow for the image */
   margin: 0 auto;
   display: block;
+}
+
+/* Responsive design for StartOverlay */
+@media (max-width: 768px) {
+  .start-screen-content {
+    max-width: 95vw;
+    padding: 1rem;
+  }
+  
+  .start-headline {
+    font-size: 1.8rem;
+  }
+  
+  .start-desc {
+    font-size: 1rem;
+  }
+  
+  .start-btn {
+    padding: 0.8rem 2.5rem;
+    font-size: 1.1rem;
+  }
+}
+
+@media (min-width: 769px) {
+  .start-screen-content {
+    max-width: 480px;
+  }
 }
 </style> 

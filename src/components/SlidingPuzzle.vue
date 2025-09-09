@@ -4,10 +4,20 @@
     <!-- Use the new StartOverlay component, conditionally rendered -->
     <StartOverlay v-if="!gameStarted" @start-game="startGame" />
 
+    <!-- Show scoreboard when solved -->
+    <ScoreboardView 
+      v-else-if="showScoreboard"
+      :time-ms="gaveUp ? 999999999 : timerMs"
+      :gave-up="gaveUp"
+      @win-click="handleScoreboardWin"
+    />
+    
     <!-- Show puzzle grid, timer, and highscore if game has started -->
     <div v-else class="puzzle-section">
+      <!-- Game instruction -->
+      <h2 class="game-instruction">Move the pieces around<br>to make the image look right</h2>
       <!-- Modern styled timer with fixed width -->
-      <div class="timer timer-fixed">Time: {{ formattedTime }}</div>
+      <div class="timer timer-fixed">{{ formattedTime }}</div>
       <!-- Puzzle grid with absolute tiles -->
       <div class="puzzle-grid puzzle-absolute" ref="gridRef">
         <div
@@ -21,13 +31,15 @@
           <img v-if="!tile.isEmpty" :src="tile.img" :alt="'Tile ' + tile.id" />
         </div>
       </div>
-      <!-- Shuffle button -->
-      <button class="shuffle-btn" @click="shuffleTiles">Shuffle</button>
+      <!-- Ready set play / Give up button -->
+      <button class="shuffle-btn" @click="gameInProgress ? giveUp() : readySetPlay()">
+        {{ gameInProgress ? 'Help! I give up' : 'Ready, set, play!' }}
+      </button>
       <!-- Temporary button to trigger solved state for modal testing -->
       <button class="dev-solve-btn" @click="triggerSolved">Trigger Solved (Dev Only)</button>
-      <!-- Show the completion dialog modal when solved -->
+      <!-- Show the completion dialog modal when solved (keeping for now) -->
       <CompletionDialog
-        :visible="isSolved"
+        :visible="isSolved && !showScoreboard"
         :time-ms="timerMs"
         @submit="handleDialogSubmit"
       />
@@ -40,6 +52,7 @@ import { ref, onMounted, computed, watch, nextTick } from 'vue';
 import gsap from 'gsap';
 import StartOverlay from './StartOverlay.vue'; // Import the new component
 import CompletionDialog from './CompletionDialog.vue'; // Import the completion dialog
+import ScoreboardView from './ScoreboardView.vue'; // Import the scoreboard view
 // Note: animateTilePop is not used for sliding, but can be kept if you want to use it elsewhere or switch back.
 // import { animateTilePop } from '../gsapTileAnimation'; 
 
@@ -48,24 +61,31 @@ const timerMs = ref(0);
 const timerInterval = ref(null);
 const timer = computed(() => Math.floor(timerMs.value / 1000));
 const milliseconds = computed(() => Math.floor((timerMs.value % 1000) / 10));
-const formattedTime = computed(() => `${timer.value}s ${milliseconds.value.toString().padStart(2, '0')}`);
+const formattedTime = computed(() => {
+  const minutes = Math.floor(timerMs.value / 60000);
+  const seconds = Math.floor((timerMs.value % 60000) / 1000);
+  return `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+});
 
 // Puzzle grid and tile state
 const size = 3;
 const tileCount = size * size;
 const imageFilenames = [
-  'puzz_piece_1.png',
-  'puzz_piece_2.png',
-  'puzz_piece_3.png',
-  'puzz_piece_4.png',
-  'puzz_piece_5.png',
-  'puzz_piece_6.png',
-  'puzz_piece_7.png',
-  'puzz_piece_8.png'
+  '43598_SE_Proud_to_be_Pro_Puzzle_1.webp',
+  '43598_SE_Proud_to_be_Pro_Puzzle_2.webp',
+  '43598_SE_Proud_to_be_Pro_Puzzle_3.webp',
+  '43598_SE_Proud_to_be_Pro_Puzzle_4.webp',
+  '43598_SE_Proud_to_be_Pro_Puzzle_5.webp',
+  '43598_SE_Proud_to_be_Pro_Puzzle_6.webp',
+  '43598_SE_Proud_to_be_Pro_Puzzle_7.webp',
+  '43598_SE_Proud_to_be_Pro_Puzzle_8.webp'
 ];
 const tiles = ref([]);
 const isSolved = ref(false);
 const gameStarted = ref(false);
+const gameInProgress = ref(false);
+const showScoreboard = ref(false);
+const gaveUp = ref(false);
 const tileRefs = ref([]); // Refs for each tile DOM element
 const gridRef = ref(null); // Ref for the puzzle grid container DOM element
 
@@ -103,8 +123,8 @@ function animateAllTiles() {
       y: targetRow * tileDimension,
       width: tileDimension,
       height: tileDimension,
-      duration: 0.35, 
-      ease: 'power2.inOut',
+      duration: 0.6, 
+      ease: 'power3.out',
     });
   });
 }
@@ -132,7 +152,7 @@ function isSolvedArr(arr) {
 }
 
 async function moveTile(clickedVisualIndex) {
-  if (!gameStarted.value || isSolved.value) return;
+  if (!gameInProgress.value || isSolved.value) return;
   const emptyTileIndex = tiles.value.findIndex(t => t.isEmpty);
 
   const canMove =
@@ -151,14 +171,42 @@ async function moveTile(clickedVisualIndex) {
     animateAllTiles(); 
 
     isSolved.value = isSolvedArr(tiles.value);
-    if (isSolved.value) stopTimer();
+    if (isSolved.value) {
+      stopTimer();
+      showScoreboard.value = true;
+    }
   }
 }
 
 function startGame() {
-  shuffleTiles();
   gameStarted.value = true;
-  startTimer();
+  gameInProgress.value = false;
+  resetTimer();
+  // Initialize with solved state (no animation)
+  tiles.value = createTiles();
+  nextTick(() => {
+    // Position tiles without animation
+    const gridContainer = gridRef.value;
+    if (!gridContainer || tileRefs.value.length !== tileCount) return;
+    
+    const tileDimension = gridContainer.offsetWidth / size;
+    
+    tiles.value.forEach((tileData, visualIndex) => {
+      const domElement = tileRefs.value[visualIndex];
+      if (!domElement) return;
+      
+      const targetRow = Math.floor(visualIndex / size);
+      const targetCol = visualIndex % size;
+      
+      // Set position without animation
+      gsap.set(domElement, {
+        x: targetCol * tileDimension,
+        y: targetRow * tileDimension,
+        width: tileDimension,
+        height: tileDimension,
+      });
+    });
+  });
 }
 
 function startTimer() {
@@ -186,6 +234,7 @@ watch(tiles, () => {
 function triggerSolved() {
   isSolved.value = true;
   stopTimer();
+  showScoreboard.value = true;
 }
 
 // Handle dialog form submission
@@ -194,16 +243,36 @@ function handleDialogSubmit(data) {
   console.log('Dialog form submitted:', data);
 }
 
+// Handle ready set play button click
+function readySetPlay() {
+  shuffleTiles();
+  gameInProgress.value = true;
+  startTimer();
+}
+
+// Handle give up button click
+function giveUp() {
+  stopTimer();
+  gaveUp.value = true;
+  showScoreboard.value = true;
+}
+
+// Handle scoreboard win button click
+function handleScoreboardWin() {
+  // For now, just log the click. You can add your own logic here.
+  console.log('Scoreboard win button clicked');
+  // You can add form logic here or navigate to a form page
+}
+
 onMounted(() => {
-  tiles.value = createTiles(); // Initialize with solved state first
   gameStarted.value = false;
+  gameInProgress.value = false;
   resetTimer();
-  // Animate tiles to their initial (solved) positions
-  nextTick(() => animateAllTiles()); 
 });
 </script>
 
 <style scoped>
+
 /* --- Styles from puzzle.css (puzzle grid, timer, highscore, etc.) --- */
 
 /* Layout for the main puzzle section */
@@ -215,24 +284,35 @@ onMounted(() => {
   width: 100%;
 }
 
+/* Game instruction styling */
+.game-instruction {
+  font-size: 1.8rem;
+  font-weight: normal;
+  color: var(--light);
+  margin-bottom: 0.5rem;
+  text-align: center;
+}
+
 /* Timer display styling */
 .timer {
-  background: var(--light);
-  color: var(--brand-dark);
-  font-size: 1.3rem;
-  font-weight: 600;
-  padding: 0.7rem 2.5rem;
-  border-radius: var(--border);
-  box-shadow: 0 2px 12px rgba(0,0,0,0.07);
-  margin-bottom: 1.2rem;
-  letter-spacing: 0.03em;
+  background: none;
+  color: var(--light);
+  font-size: 2.5rem;
+  font-weight: bold;
+  padding: 0;
+  margin-bottom: 0;
+  letter-spacing: 0.1em;
   display: inline-block;
   user-select: none;
+  font-family: 'Courier New', monospace;
 }
 
 /* Puzzle grid container */
 .puzzle-grid {
   margin-bottom: 0.5rem;
+  border: 1px solid var(--light);
+  border-radius: 0;
+  padding: 0.5rem;
 }
 
 /* Container for absolutely positioned tiles in the puzzle grid */
@@ -243,6 +323,40 @@ onMounted(() => {
   max-width: 30rem;
   max-height: 30rem;
   margin-bottom: 1.5rem;
+  overflow: hidden; /* Ensure tiles don't go outside the container */
+}
+
+/* Responsive design for SlidingPuzzle */
+@media (max-width: 768px) {
+  .puzzle-absolute {
+    width: min(90vw, 25rem);
+    height: min(90vw, 25rem);
+  }
+  
+  .game-instruction {
+    font-size: 1.4rem;
+  }
+  
+  .timer {
+    font-size: 2rem;
+  }
+  
+  .shuffle-btn {
+    padding: 0.6rem 1.8rem;
+    font-size: 1rem;
+  }
+  
+  .dev-solve-btn {
+    padding: 0.4rem 1.2rem;
+    font-size: 0.9rem;
+  }
+}
+
+@media (min-width: 769px) {
+  .puzzle-absolute {
+    width: min(50vw, 30rem);
+    height: min(50vw, 30rem);
+  }
 }
 
 /* Individual puzzle tile styling */
@@ -251,7 +365,7 @@ onMounted(() => {
   top: 0; /* Initial position, GSAP will animate x/y */
   left: 0; /* Initial position, GSAP will animate x/y */
   background: var(--light);
-  border-radius: var(--radius);
+  border-radius: 0;
   box-shadow: 0 2px 12px rgba(0,0,0,0.10);
   display: flex; 
   align-items: center;
@@ -264,6 +378,7 @@ onMounted(() => {
   min-width: 0; 
   min-height: 0;
   user-select: none;
+  z-index: 2; /* Ensure normal tiles are above empty tile */
 }
 .puzzle-tile:hover:not(.empty) {
   box-shadow: 0 4px 20px rgba(61,205,87,0.18);
@@ -271,9 +386,10 @@ onMounted(() => {
   transform: scale(1.04); 
 }
 .puzzle-tile.empty {
-  background: var(--light);
+  background: #000;
   cursor: default;
   border: 1px dashed #e0e0e000;
+  z-index: 1; /* Place empty tile behind other tiles */
 }
 .puzzle-tile img {
   width: 100%;
@@ -284,11 +400,11 @@ onMounted(() => {
 /* Shuffle button styling */
 .shuffle-btn {
   margin-top: 0.5rem;
-  padding: 0.7rem 2.2rem;
+  padding: 0.60rem 2rem;
   border: none;
-  background: var(--light);
-  color: var(--dark);
-  border-radius: var(--radius);
+  background: var(--brand);
+  color: var(--light);
+  border-radius: 0.75rem;
   cursor: pointer;
   font-size: 1.1rem;
   font-weight: 600;
@@ -297,6 +413,7 @@ onMounted(() => {
   user-select: none;
 }
 .shuffle-btn:hover {
+  background: var(--brand-dark);
   transform: translateY(-2px) scale(1.03);
 }
 
@@ -304,8 +421,8 @@ onMounted(() => {
 .dev-solve-btn {
   margin-top: 0.5rem;
   padding: 0.5rem 1.5rem;
-  background: #ffb300;
-  color: #222;
+  background: var(--brand);
+  color: var(--light);
   border: none;
   border-radius: 1rem;
   font-size: 1rem;
@@ -315,7 +432,7 @@ onMounted(() => {
   transition: background 0.15s, transform 0.1s;
 }
 .dev-solve-btn:hover {
-  background: #ffcb42;
+  background: var(--brand-dark);
   transform: translateY(-2px) scale(1.03);
 }
 
