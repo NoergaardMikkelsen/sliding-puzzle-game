@@ -4,6 +4,9 @@ import { sri } from 'vite-plugin-sri3';
 
 // Export Vite configuration
 export default defineConfig({
-  // Simple comment: add SRI integrity attributes to built JS/CSS assets
-  plugins: [vue(), sri()],
+  plugins: [vue(), sri({
+    // Only apply SRI to JS/CSS, not images
+    include: ['**/*.js', '**/*.css'],
+    exclude: ['**/*.png', '**/*.jpg', '**/*.jpeg', '**/*.gif', '**/*.webp', '**/*.svg', '**/*.ico']
+  })],
 }); 
