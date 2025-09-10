@@ -6,8 +6,8 @@
       <div class="hero-container">
         <!-- Puzzle preview image -->
         <picture class="start-preview-img">
-          <source media="(max-width: 768px)" :srcset="mobileVisual" />
-          <img :src="desktopVisual" alt="Puzzle preview" />
+          <source media="(max-width: 768px)" srcset="/images/43598_SE_Proud_to_be_Pro_Game_Visual_Mobile.webp" />
+          <img src="/images/43598_SE_Proud_to_be_Pro_Game_Visual_Desktop.webp" alt="Puzzle preview" />
         </picture>
         
         <!-- Modern promo headline overlaid on image -->
@@ -28,9 +28,6 @@
 // Defines the events that this component can emit
 const emit = defineEmits(['start-game']);
 
-// Import hero visuals from assets to ensure reliable resolution during build
-import mobileVisual from '../assets/43598_SE_Proud_to_be_Pro_Game_Visual_Mobile.webp';
-import desktopVisual from '../assets/43598_SE_Proud_to_be_Pro_Game_Visual_Desktop.webp';
 </script>
 
 <style scoped>

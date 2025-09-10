@@ -35,6 +35,11 @@
       <button class="shuffle-btn" @click="gameInProgress ? giveUp() : readySetPlay()">
         {{ gameInProgress ? 'Help! I give up' : 'Ready, set, play!' }}
       </button>
+      
+      <!-- Countdown overlay -->
+      <div v-if="showCountdown" class="countdown-overlay">
+        <div class="countdown-text">{{ countdownText }}</div>
+      </div>
       <!-- Temporary button to trigger solved state for modal testing -->
       <button class="dev-solve-btn" @click="triggerSolved">Trigger Solved (Dev Only)</button>
       <!-- Show the completion dialog modal when solved (keeping for now) -->
@@ -48,7 +53,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, computed, watch, nextTick } from 'vue';
+import { ref, onMounted, onUnmounted, computed, watch, nextTick } from 'vue';
 import gsap from 'gsap';
 import StartOverlay from './StartOverlay.vue'; // Import the new component
 import CompletionDialog from './CompletionDialog.vue'; // Import the completion dialog
@@ -70,17 +75,15 @@ const formattedTime = computed(() => {
 // Puzzle grid and tile state
 const size = 3;
 const tileCount = size * size;
-// Import all puzzle tile images from assets using eager glob for predictable URLs
-const tilesImport = import.meta.glob('../assets/43598_SE_Proud_to_be_Pro_Puzzle_*.webp', { eager: true, as: 'url' });
 const imageFilenames = [
-  tilesImport['../assets/43598_SE_Proud_to_be_Pro_Puzzle_1.webp'],
-  tilesImport['../assets/43598_SE_Proud_to_be_Pro_Puzzle_2.webp'],
-  tilesImport['../assets/43598_SE_Proud_to_be_Pro_Puzzle_3.webp'],
-  tilesImport['../assets/43598_SE_Proud_to_be_Pro_Puzzle_4.webp'],
-  tilesImport['../assets/43598_SE_Proud_to_be_Pro_Puzzle_5.webp'],
-  tilesImport['../assets/43598_SE_Proud_to_be_Pro_Puzzle_6.webp'],
-  tilesImport['../assets/43598_SE_Proud_to_be_Pro_Puzzle_7.webp'],
-  tilesImport['../assets/43598_SE_Proud_to_be_Pro_Puzzle_8.webp']
+  '43598_SE_Proud_to_be_Pro_Puzzle_1.webp',
+  '43598_SE_Proud_to_be_Pro_Puzzle_2.webp',
+  '43598_SE_Proud_to_be_Pro_Puzzle_3.webp',
+  '43598_SE_Proud_to_be_Pro_Puzzle_4.webp',
+  '43598_SE_Proud_to_be_Pro_Puzzle_5.webp',
+  '43598_SE_Proud_to_be_Pro_Puzzle_6.webp',
+  '43598_SE_Proud_to_be_Pro_Puzzle_7.webp',
+  '43598_SE_Proud_to_be_Pro_Puzzle_8.webp'
 ];
 const tiles = ref([]);
 const isSolved = ref(false);
@@ -91,12 +94,17 @@ const gaveUp = ref(false);
 const tileRefs = ref([]); // Refs for each tile DOM element
 const gridRef = ref(null); // Ref for the puzzle grid container DOM element
 
+// Countdown state
+const showCountdown = ref(false);
+const countdownText = ref('');
+const countdownInterval = ref(null);
+
 function createTiles() {
   const arr = [];
   for (let i = 1; i < tileCount; i++) {
     arr.push({
       id: i,
-      img: imageFilenames[i - 1],
+      img: `/images/${imageFilenames[i - 1]}`,
       isEmpty: false
     });
   }
@@ -247,9 +255,31 @@ function handleDialogSubmit(data) {
 
 // Handle ready set play button click
 function readySetPlay() {
-  shuffleTiles();
-  gameInProgress.value = true;
-  startTimer();
+  startCountdown();
+}
+
+// Start countdown from 3 to GO
+function startCountdown() {
+  showCountdown.value = true;
+  let count = 3;
+  
+  const countdown = () => {
+    if (count > 0) {
+      countdownText.value = count.toString();
+      count--;
+      countdownInterval.value = setTimeout(countdown, 1000);
+    } else {
+      countdownText.value = 'GO!';
+      setTimeout(() => {
+        showCountdown.value = false;
+        shuffleTiles();
+        gameInProgress.value = true;
+        startTimer();
+      }, 500);
+    }
+  };
+  
+  countdown();
 }
 
 // Handle give up button click
@@ -266,10 +296,18 @@ function handleScoreboardWin() {
   // You can add form logic here or navigate to a form page
 }
 
+// Clean up countdown on unmount
 onMounted(() => {
   gameStarted.value = false;
   gameInProgress.value = false;
   resetTimer();
+});
+
+// Clean up countdown interval
+onUnmounted(() => {
+  if (countdownInterval.value) {
+    clearTimeout(countdownInterval.value);
+  }
 });
 </script>
 
@@ -436,6 +474,41 @@ onMounted(() => {
 .dev-solve-btn:hover {
   background: var(--brand-dark);
   transform: translateY(-2px) scale(1.03);
+}
+
+/* Countdown overlay styling */
+.countdown-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+}
+
+.countdown-text {
+  font-size: 8rem;
+  font-weight: bold;
+  color: var(--brand);
+  text-shadow: 0 0 20px rgba(61, 205, 87, 0.5);
+  animation: countdownPulse 0.8s ease-in-out;
+}
+
+@keyframes countdownPulse {
+  0% { transform: scale(0.5); opacity: 0; }
+  50% { transform: scale(1.1); opacity: 1; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+/* Responsive countdown for mobile */
+@media (max-width: 768px) {
+  .countdown-text {
+    font-size: 6rem;
+  }
 }
 
 </style>
