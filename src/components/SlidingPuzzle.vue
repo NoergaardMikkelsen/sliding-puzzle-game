@@ -99,6 +99,34 @@ const showCountdown = ref(false);
 const countdownText = ref('');
 const countdownInterval = ref(null);
 
+// Loading state
+const imagesLoaded = ref(false);
+const loadingProgress = ref(0);
+
+// Preload all images to prevent loading delays
+async function preloadImages() {
+  const imagePromises = imageFilenames.map((filename, index) => {
+    return new Promise((resolve, reject) => {
+      const img = new Image();
+      img.onload = () => {
+        loadingProgress.value = Math.round(((index + 1) / imageFilenames.length) * 100);
+        resolve(img);
+      };
+      img.onerror = reject;
+      img.src = `/images/${filename}`;
+    });
+  });
+  
+  try {
+    await Promise.all(imagePromises);
+    imagesLoaded.value = true;
+  } catch (error) {
+    console.error('Error preloading images:', error);
+    // Still set as loaded to not block the game
+    imagesLoaded.value = true;
+  }
+}
+
 function createTiles() {
   const arr = [];
   for (let i = 1; i < tileCount; i++) {
@@ -150,8 +178,8 @@ function shuffleTiles() {
   tiles.value = arr;
   isSolved.value = false;
   resetTimer();
-  // Wait for Vue to update the DOM then animate tiles to their initial shuffled positions
-  nextTick(() => animateAllTiles()); 
+  // Use requestAnimationFrame for smoother animation
+  requestAnimationFrame(() => animateAllTiles()); 
 }
 
 function isSolvedArr(arr) {
@@ -161,7 +189,7 @@ function isSolvedArr(arr) {
   return arr[arr.length - 1].isEmpty;
 }
 
-async function moveTile(clickedVisualIndex) {
+function moveTile(clickedVisualIndex) {
   if (!gameInProgress.value || isSolved.value) return;
   const emptyTileIndex = tiles.value.findIndex(t => t.isEmpty);
 
@@ -175,27 +203,34 @@ async function moveTile(clickedVisualIndex) {
     // Swap tiles in the data array
     [tiles.value[clickedVisualIndex], tiles.value[emptyTileIndex]] = [tiles.value[emptyTileIndex], tiles.value[clickedVisualIndex]];
     
-    // Wait for Vue to re-render the v-for list (DOM elements might be re-used/re-ordered)
-    await nextTick(); 
-    // Animate all tiles to reflect their new positions in the array
-    animateAllTiles(); 
-
-    isSolved.value = isSolvedArr(tiles.value);
-    if (isSolved.value) {
-      stopTimer();
-      showScoreboard.value = true;
-    }
+    // Use requestAnimationFrame for smoother animation
+    requestAnimationFrame(() => {
+      animateAllTiles();
+      
+      isSolved.value = isSolvedArr(tiles.value);
+      if (isSolved.value) {
+        stopTimer();
+        showScoreboard.value = true;
+      }
+    });
   }
 }
 
-function startGame() {
+async function startGame() {
   gameStarted.value = true;
   gameInProgress.value = false;
   resetTimer();
+  
+  // Preload images if not already loaded
+  if (!imagesLoaded.value) {
+    await preloadImages();
+  }
+  
   // Initialize with solved state (no animation)
   tiles.value = createTiles();
-  nextTick(() => {
-    // Position tiles without animation
+  
+  // Use requestAnimationFrame for smoother positioning
+  requestAnimationFrame(() => {
     const gridContainer = gridRef.value;
     if (!gridContainer || tileRefs.value.length !== tileCount) return;
     
@@ -208,13 +243,10 @@ function startGame() {
       const targetRow = Math.floor(visualIndex / size);
       const targetCol = visualIndex % size;
       
-      // Set position without animation
-      gsap.set(domElement, {
-        x: targetCol * tileDimension,
-        y: targetRow * tileDimension,
-        width: tileDimension,
-        height: tileDimension,
-      });
+      // Set position without animation - use direct style instead of GSAP for speed
+      domElement.style.transform = `translate(${targetCol * tileDimension}px, ${targetRow * tileDimension}px)`;
+      domElement.style.width = `${tileDimension}px`;
+      domElement.style.height = `${tileDimension}px`;
     });
   });
 }
@@ -235,11 +267,7 @@ function resetTimer() {
   timerMs.value = 0;
 }
 
-// Watch for changes in the tiles array to re-animate positions
-// This is useful if tiles array is manipulated externally or for initial setup
-watch(tiles, () => {
-  nextTick(() => animateAllTiles());
-}, { deep: true }); // deep watch might be overkill, but ensures reactivity if tile objects themselves change
+// Removed deep watch to improve performance - animations are handled manually
 
 function triggerSolved() {
   isSolved.value = true;
@@ -297,10 +325,13 @@ function handleScoreboardWin() {
 }
 
 // Clean up countdown on unmount
-onMounted(() => {
+onMounted(async () => {
   gameStarted.value = false;
   gameInProgress.value = false;
   resetTimer();
+  
+  // Start preloading images immediately
+  preloadImages();
 });
 
 // Clean up countdown interval
