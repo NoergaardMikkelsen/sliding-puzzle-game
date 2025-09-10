@@ -99,7 +99,7 @@ const congratulationsMessage = computed(() => {
   if (position === 1) {
     return "Wow, congratulations! You beat two of our Schneider Electric ambassadors.";
   } else if (position === 2) {
-    return "You beat one of our Schneider Electric ambassadors";
+    return "You beat one of our Schneider Electric ambassadors, nice one!";
   } else {
     return "You did not beat our Schneider Electric ambassadors – but don't worry!";
   }
