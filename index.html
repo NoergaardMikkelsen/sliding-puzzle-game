@@ -4,6 +4,42 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Sliding Puzzle Game</title>
+    <style>
+      html, body, #app {
+        margin: 0;
+        padding: 0;
+        width: 100%;
+        height: 100%;
+        background: #000;
+        color: #fff;
+        font-family: Arial, Helvetica, sans-serif;
+      }
+    
+      .start-screen-overlay {
+        position: fixed;
+        top: 0; left: 0;
+        width: 100vw; height: 100vh;
+        background: #000;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 900;
+      }
+    
+      .start-screen-content {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        height: 100%;
+        color: #fff;
+        margin: 0 auto;
+        text-align: center;
+        gap: 1rem;
+        position: relative;
+      }
+    </style>
+    
     <!-- Preload critical images -->
     <link rel="preload" href="/images/43598_SE_Proud_to_be_Pro_Game_Visual_Desktop.webp" as="image" type="image/webp">
     <link rel="preload" href="/images/43598_SE_Proud_to_be_Pro_Game_Visual_Mobile.webp" as="image" type="image/webp">
