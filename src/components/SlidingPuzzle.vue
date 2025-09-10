@@ -70,15 +70,17 @@ const formattedTime = computed(() => {
 // Puzzle grid and tile state
 const size = 3;
 const tileCount = size * size;
+// Import all puzzle tile images from assets using eager glob for predictable URLs
+const tilesImport = import.meta.glob('../assets/43598_SE_Proud_to_be_Pro_Puzzle_*.webp', { eager: true, as: 'url' });
 const imageFilenames = [
-  '43598_SE_Proud_to_be_Pro_Puzzle_1.webp',
-  '43598_SE_Proud_to_be_Pro_Puzzle_2.webp',
-  '43598_SE_Proud_to_be_Pro_Puzzle_3.webp',
-  '43598_SE_Proud_to_be_Pro_Puzzle_4.webp',
-  '43598_SE_Proud_to_be_Pro_Puzzle_5.webp',
-  '43598_SE_Proud_to_be_Pro_Puzzle_6.webp',
-  '43598_SE_Proud_to_be_Pro_Puzzle_7.webp',
-  '43598_SE_Proud_to_be_Pro_Puzzle_8.webp'
+  tilesImport['../assets/43598_SE_Proud_to_be_Pro_Puzzle_1.webp'],
+  tilesImport['../assets/43598_SE_Proud_to_be_Pro_Puzzle_2.webp'],
+  tilesImport['../assets/43598_SE_Proud_to_be_Pro_Puzzle_3.webp'],
+  tilesImport['../assets/43598_SE_Proud_to_be_Pro_Puzzle_4.webp'],
+  tilesImport['../assets/43598_SE_Proud_to_be_Pro_Puzzle_5.webp'],
+  tilesImport['../assets/43598_SE_Proud_to_be_Pro_Puzzle_6.webp'],
+  tilesImport['../assets/43598_SE_Proud_to_be_Pro_Puzzle_7.webp'],
+  tilesImport['../assets/43598_SE_Proud_to_be_Pro_Puzzle_8.webp']
 ];
 const tiles = ref([]);
 const isSolved = ref(false);
@@ -94,7 +96,7 @@ function createTiles() {
   for (let i = 1; i < tileCount; i++) {
     arr.push({
       id: i,
-      img: `/images/${imageFilenames[i - 1]}`,
+      img: imageFilenames[i - 1],
       isEmpty: false
     });
   }
