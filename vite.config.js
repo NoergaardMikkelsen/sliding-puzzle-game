@@ -9,9 +9,4 @@ export default defineConfig({
     include: ['**/*.js', '**/*.css'],
     exclude: ['**/*.png', '**/*.jpg', '**/*.jpeg', '**/*.gif', '**/*.webp', '**/*.svg', '**/*.ico']
   })],
-  build: {
-    rollupOptions: {
-      external: ['/images/**']  // Treat /images/ paths as external assets
-    }
-  }
 }); 
