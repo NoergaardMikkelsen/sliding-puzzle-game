@@ -151,9 +151,9 @@ function handleWinClick() {
 
 .comparison-box {
   background: var(--brand);
-  border-radius: 1.5rem;
-  padding: 0.4rem 1rem;
-  min-width: 300px;
+  border-radius: 1rem;
+  padding: 1.2rem 1.5rem;
+  min-width: 320px;
 }
 
 .comparison-item {
