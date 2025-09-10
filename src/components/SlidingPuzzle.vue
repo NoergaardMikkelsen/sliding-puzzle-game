@@ -32,7 +32,7 @@
         </div>
       </div>
       <!-- Ready set play / Give up button -->
-      <button class="shuffle-btn" @click="gameInProgress ? giveUp() : readySetPlay()">
+      <button class="shuffle-btn" :class="{ 'ghost-btn': gameInProgress }" @click="gameInProgress ? giveUp() : readySetPlay()">
         {{ gameInProgress ? 'Help! I give up' : 'Ready, set, play!' }}
       </button>
       
@@ -449,11 +449,23 @@ onUnmounted(() => {
   font-size: 1.1rem;
   font-weight: 600;
   box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-  transition: background 0.15s, transform 0.1s;
+  transition: background 0.15s, transform 0.1s, border 0.15s;
   user-select: none;
 }
 .shuffle-btn:hover {
   background: var(--brand-dark);
+  transform: translateY(-2px) scale(1.03);
+}
+
+/* Ghost button styling for "Help! I give up" state */
+.shuffle-btn.ghost-btn {
+  background: transparent;
+  border: none;
+  color: var(--light);
+  box-shadow: none;
+}
+.shuffle-btn.ghost-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
   transform: translateY(-2px) scale(1.03);
 }
 

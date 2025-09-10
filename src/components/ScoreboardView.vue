@@ -107,7 +107,7 @@ const congratulationsMessage = computed(() => {
 
 // Methods
 function handleWinClick() {
-  window.open('https://www.nmic.dk/', '_blank');
+  window.open('https://www.youtube.com/watch?v=xvFZjo5PgG0&list=RDxvFZjo5PgG0&start_radio=1', '_blank');
   emit('win-click');
 }
 </script>
