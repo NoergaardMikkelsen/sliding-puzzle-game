@@ -110,7 +110,7 @@ const emit = defineEmits(['start-game']);
 
 .start-lower-container {
   position: absolute;
-  bottom: clamp(-1rem, 3vw, 2rem);
+  bottom: clamp(-2rem, 2vw, 1.25rem);
   left: 50%;
   transform: translateX(-50%);
   width: 100%;
@@ -221,6 +221,46 @@ const emit = defineEmits(['start-game']);
     font-size: 0.55rem;
     max-width: 100vw;
     margin-top: 0.25rem;
+  }
+}
+
+/* Tablet / small-desktop range where things looked oversized */
+@media (min-width: 780px) and (max-width: 1000px) {
+  .start-headline {
+    font-size: clamp(1.6rem, 2.8vw, 2.2rem);
+    top: clamp(1rem, 3vw, 3rem);
+    max-width: 78vw;
+  }
+
+  .start-lower-container {
+    bottom: clamp(-2rem, 0.8vw, 1rem);
+  }
+
+  .start-btn {
+    padding: 0.55rem 1.6rem;
+    font-size: 1.05rem;
+  }
+
+  .start-desc {
+    font-size: 1.1rem;
+  }
+}
+
+/* Tight breakpoint to fix overlap right below 780px */
+@media (min-width: 738px) and (max-width: 780px) {
+  .start-headline {
+    font-size: clamp(1.4rem, 2.6vw, 1.9rem);
+    top: clamp(0.25rem, 2vw, 1rem);
+    max-width: 82vw;
+  }
+
+  .start-lower-container {
+    bottom: -3rem;
+  }
+
+  .start-btn {
+    padding: 0.55rem 1.6rem;
+    font-size: 1.05rem;
   }
 }
 
