@@ -263,5 +263,4 @@ const emit = defineEmits(['start-game']);
     font-size: 1.05rem;
   }
 }
-
 </style> 
