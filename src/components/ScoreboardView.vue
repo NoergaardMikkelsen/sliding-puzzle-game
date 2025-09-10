@@ -234,7 +234,7 @@ function handleWinClick() {
   
   .comparison-box {
     min-width: 280px;
-    padding: 1rem;
+    padding: 1.2rem;
   }
   
   .call-to-action {
