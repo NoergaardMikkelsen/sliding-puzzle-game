@@ -13,8 +13,13 @@ export default async function handler(request) {
     // ignore invalid JSON
   }
 
-  // Only allow the two whitelisted events; ignore everything else
-  if (eventName === 'start_click' || eventName === 'end_click') {
+  // Only allow the whitelisted events; ignore everything else
+  if (
+    eventName === 'start_click' ||
+    eventName === 'end_click' ||
+    eventName === 'completed_game' ||
+    eventName === 'give_up_click'
+  ) {
     // Log as structured JSON so it is easy to filter in Vercel Logs
     console.log(JSON.stringify({ event: eventName, ts: new Date().toISOString() }));
   }

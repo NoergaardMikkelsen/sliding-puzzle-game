@@ -211,6 +211,18 @@ function moveTile(clickedVisualIndex) {
       if (isSolved.value) {
         stopTimer();
         showScoreboard.value = true;
+        // Log completed game when puzzle is solved
+        try {
+          if (import.meta.env.PROD) {
+            const payload = JSON.stringify({ event: 'completed_game' });
+            if (navigator.sendBeacon) {
+              const blob = new Blob([payload], { type: 'application/json' });
+              navigator.sendBeacon('/api/track', blob);
+            } else {
+              fetch('/api/track', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: payload, keepalive: true });
+            }
+          }
+        } catch (e) {}
       }
     });
   }
@@ -285,12 +297,14 @@ function handleDialogSubmit(data) {
 function readySetPlay() {
   // Log start click to Vercel (fire-and-forget)
   try {
-    const payload = JSON.stringify({ event: 'start_click' });
-    if (navigator.sendBeacon) {
-      const blob = new Blob([payload], { type: 'application/json' });
-      navigator.sendBeacon('/api/track', blob);
-    } else {
-      fetch('/api/track', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: payload, keepalive: true });
+    if (import.meta.env.PROD) {
+      const payload = JSON.stringify({ event: 'start_click' });
+      if (navigator.sendBeacon) {
+        const blob = new Blob([payload], { type: 'application/json' });
+        navigator.sendBeacon('/api/track', blob);
+      } else {
+        fetch('/api/track', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: payload, keepalive: true });
+      }
     }
   } catch (e) {}
   startCountdown();
@@ -325,18 +339,32 @@ function giveUp() {
   stopTimer();
   gaveUp.value = true;
   showScoreboard.value = true;
+  // Log give up click
+  try {
+    if (import.meta.env.PROD) {
+      const payload = JSON.stringify({ event: 'give_up_click' });
+      if (navigator.sendBeacon) {
+        const blob = new Blob([payload], { type: 'application/json' });
+        navigator.sendBeacon('/api/track', blob);
+      } else {
+        fetch('/api/track', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: payload, keepalive: true });
+      }
+    }
+  } catch (e) {}
 }
 
 // Handle scoreboard win button click
 function handleScoreboardWin() {
   // Log end click to Vercel (fire-and-forget)
   try {
-    const payload = JSON.stringify({ event: 'end_click' });
-    if (navigator.sendBeacon) {
-      const blob = new Blob([payload], { type: 'application/json' });
-      navigator.sendBeacon('/api/track', blob);
-    } else {
-      fetch('/api/track', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: payload, keepalive: true });
+    if (import.meta.env.PROD) {
+      const payload = JSON.stringify({ event: 'end_click' });
+      if (navigator.sendBeacon) {
+        const blob = new Blob([payload], { type: 'application/json' });
+        navigator.sendBeacon('/api/track', blob);
+      } else {
+        fetch('/api/track', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: payload, keepalive: true });
+      }
     }
   } catch (e) {}
   // You can add form logic here or navigate to a form page

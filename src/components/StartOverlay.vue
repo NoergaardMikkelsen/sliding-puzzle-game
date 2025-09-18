@@ -7,7 +7,7 @@
         <!-- Puzzle preview image -->
         <picture class="start-preview-img">
           <source media="(max-width: 768px)" srcset="/images/43598_SE_Proud_to_be_Pro_Game_Visual_Mobile.webp" />
-          <img src="/images/43598_SE_Proud_to_be_Pro_Game_Visual_Desktop.webp" alt="Puzzle preview" />
+          <img src="/images/43598_SE_Proud_to_be_Pro_Game_Visual_Desktop.webp" alt="Puzzle preview" fetchpriority="high" />
         </picture>
         
         <!-- Modern promo headline overlaid on image -->
