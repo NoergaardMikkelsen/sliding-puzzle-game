@@ -17,7 +17,7 @@
         },
         {
           "key": "Content-Security-Policy",
-          "value": "default-src 'self'; base-uri 'self'; object-src 'none'; frame-ancestors 'self' https://www.lk.dk https://www.se.com; img-src 'self' https: data:; font-src 'self' https: data:; style-src 'self' 'sha256-C2WQGMIp2dqeabIIfv9TLCb3webNLNCLvLSno2NBbj4='; script-src 'self' https://vitals.vercel-analytics.com; connect-src 'self' https://your-project.supabase.co https://vitals.vercel-analytics.com; frame-src 'self'; worker-src 'self' blob:; form-action 'self'; upgrade-insecure-requests; report-uri https://sliding-puzzle-game-nine.vercel.app/csp-report; report-to csp-endpoint"
+          "value": "default-src 'self'; base-uri 'self'; object-src 'none'; frame-ancestors 'self' https://www.lk.dk https://www.se.com; img-src 'self' https: data:; font-src 'self' https: data:; style-src 'self' 'sha256-C2WQGMIp2dqeabIIfv9TLCb3webNLNCLvLSno2NBbj4=' 'sha256-PCXPXZGb2lYCOXXwE0QuXNmE27HMpN2yhfmzdgJuZ6rE='; script-src 'self' https://vitals.vercel-analytics.com; connect-src 'self' https://your-project.supabase.co https://vitals.vercel-analytics.com; frame-src 'self'; worker-src 'self' blob:; form-action 'self'; upgrade-insecure-requests; report-uri https://sliding-puzzle-game-nine.vercel.app/csp-report; report-to csp-endpoint"
         },
         {
           "key": "X-Content-Type-Options",
