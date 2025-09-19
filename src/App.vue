@@ -2,7 +2,6 @@
   <!-- Main app component -->
   <div class="app-container">
     <Navigation v-if="showNavigation" />
-    <h1>Sliding Puzzle Game</h1>
     <!-- Sliding puzzle component -->
     <SlidingPuzzle />
   </div>

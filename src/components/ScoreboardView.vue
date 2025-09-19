@@ -2,7 +2,7 @@
   <div class="scoreboard-view">
     <!-- Your time display -->
     <div class="time-display">
-      <div class="time-label">Your time</div>
+      <div class="time-label">Din tid</div>
       <div class="time-value">{{ formattedTime }}</div>
     </div>
 
@@ -26,17 +26,17 @@
 
     <!-- Call to action text -->
     <div class="call-to-action">
-      Fill out your info for the chance to flex your skills with pro-league caps - or win the grand prize:
+      Fyll i dina uppgifter för att få chansen att vinna merch eller det stora priset:
     </div>
 
     <!-- Prize display -->
     <div class="prize">
-      2 tickets to [SPORTING EVENT]
+      2 biljetter till <span class="nhl-highlight">NHL i Stockholm</span>
     </div>
 
     <!-- Action button -->
     <button class="win-button" @click="handleWinClick">
-      I want to win
+      Jag vill vinna!
     </button>
   </div>
 </template>
@@ -60,8 +60,9 @@ const props = defineProps({
 const emit = defineEmits(['win-click']);
 
 // Hardcoded ambassador times in milliseconds
-const ambassador1TimeMs = 1 * 60000 + 54 * 1000; // 01:54
-const ambassador2TimeMs = 2 * 60000 + 15 * 1000; // 02:15
+const billyTimeMs = 0 * 60000 + 57 * 1000; // 00:57
+const ambassador1TimeMs = 1 * 60000 + 25 * 1000; // 01:25
+const ambassador2TimeMs = 1 * 60000 + 48 * 1000; // 01:48
 
 // Computed
 const formattedTime = computed(() => {
@@ -76,9 +77,10 @@ const formattedTime = computed(() => {
 // Create sorted times array with player position
 const sortedTimes = computed(() => {
   const times = [
-    { timeMs: ambassador1TimeMs, label: "Ambassador 1", time: "01:54", isPlayer: false },
-    { timeMs: ambassador2TimeMs, label: "Ambassador 2", time: "02:15", isPlayer: false },
-    { timeMs: props.timeMs, label: "Your time:", time: formattedTime.value, isPlayer: true }
+    { timeMs: billyTimeMs, label: "Billy:", time: "00:57", isPlayer: false },
+    { timeMs: ambassador1TimeMs, label: "Viktor:", time: "01:25", isPlayer: false },
+    { timeMs: ambassador2TimeMs, label: "Peter:", time: "01:48", isPlayer: false },
+    { timeMs: props.timeMs, label: "Din tid:", time: formattedTime.value, isPlayer: true }
   ];
   
   // Sort by time (fastest first)
@@ -93,21 +95,23 @@ const playerPosition = computed(() => {
 // Dynamic congratulations message based on position
 const congratulationsMessage = computed(() => {
   if (props.gaveUp) {
-    return "You did not beat our Schneider Electric ambassadors – but don't worry!";
+    return "Du slutförde inte pusslet – men ingen fara!";
   }
   const position = playerPosition.value;
   if (position === 1) {
-    return "Wow, congratulations! You beat two of our Schneider Electric ambassadors.";
+    return "Wow, grattis! Du har slagit alla av medlemmarna i Elektrikerpodden";
   } else if (position === 2) {
-    return "You beat one of our Schneider Electric ambassadors, nice one!";
+    return "Wow, grattis! Du har slagit en eller flera av medlemmarna i Elektrikerpodden";
+  } else if (position === 3) {
+    return "Wow, grattis! Du har slagit en eller flera av medlemmarna i Elektrikerpodden";
   } else {
-    return "You did not beat our Schneider Electric ambassadors – but don't worry!";
+    return "Du slog inte någon av medlemmarna i Elektrikerpodden - ingen fara du kan fortfarande vinna!";
   }
 });
 
 // Methods
 function handleWinClick() {
-  window.open('https://www.youtube.com/watch?v=xvFZjo5PgG0&list=RDxvFZjo5PgG0&start_radio=1', '_blank');
+  window.open('https://www.se.com/se/sv/partners/electricians/', '_blank');
   emit('win-click');
 }
 </script>
@@ -197,7 +201,12 @@ function handleWinClick() {
 .prize {
   font-size: 1.5rem;
   font-weight: bold;
+  color: var(--light);
+}
+
+.nhl-highlight {
   color: var(--brand);
+  font-weight: 900;
 }
 
 .win-button {
