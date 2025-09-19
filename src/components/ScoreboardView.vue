@@ -31,7 +31,7 @@
 
     <!-- Prize display -->
     <div class="prize">
-      2 biljetter till <span class="nhl-highlight">NHL i Stockholm</span>
+      2 biljetter till <br><span class="nhl-highlight">NHL i Stockholm</span>
     </div>
 
     <!-- Action button -->
@@ -135,21 +135,21 @@ function handleWinClick() {
 }
 
 .time-label {
-  font-size: 1.2rem;
+  font-size: 2rem;
   color: var(--light);
 }
 
 .time-value {
-  font-size: 3rem;
+  font-size: 5rem;
   font-weight: bold;
   font-family: 'Courier New', monospace;
   color: var(--light);
 }
 
 .congratulations {
-  font-size: 1.1rem;
+  font-size: 1.8rem;
   color: var(--light);
-  max-width: 500px;
+
   line-height: 1.4;
 }
 
@@ -192,14 +192,13 @@ function handleWinClick() {
 }
 
 .call-to-action {
-  font-size: 1rem;
+  font-size: 1.6rem;
   color: var(--light);
-  max-width: 500px;
   line-height: 1.4;
 }
 
 .prize {
-  font-size: 1.5rem;
+  font-size: 2.5rem;
   font-weight: bold;
   color: var(--light);
 }
@@ -215,7 +214,7 @@ function handleWinClick() {
   border: none;
   border-radius: 0.75rem;
   padding: 0.60rem 2rem;
-  font-size: 1.2rem;
+  font-size: 2rem;
   font-weight: bold;
   cursor: pointer;
   transition: background 0.15s, transform 0.1s;
@@ -234,11 +233,11 @@ function handleWinClick() {
   }
   
   .time-value {
-    font-size: 2.5rem;
+    font-size: 3.5rem;
   }
   
   .congratulations {
-    font-size: 1rem;
+    font-size: 1.3rem;
   }
   
   .comparison-box {
@@ -247,16 +246,16 @@ function handleWinClick() {
   }
   
   .call-to-action {
-    font-size: 0.9rem;
+    font-size: 1.2rem;
   }
   
   .prize {
-    font-size: 1.3rem;
+    font-size: 1.8rem;
   }
   
   .win-button {
     padding: 0.8rem 1.5rem;
-    font-size: 1.1rem;
+    font-size: 1.5rem;
   }
 }
 </style>

@@ -73,15 +73,17 @@ const formattedTime = computed(() => {
 });
 
 // Puzzle grid and tile state
-const rows = 2;
-const cols = 3;
-const tileCount = rows * cols;
+const size = 3;
+const tileCount = size * size;
 const imageFilenames = [
   '43598_SE_Proud_to_be_Pro_Puzzle_1.webp',
   '43598_SE_Proud_to_be_Pro_Puzzle_2.webp',
   '43598_SE_Proud_to_be_Pro_Puzzle_3.webp',
   '43598_SE_Proud_to_be_Pro_Puzzle_4.webp',
-  '43598_SE_Proud_to_be_Pro_Puzzle_5.webp'
+  '43598_SE_Proud_to_be_Pro_Puzzle_5.webp',
+  '43598_SE_Proud_to_be_Pro_Puzzle_6.webp',
+  '43598_SE_Proud_to_be_Pro_Puzzle_7.webp',
+  '43598_SE_Proud_to_be_Pro_Puzzle_8.webp'
 ];
 const tiles = ref([]);
 const isSolved = ref(false);
@@ -111,7 +113,7 @@ async function preloadImages() {
         resolve(img);
       };
       img.onerror = reject;
-      img.src = `/images/${filename}`;
+      img.src = `/images/3x3/${filename}`;
     });
   });
   
@@ -127,16 +129,16 @@ async function preloadImages() {
 
 function createTiles() {
   const arr = [];
-  // First tile is empty
-  arr.push({ id: 0, img: '', isEmpty: true });
-  // Then add the 5 image tiles
+  // Add the 8 image tiles first
   for (let i = 1; i < tileCount; i++) {
     arr.push({
       id: i,
-      img: `/images/${imageFilenames[i - 1]}`,
+      img: `/images/3x3/${imageFilenames[i - 1]}`,
       isEmpty: false
     });
   }
+  // Last tile is empty
+  arr.push({ id: 0, img: '', isEmpty: true });
   return arr;
 }
 
@@ -146,14 +148,14 @@ function animateAllTiles() {
   if (!gridContainer || tileRefs.value.length !== tileCount) return;
 
   // Calculate the dimension of each tile based on the container's current width
-  const tileDimension = gridContainer.offsetWidth / cols;
+  const tileDimension = gridContainer.offsetWidth / size;
 
   tiles.value.forEach((tileData, visualIndex) => {
     const domElement = tileRefs.value[visualIndex];
     if (!domElement) return;
 
-    const targetRow = Math.floor(visualIndex / cols);
-    const targetCol = visualIndex % cols;
+    const targetRow = Math.floor(visualIndex / size);
+    const targetCol = visualIndex % size;
 
     // Use GSAP to animate the tile to its new position and set its size
     gsap.to(domElement, {
@@ -171,11 +173,12 @@ function shuffleTiles() {
   const arr = createTiles();
   
   // Start with solved state
-  // Then perform random valid moves to shuffle
-  let emptyIndex = 0; // Empty tile starts at position 0
+  // Then perform a fixed number of random valid moves to shuffle
+  let emptyIndex = arr.length - 1; // Empty tile starts at last position
   
-  // Perform 50-100 random valid moves to shuffle
-  const numMoves = 50 + Math.floor(Math.random() * 51);
+  // Fixed number of moves for consistent difficulty
+  // 25-30 moves provides good shuffling without being too difficult
+  const numMoves = 28;
   
   for (let i = 0; i < numMoves; i++) {
     const possibleMoves = [];
@@ -185,10 +188,10 @@ function shuffleTiles() {
       if (j === emptyIndex) continue;
       
       const canMove =
-        (j === emptyIndex - 1 && emptyIndex % cols !== 0) || // Left
-        (j === emptyIndex + 1 && j % cols !== 0) || // Right
-        j === emptyIndex - cols || // Up
-        j === emptyIndex + cols;    // Down
+        (j === emptyIndex - 1 && emptyIndex % size !== 0) || // Left
+        (j === emptyIndex + 1 && j % size !== 0) || // Right
+        j === emptyIndex - size || // Up
+        j === emptyIndex + size;    // Down
       
       if (canMove) {
         possibleMoves.push(j);
@@ -213,11 +216,11 @@ function shuffleTiles() {
 }
 
 function isSolvedArr(arr) {
-  // First tile should be empty (id: 0)
-  if (!arr[0].isEmpty) return false;
-  // Rest should be in order (id: 1, 2, 3, 4, 5)
-  for (let i = 1; i < arr.length; i++) {
-    if (arr[i].id !== i) return false;
+  // Last tile should be empty (id: 0)
+  if (!arr[arr.length - 1].isEmpty) return false;
+  // Rest should be in order (id: 1, 2, 3, 4, 5, 6, 7, 8)
+  for (let i = 0; i < arr.length - 1; i++) {
+    if (arr[i].id !== i + 1) return false;
   }
   return true;
 }
@@ -227,10 +230,10 @@ function moveTile(clickedVisualIndex) {
   const emptyTileIndex = tiles.value.findIndex(t => t.isEmpty);
 
   const canMove =
-    (clickedVisualIndex === emptyTileIndex - 1 && emptyTileIndex % cols !== 0) || // Left
-    (clickedVisualIndex === emptyTileIndex + 1 && clickedVisualIndex % cols !== 0) || // Right
-    clickedVisualIndex === emptyTileIndex - cols || // Up
-    clickedVisualIndex === emptyTileIndex + cols;    // Down
+    (clickedVisualIndex === emptyTileIndex - 1 && emptyTileIndex % size !== 0) || // Left
+    (clickedVisualIndex === emptyTileIndex + 1 && clickedVisualIndex % size !== 0) || // Right
+    clickedVisualIndex === emptyTileIndex - size || // Up
+    clickedVisualIndex === emptyTileIndex + size;    // Down
 
   if (canMove) {
     // Swap tiles in the data array
@@ -279,14 +282,14 @@ async function startGame() {
     const gridContainer = gridRef.value;
     if (!gridContainer || tileRefs.value.length !== tileCount) return;
     
-    const tileDimension = gridContainer.offsetWidth / cols;
+    const tileDimension = gridContainer.offsetWidth / size;
     
     tiles.value.forEach((tileData, visualIndex) => {
       const domElement = tileRefs.value[visualIndex];
       if (!domElement) return;
       
-      const targetRow = Math.floor(visualIndex / cols);
-      const targetCol = visualIndex % cols;
+      const targetRow = Math.floor(visualIndex / size);
+      const targetCol = visualIndex % size;
       
       // Set position without animation - use direct style instead of GSAP for speed
       domElement.style.transform = `translate(${targetCol * tileDimension}px, ${targetRow * tileDimension}px)`;
@@ -469,9 +472,9 @@ onUnmounted(() => {
 .puzzle-absolute {
   position: relative;
   width: min(85vw, 30rem);
-  height: min(56.67vw, 20rem); /* 2/3 of width for 2x3 grid */
+  height: min(85vw, 30rem);
   max-width: 30rem;
-  max-height: 20rem;
+  max-height: 30rem;
   margin-bottom: 1.5rem;
   overflow: hidden; /* Ensure tiles don't go outside the container */
 }
@@ -480,7 +483,7 @@ onUnmounted(() => {
 @media (max-width: 768px) {
   .puzzle-absolute {
     width: min(90vw, 25rem);
-    height: min(60vw, 16.67rem); /* 2/3 of width for 2x3 grid */
+    height: min(90vw, 25rem);
   }
   
   .game-instruction {
@@ -505,7 +508,7 @@ onUnmounted(() => {
 @media (min-width: 769px) {
   .puzzle-absolute {
     width: min(50vw, 30rem);
-    height: min(33.33vw, 20rem); /* 2/3 of width for 2x3 grid */
+    height: min(50vw, 30rem);
   }
 }
 

@@ -6,8 +6,8 @@
       <div class="hero-container">
         <!-- Puzzle preview image -->
         <picture class="start-preview-img">
-          <source media="(max-width: 768px)" srcset="/images/43598_SE_Proud_to_be_Pro_Game_Mobile.jpg" />
-          <img src="/images/43598_SE_Proud_to_be_Pro_Game_Desktop.jpg" alt="Puzzle preview" fetchpriority="high" />
+          <source media="(max-width: 768px)" srcset="/images/43598_SE_Proud_to_be_Pro_Game_01_Start_SE.mobile.webp" />
+          <img src="/images/43598_SE_Proud_to_be_Pro_Game_01_Start_SE.desktop.webp" alt="Puzzle preview" fetchpriority="high" />
         </picture>
         
         <!-- Modern promo headline overlaid on image -->
