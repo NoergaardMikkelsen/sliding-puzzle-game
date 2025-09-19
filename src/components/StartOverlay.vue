@@ -11,13 +11,13 @@
         </picture>
         
         <!-- Modern promo headline overlaid on image -->
-        <div class="start-headline">Win 2 tickets to <br class="mobile-only"><span>[SPORTING EVENT]</span><br>by luck of the draw</div>
+        <div class="start-headline">Vinn 2 biljetter till <br class="mobile-only"><span>NHL i Stockholm!</span></div>
         
         <!-- Lower container with description and button overlaid on image -->
         <div class="start-lower-container">
-          <div class="start-desc">Can you beat our<br><span>puzzle time?</span> </div>
-          <button class="start-btn" @click="$emit('start-game')">Ready, set, play!</button>
-          <div class="start-disclaimer">to enter the competition, you will need to provide your contact information after the game</div>
+          <div class="start-desc">Slå Elektrikerpoddens<br><span>pusseltid</span> </div>
+          <button class="start-btn" @click="$emit('start-game')">Klara, färdiga, gå</button>
+          <div class="start-disclaimer">För att vara med i tävlingen behöver du fylla i dina kontaktuppgifter efter pusslet</div>
         </div>
       </div>
     </div>
@@ -73,7 +73,7 @@ const emit = defineEmits(['start-game']);
 /* Headline for the start overlay */
 .start-headline {
   font-family: 'Arial', Helvetica, sans-serif;
-  font-size: 2.3rem;
+  font-size: 3.5rem;
   font-weight: bold;
   font-style: italic;
   color: var(--light);
@@ -104,7 +104,7 @@ const emit = defineEmits(['start-game']);
 .start-desc {
   font-family: 'Arial', Helvetica, sans-serif;
   font-weight: bold;
-  font-size: 1.4rem;
+  font-size: 2rem;
   color: var(--light);
   line-height: 1.5; /* Improves readability */
 }
@@ -128,12 +128,12 @@ const emit = defineEmits(['start-game']);
 
 /* Start button styling */
 .start-btn {
-  padding: 0.60rem 2rem;
+  padding: 0.85rem 2.5rem;
   background: var(--brand);
   color: var(--light);
   border: none;
   border-radius: 0.75rem;
-  font-size: 1.3rem;
+  font-size: 2rem;
   font-weight: bold;
   margin-bottom: 1rem;
   cursor: pointer;
@@ -149,7 +149,7 @@ const emit = defineEmits(['start-game']);
 
 /* Small legal/disclaimer text */
 .start-disclaimer {
-  margin-top: 0.5rem;
+  margin-top: 0.3rem;
   font-size: 0.72rem;
   line-height: 1.15;
   color: rgba(255,255,255,0.75);

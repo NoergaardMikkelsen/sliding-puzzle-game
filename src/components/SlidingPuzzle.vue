@@ -15,7 +15,7 @@
     <!-- Show puzzle grid, timer, and highscore if game has started -->
     <div v-else class="puzzle-section">
       <!-- Game instruction -->
-      <h2 class="game-instruction">Move the pieces around<br>to make the image look right</h2>
+      <h2 class="game-instruction">Klicka på pusselbitarna <br>så bilden blir komplett</h2>
       <!-- Modern styled timer with fixed width -->
       <div class="timer timer-fixed">{{ formattedTime }}</div>
       <!-- Puzzle grid with absolute tiles -->
@@ -33,7 +33,7 @@
       </div>
       <!-- Ready set play / Give up button -->
       <button class="shuffle-btn" :class="{ 'ghost-btn': gameInProgress }" @click="gameInProgress ? giveUp() : readySetPlay()">
-        {{ gameInProgress ? 'Help! I give up' : 'Ready, set, play!' }}
+        {{ gameInProgress ? 'Hjälp! Jag ger upp!' : 'Klara, färdiga, gå!' }}
       </button>
       
       <!-- Countdown overlay -->
@@ -175,10 +175,10 @@ function shuffleTiles() {
   // Start with solved state
   // Then perform a fixed number of random valid moves to shuffle
   let emptyIndex = arr.length - 1; // Empty tile starts at last position
+  let lastMovedTile = -1; // Track the last moved tile to avoid repeating
   
   // Fixed number of moves for consistent difficulty
-  // 25-30 moves provides good shuffling without being too difficult
-  const numMoves = 28;
+  const numMoves = 15;
   
   for (let i = 0; i < numMoves; i++) {
     const possibleMoves = [];
@@ -198,12 +198,19 @@ function shuffleTiles() {
       }
     }
     
+    // Remove the last moved tile from possible moves to avoid repetition
+    let filteredMoves = possibleMoves;
+    if (lastMovedTile !== -1 && possibleMoves.length > 1) {
+      filteredMoves = possibleMoves.filter(move => move !== lastMovedTile);
+    }
+    
     // Pick a random valid move
-    if (possibleMoves.length > 0) {
-      const randomMove = possibleMoves[Math.floor(Math.random() * possibleMoves.length)];
+    if (filteredMoves.length > 0) {
+      const randomMove = filteredMoves[Math.floor(Math.random() * filteredMoves.length)];
       // Swap the tiles
       [arr[emptyIndex], arr[randomMove]] = [arr[randomMove], arr[emptyIndex]];
-      // Update empty index
+      // Update empty index and track the moved tile
+      lastMovedTile = emptyIndex;
       emptyIndex = randomMove;
     }
   }
@@ -439,7 +446,7 @@ onUnmounted(() => {
 
 /* Game instruction styling */
 .game-instruction {
-  font-size: 1.8rem;
+  font-size: 3rem;
   font-weight: normal;
   color: var(--light);
   margin-bottom: 0.5rem;
