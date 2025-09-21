@@ -48,15 +48,18 @@ function updateImageSize() {
   if (isSmallScreen) {
     // Very small screens: Use contain to show full image
     previewImg.value.style.objectFit = 'contain';
-    previewImg.value.style.objectPosition = 'center calc(100% - env(safe-area-inset-bottom, 0px))';
+    previewImg.value.style.objectPosition = 'center bottom';
+    previewImg.value.style.paddingBottom = '80px'; // Space for mobile browser UI
   } else if (useMobileImage) {
     // Medium screens 601px-1024px: Use fill to avoid cutoff and fill width
     previewImg.value.style.objectFit = 'fill';
-    previewImg.value.style.objectPosition = 'center calc(100% - env(safe-area-inset-bottom, 0px))';
+    previewImg.value.style.objectPosition = 'center bottom';
+    previewImg.value.style.paddingBottom = '80px'; // Space for mobile browser UI
   } else {
     // Desktop 1024px+: Use cover
     previewImg.value.style.objectFit = 'contain';
     previewImg.value.style.objectPosition = 'center bottom';
+    previewImg.value.style.paddingBottom = '0px';
   }
 }
 
@@ -131,7 +134,7 @@ function updateDisclaimerPosition() {
   if (useMobileImage) {
     // Mobile and tablet up to 1024px: Position at bottom of screen
     disclaimer.value.style.top = 'auto';
-    disclaimer.value.style.bottom = 'calc(env(safe-area-inset-bottom, 0) + 0.5rem)';
+    disclaimer.value.style.bottom = '80px'; // Above mobile browser UI
     disclaimer.value.style.position = 'absolute';
     disclaimer.value.style.left = '50%';
     disclaimer.value.style.transform = 'translateX(-50%)';
