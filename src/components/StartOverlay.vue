@@ -49,7 +49,7 @@ function updateImageSize() {
     // Very small screens: Use contain to show full image
     previewImg.value.style.objectFit = 'contain';
     previewImg.value.style.objectPosition = 'center bottom';
-    previewImg.value.style.paddingBottom = '80px'; // Space for mobile browser UI
+    previewImg.value.style.paddingBottom = '90px'; // Space for mobile browser UI
   } else if (useMobileImage) {
     // Medium screens 601px-1024px: Use fill to avoid cutoff and fill width
     previewImg.value.style.objectFit = 'fill';
@@ -82,7 +82,7 @@ function updateContainerPosition() {
       fontSize = '1.6rem';
     } else if (viewportWidth <= 500) {
       // iPhone Plus and similar: medium distance
-      bottomValue = '8rem';
+      bottomValue = '10rem';
       topValue = '5rem';
       fontSize = '2.2rem';
       
