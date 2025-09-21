@@ -48,11 +48,11 @@ function updateImageSize() {
   if (isSmallScreen) {
     // Very small screens: Use contain to show full image
     previewImg.value.style.objectFit = 'contain';
-    previewImg.value.style.objectPosition = 'center bottom';
+    previewImg.value.style.objectPosition = 'center calc(100% - env(safe-area-inset-bottom, 0px))';
   } else if (useMobileImage) {
     // Medium screens 601px-1024px: Use fill to avoid cutoff and fill width
     previewImg.value.style.objectFit = 'fill';
-    previewImg.value.style.objectPosition = 'center bottom';
+    previewImg.value.style.objectPosition = 'center calc(100% - env(safe-area-inset-bottom, 0px))';
   } else {
     // Desktop 1024px+: Use cover
     previewImg.value.style.objectFit = 'contain';
@@ -80,7 +80,7 @@ function updateContainerPosition() {
     } else if (viewportWidth <= 500) {
       // iPhone Plus and similar: medium distance
       bottomValue = '4.2rem';
-      topValue = '12rem';
+      topValue = '10rem';
       fontSize = '2.2rem';
       
     } else if (viewportWidth <= 540) {
@@ -131,7 +131,7 @@ function updateDisclaimerPosition() {
   if (useMobileImage) {
     // Mobile and tablet up to 1024px: Position at bottom of screen
     disclaimer.value.style.top = 'auto';
-    disclaimer.value.style.bottom = '0.5rem';
+    disclaimer.value.style.bottom = 'calc(env(safe-area-inset-bottom, 0) + 0.5rem)';
     disclaimer.value.style.position = 'absolute';
     disclaimer.value.style.left = '50%';
     disclaimer.value.style.transform = 'translateX(-50%)';
