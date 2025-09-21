@@ -49,12 +49,12 @@ function updateImageSize() {
     // Very small screens: Use contain to show full image
     previewImg.value.style.objectFit = 'contain';
     previewImg.value.style.objectPosition = 'center bottom';
-    previewImg.value.style.paddingBottom = '90px'; // Space for mobile browser UI
+    previewImg.value.style.paddingBottom = '100px'; // Space for mobile browser UI
   } else if (useMobileImage) {
     // Medium screens 601px-1024px: Use fill to avoid cutoff and fill width
     previewImg.value.style.objectFit = 'fill';
     previewImg.value.style.objectPosition = 'center bottom';
-    previewImg.value.style.paddingBottom = '80px'; // Space for mobile browser UI
+    previewImg.value.style.paddingBottom = '90px'; // Space for mobile browser UI
   } else {
     // Desktop 1024px+: Use cover
     previewImg.value.style.objectFit = 'contain';
@@ -134,7 +134,7 @@ function updateDisclaimerPosition() {
   if (useMobileImage) {
     // Mobile and tablet up to 1024px: Position at bottom of screen
     disclaimer.value.style.top = 'auto';
-    disclaimer.value.style.bottom = '90px'; // Above mobile browser UI
+    disclaimer.value.style.bottom = '100px'; // Above mobile browser UI
     disclaimer.value.style.position = 'absolute';
     disclaimer.value.style.left = '50%';
     disclaimer.value.style.transform = 'translateX(-50%)';
