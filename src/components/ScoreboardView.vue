@@ -142,7 +142,7 @@ function handleWinClick() {
 .time-value {
   font-size: 5rem;
   font-weight: bold;
-  font-family: 'Courier New', monospace;
+  font-family: 'Arial Rounded MT Pro', Arial, sans-serif;
   color: var(--light);
 }
 
@@ -187,7 +187,7 @@ function handleWinClick() {
 }
 
 .time {
-  font-family: 'Courier New', monospace;
+  font-family: 'Arial Rounded MT Pro', Arial, sans-serif;
   font-weight: 300;
 }
 
@@ -214,6 +214,7 @@ function handleWinClick() {
   border: none;
   border-radius: 0.75rem;
   padding: 0.60rem 2rem;
+  font-family: 'Arial Rounded MT Pro', Arial, sans-serif;
   font-size: 2rem;
   font-weight: bold;
   cursor: pointer;
@@ -226,6 +227,14 @@ function handleWinClick() {
 }
 
 /* Responsive design */
+@media (max-width: 1024px) {
+  .scoreboard-view {
+    padding: 2rem;
+    gap: 1.5rem;
+  }
+}
+
+
 @media (max-width: 768px) {
   .scoreboard-view {
     padding: 1rem;
@@ -256,6 +265,45 @@ function handleWinClick() {
   .win-button {
     padding: 0.8rem 1.5rem;
     font-size: 1.5rem;
+  }
+}
+@media (max-width: 400px) {
+  .time-label{
+    font-size: 1.5rem;
+  }
+  .time-value {
+    font-size: 1.5rem;
+  }
+  .congratulations {
+    font-size: 1rem;
+  }
+  .comparison-box {
+    min-width: 240px;
+    padding: 0.7rem 1rem;
+  }
+  .call-to-action {
+    font-size: 0.9rem;
+  }
+  .prize {
+    font-size: 1.2rem;
+    line-height: 1.2;
+  }
+  .win-button {
+    padding: 0.6rem 1rem;
+    font-size: 1.2rem;
+  }
+  .comparison-item {
+    font-size: 0.9rem;
+  }
+  .label {
+    font-size: 0.9rem;
+  }
+  .time {
+    font-size: 0.9rem;
+  }
+  .comparison-item.highlighted .label,
+  .comparison-item.highlighted .time {
+    font-size: 0.9rem;
   }
 }
 </style>

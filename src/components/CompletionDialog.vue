@@ -231,6 +231,7 @@ button[type="submit"] {
   color: #fff;
   border: none;
   border-radius: 8px;
+  font-family: 'Arial Rounded MT Pro', Arial, sans-serif;
   font-size: 1.1rem;
   font-weight: bold;
   cursor: pointer;

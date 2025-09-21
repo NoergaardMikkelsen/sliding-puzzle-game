@@ -178,7 +178,7 @@ function shuffleTiles() {
   let lastMovedTile = -1; // Track the last moved tile to avoid repeating
   
   // Fixed number of moves for consistent difficulty
-  const numMoves = 15;
+  const numMoves = 10;
   
   for (let i = 0; i < numMoves; i++) {
     const possibleMoves = [];
@@ -464,7 +464,7 @@ onUnmounted(() => {
   letter-spacing: 0.1em;
   display: inline-block;
   user-select: none;
-  font-family: 'Courier New', monospace;
+  font-family: 'Arial Rounded MT Pro', Arial, sans-serif;
 }
 
 /* Puzzle grid container */
@@ -487,6 +487,18 @@ onUnmounted(() => {
 }
 
 /* Responsive design for SlidingPuzzle */
+@media (max-width: 1024px) {
+  .timer {
+    font-size: 3rem;
+  }
+  .game-instruction {
+    font-size: 3.5rem;
+  }
+  .shuffle-btn {
+    font-size: 1.8rem !important;
+    padding: 1rem 2rem !important;
+  }
+}
 @media (max-width: 768px) {
   .puzzle-absolute {
     width: min(90vw, 25rem);
@@ -502,8 +514,8 @@ onUnmounted(() => {
   }
   
   .shuffle-btn {
-    padding: 0.6rem 1.8rem;
-    font-size: 1rem;
+    padding: 0.8rem 1.8rem !important;
+    font-size: 1rem !important;
   }
   
   .dev-solve-btn {
@@ -579,13 +591,14 @@ onUnmounted(() => {
 
 /* Ghost button styling for "Help! I give up" state */
 .shuffle-btn.ghost-btn {
-  background: transparent;
+  background: var(--brand);
   border: none;
   color: var(--light);
-  box-shadow: none;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.10);
+  font-family: 'Arial Rounded MT Pro', Arial, sans-serif;
 }
 .shuffle-btn.ghost-btn:hover {
-  background: rgba(255, 255, 255, 0.1);
+  background: var(--brand-dark);
   transform: translateY(-2px) scale(1.03);
 }
 
@@ -597,6 +610,7 @@ onUnmounted(() => {
   color: var(--light);
   border: none;
   border-radius: 1rem;
+  font-family: 'Arial Rounded MT Pro', Arial, sans-serif;
   font-size: 1rem;
   font-weight: 600;
   cursor: pointer;

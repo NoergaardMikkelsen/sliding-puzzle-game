@@ -6,85 +6,245 @@
       <div class="hero-container">
         <!-- Puzzle preview image -->
         <picture class="start-preview-img">
-          <source media="(max-width: 768px)" srcset="/images/43598_SE_Proud_to_be_Pro_Game_01_Start_SE.mobile.webp" />
-          <img src="/images/43598_SE_Proud_to_be_Pro_Game_01_Start_SE.desktop.webp" alt="Puzzle preview" fetchpriority="high" />
+          <source media="(max-width: 1024px)" srcset="/images/43598_SE_Proud_to_be_Pro_Game_01_Start_SE.mobile.webp" />
+          <img ref="previewImg" src="/images/43598_SE_Proud_to_be_Pro_Game_01_Start_SE.desktop.webp" alt="Puzzle preview" fetchpriority="high" />
         </picture>
         
         <!-- Modern promo headline overlaid on image -->
-        <div class="start-headline">Vinn 2 biljetter till <br class="mobile-only"><span>NHL i Stockholm!</span></div>
+        <div ref="startHeadline" class="start-headline">Vinn 2 biljetter till <br class="mobile-only"><span>NHL i Stockholm!</span></div>
         
         <!-- Lower container with description and button overlaid on image -->
-        <div class="start-lower-container">
+        <div ref="startLowerContainer" class="start-lower-container">
           <div class="start-desc">Slå Elektrikerpoddens<br><span>pusseltid</span> </div>
-          <button class="start-btn" @click="$emit('start-game')">Klara, färdiga, gå</button>
-          <div class="start-disclaimer">För att vara med i tävlingen behöver du fylla i dina kontaktuppgifter efter pusslet</div>
+          <button ref="startBtn" class="start-btn" @click="$emit('start-game')">Klara, färdiga, gå</button>
         </div>
+        <div ref="disclaimer" class="start-disclaimer">För att vara med i tävlingen behöver du fylla i dina kontaktuppgifter efter pusslet</div>
       </div>
     </div>
   </div>
 </template>
 
 <script setup>
+import { ref, onMounted, onUnmounted } from 'vue';
+
 // Defines the events that this component can emit
 const emit = defineEmits(['start-game']);
 
+// Refs for dynamic positioning
+const startLowerContainer = ref(null);
+const startHeadline = ref(null);
+const disclaimer = ref(null);
+const startBtn = ref(null);
+const previewImg = ref(null);
+
+// Function to calculate image size
+function updateImageSize() {
+  if (!previewImg.value) return;
+  
+  const viewportWidth = window.innerWidth;
+  const useMobileImage = viewportWidth <= 1024;
+  const isSmallScreen = viewportWidth <= 600;
+  
+  if (isSmallScreen) {
+    // Very small screens: Use contain to show full image
+    previewImg.value.style.objectFit = 'contain';
+    previewImg.value.style.objectPosition = 'center bottom';
+  } else if (useMobileImage) {
+    // Medium screens 601px-1024px: Use fill to avoid cutoff and fill width
+    previewImg.value.style.objectFit = 'fill';
+    previewImg.value.style.objectPosition = 'center bottom';
+  } else {
+    // Desktop 1024px+: Use cover
+    previewImg.value.style.objectFit = 'contain';
+    previewImg.value.style.objectPosition = 'center bottom';
+  }
+}
+
+// Function to position start-lower-container
+function updateContainerPosition() {
+  if (!startLowerContainer.value) return;
+  if (!startHeadline.value) return;
+  
+  const viewportWidth = window.innerWidth;
+  
+  if (viewportWidth <= 768) {
+    // Mobile: Responsive positioning - smaller screen = closer to bottom
+    let bottomValue;
+    let topValue;
+    let fontSize; 
+    if (viewportWidth <= 375) {
+      // iPhone SE and smaller: closer to bottom
+      bottomValue = '4.5rem';
+      topValue = '5rem';
+      fontSize = '1.6rem';
+    } else if (viewportWidth <= 500) {
+      // iPhone Plus and similar: medium distance
+      bottomValue = '4.2rem';
+      topValue = '12rem';
+      fontSize = '2.2rem';
+      
+    } else if (viewportWidth <= 540) {
+      // iPhone Plus and similar: medium distance
+      bottomValue = '4.2rem';
+      topValue = '2.5rem';
+      fontSize = '2.3rem';
+      
+    } else {
+      // iPad and larger mobile: higher up
+      bottomValue = '8rem';
+      topValue = '3.5rem'
+      fontSize = '2.8rem';
+    }
+    startLowerContainer.value.style.bottom = bottomValue;
+    startHeadline.value.style.top = topValue; 
+    startHeadline.value.style.fontSize = fontSize;
+  } else if (viewportWidth <= 1024) {
+    // Tablet
+    startLowerContainer.value.style.bottom = '10rem';
+    startHeadline.value.style.top = '6rem';
+    startHeadline.value.style.fontSize = '3.5rem';
+  } else if (viewportWidth <= 1440) {
+    // Small Desktop (MacBook Air 13")
+    startLowerContainer.value.style.bottom = '5rem';
+    startHeadline.value.style.top = '3rem';
+    startHeadline.value.style.fontSize = '3rem';
+  } else if (viewportWidth <= 1920) {
+    // Medium Desktop (MacBook Air 15")
+    startLowerContainer.value.style.bottom = '6rem';
+    startHeadline.value.style.top = '4rem';
+    startHeadline.value.style.fontSize = '3.5rem';
+  } else {
+    // Large Desktop
+    startLowerContainer.value.style.bottom = '7rem';
+    startHeadline.value.style.top = '5rem';
+    startHeadline.value.style.fontSize = '4rem';
+  }
+}
+
+// Function to calculate disclaimer position
+function updateDisclaimerPosition() {
+  if (!disclaimer.value) return;
+  
+  const viewportWidth = window.innerWidth;
+  const useMobileImage = viewportWidth <= 1024; // Same logic as image selection
+  
+  if (useMobileImage) {
+    // Mobile and tablet up to 1024px: Position at bottom of screen
+    disclaimer.value.style.top = 'auto';
+    disclaimer.value.style.bottom = '0.5rem';
+    disclaimer.value.style.position = 'absolute';
+    disclaimer.value.style.left = '50%';
+    disclaimer.value.style.transform = 'translateX(-50%)';
+  } else {
+    // Desktop 1024px+: Position below start-btn
+    if (!startBtn.value) return;
+    
+    const btnRect = startBtn.value.getBoundingClientRect();
+    const margin = 16; // 1rem on desktop
+    const topPosition = btnRect.bottom + margin;
+    
+    disclaimer.value.style.top = `${topPosition}px`;
+    disclaimer.value.style.bottom = 'auto';
+    disclaimer.value.style.position = 'absolute';
+    disclaimer.value.style.left = '50%';
+    disclaimer.value.style.transform = 'translateX(-50%)';
+  }
+}
+
+// Update all on resize
+function handleResize() {
+  updateImageSize();
+  updateContainerPosition();
+  updateDisclaimerPosition();
+}
+
+onMounted(() => {
+  updateImageSize();
+  updateContainerPosition();
+  updateDisclaimerPosition();
+  window.addEventListener('resize', handleResize);
+});
+
+onUnmounted(() => {
+  window.removeEventListener('resize', handleResize);
+});
 </script>
 
 <style scoped>
-/* Styles for the start screen overlay and its content */
-
-/* Overlay for the start screen */
+/* ===========================
+   Base Layout & Overlay
+   =========================== */
 .start-screen-overlay {
   position: fixed;
   top: 0;
   left: 0;
   width: 100vw;
   height: 100vh;
-  background-color: var(--black); /* Uses black background */
+  background-color: var(--black);
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 900; /* Ensures it's above other content */
+  z-index: 900;
 }
 
-/* Content inside the start overlay */
 .start-screen-content {
   display: flex;
   flex-direction: column;
-  align-items: center;
+  align-items: flex-end;
   justify-content: center;
-  height: 100%;
-  color: var(--light); /* Uses CSS variable for light text color */
-  margin: 0 auto;
-  text-align: center;
-  gap: 1rem; /* Spacing between elements */
-  position: relative;
+  min-height: 100vh;
+  max-width: 100vw;
+  overflow: hidden;
 }
 
-/* Hero container with image and overlaid elements */
 .hero-container {
   position: relative;
   display: flex;
-  align-items: center;
+  flex-direction: column;
+  align-items: flex-end;
   justify-content: center;
   width: 100%;
 }
 
-/* Headline for the start overlay */
+/* ===========================
+   Image
+   =========================== */
+.start-preview-img {
+  position: relative;
+  width: 100%;
+  height: 100vh;
+  overflow: hidden;
+}
+
+.start-preview-img img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center bottom;
+  border-radius: var(--radius);
+  box-shadow: 0 4px 24px rgba(0,0,0,0.10);
+  display: block;
+}
+
+/* JavaScript handles image positioning dynamically */
+
+/* ===========================
+   Headline
+   =========================== */
 .start-headline {
-  font-family: 'Arial', Helvetica, sans-serif;
-  font-size: 3.5rem;
+  font-family: 'Arial Rounded MT Pro', Arial, Helvetica, sans-serif;
   font-weight: bold;
   font-style: italic;
   color: var(--light);
   position: absolute;
-  top: clamp(1rem, 4vw, 4rem);
   left: 50%;
   transform: translateX(-50%);
   width: 80vw;
   max-width: 80vw;
   text-align: center;
   z-index: 2;
+  font-size: clamp(2rem, 5vw, 4.5rem);
+  top: clamp(1rem, 6vh, 6rem);
 }
 
 .start-headline span {
@@ -92,176 +252,143 @@ const emit = defineEmits(['start-game']);
   white-space: nowrap;
 }
 
-/* Mobile-only line break helper */
 .mobile-only {
   display: none;
+}
+
+/* ===========================
+   Lower Container
+   =========================== */
+.start-lower-container {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100%;
+  text-align: center;
+  z-index: 2;
+  bottom: clamp(3rem, 10vh, 5rem);
+}
+
+/* Desktop: Move container higher up */
+@media (min-width: 769px) {
+  .start-lower-container {
+    bottom: clamp(3rem, 15vh, 6rem);
+  }
+}
+
+/* Large desktop: Even higher */
+@media (min-width: 1200px) {
+  .start-lower-container {
+    bottom: clamp(4rem, 20vh, 8rem);
+  }
+}
+
+.start-desc {
+  font-family: 'Arial Rounded MT Pro', Arial, Helvetica, sans-serif;
+  font-weight: bold;
+  color: var(--light);
+  line-height: 1.5;
+  font-size: clamp(1rem, 2.5vw, 2rem);
 }
 
 .start-desc span {
   color: var(--brand);
 }
 
-.start-desc {
-  font-family: 'Arial', Helvetica, sans-serif;
-  font-weight: bold;
-  font-size: 2rem;
-  color: var(--light);
-  line-height: 1.5; /* Improves readability */
-}
-
-.start-lower-container {
-  position: absolute;
-  bottom: clamp(-2rem, 2vw, 1.25rem);
-  left: 50%;
-  transform: translateX(-50%);
-  width: 100%;
-  text-align: center;
-  z-index: 2;
-}
-
-/* Highlighted text in the start overlay description */
-.start-highlight {
-  font-weight: bold;
-  font-style: italic;
-  color: var(--brand-dark, #008a15); /* Uses CSS variable for dark brand color */
-}
-
-/* Start button styling */
+/* ===========================
+   Button
+   =========================== */
 .start-btn {
   padding: 0.85rem 2.5rem;
   background: var(--brand);
   color: var(--light);
   border: none;
   border-radius: 0.75rem;
-  font-size: 2rem;
+  font-family: 'Arial Rounded MT Pro', Arial, Helvetica, sans-serif;
   font-weight: bold;
   margin-bottom: 1rem;
-  cursor: pointer;
   margin-top: 1rem;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.10); /* Subtle shadow for depth */
-  transition: background 0.15s, color 0.15s, transform 0.1s; /* Smooth transitions for hover effects */
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.10);
+  transition: background 0.15s, color 0.15s, transform 0.1s;
+  font-size: clamp(0.9rem, 2vw, 2rem);
 }
 .start-btn:hover {
-  background: var(--brand-dark); /* Darker green on hover */
-  color: var(--light); /* Keep white text on hover */
-  transform: translateY(-2px) scale(1.03); /* Slight lift and scale effect on hover */
+  background: var(--brand-dark);
+  color: var(--light);
+  transform: translateY(-2px) scale(1.03);
 }
 
-/* Small legal/disclaimer text */
+/* ===========================
+   Disclaimer
+   =========================== */
 .start-disclaimer {
-  margin-top: 0.3rem;
-  font-size: 0.72rem;
+  position: absolute;
+  bottom: 0.5rem;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100%;
+  font-size: clamp(0.55rem, 1.5vw, 0.75rem);
   line-height: 1.15;
   color: rgba(255,255,255,0.75);
   text-align: center;
   max-width: 80vw;
-  margin-left: auto;
-  margin-right: auto;
+  padding-bottom: env(safe-area-inset-bottom, 0.5rem);
+  z-index: 10;
 }
 
-/* Preview image in the start overlay */
-.start-preview-img {
-  display: block;
-  width: 100%;
-  max-width: 100vw;
-  max-height: 90vh;
-}
+/* JavaScript handles disclaimer positioning dynamically */
 
-.start-preview-img img {
-  width: 100%;
-  height: auto;
-  border-radius: var(--radius);
-  box-shadow: 0 4px 24px rgba(0,0,0,0.10); /* Larger shadow for the image */
-  display: block;
-}
+/* ===========================
+   Responsive
+   =========================== */
 
-/* Responsive design for StartOverlay */
+/* Mobile-first */
+@media (max-width: 400px) {
+  .start-disclaimer {
+    font-size: 0.5rem;
+  }
+}
 @media (max-width: 768px) {
-  .start-screen-content {
-    max-width: 100vw;
-  }
-  
-  .hero-container {
-    width: 100%;
-  }
-  
-  .start-preview-img {
-    max-width: 100%;
-  }
-  
-  .start-headline {
-    font-size: clamp(1.35rem, 4.2vw, 1.8rem);
-    width: 90vw;
-    max-width: 80vw;
-    top: -0.5rem;
-  }
-
   .mobile-only {
     display: inline;
   }
-  
-  .start-desc {
-    font-size: 1.2rem;
-  }
-  
-  .start-btn {
-    padding: 0.8rem 2.5rem;
-    font-size: 1.1rem;
+
+  .start-headline {
+    font-size: clamp(1.8rem, 5vw, 2.2rem);
+    width: 90vw;
+    top: clamp(0.5rem, 3vh, 2rem);
   }
 
-  /* Anchor CTA block to the bottom of the screen on mobile */
   .start-lower-container {
-    position: fixed;
-    left: 50%;
-    transform: translateX(-50%);
-    bottom: calc(env(safe-area-inset-bottom, 0) + 0.75rem);
-    width: 100%;
+    bottom: clamp(2rem, 6vh, 4rem);
   }
 
   .start-disclaimer {
-    font-size: 0.55rem;
-    max-width: 100vw;
+    max-width: 95vw;
     margin-top: 0.25rem;
   }
 }
 
-/* Tablet / small-desktop range where things looked oversized */
-@media (min-width: 780px) and (max-width: 1000px) {
+/* Tablet */
+@media (min-width: 769px) and (max-width: 1200px) {
   .start-headline {
-    font-size: clamp(1.6rem, 2.8vw, 2.2rem);
-    top: clamp(1rem, 3vw, 3rem);
+    font-size: clamp(1.8rem, 3vw, 3rem);
+    top: clamp(1rem, 4vh, 3rem);
     max-width: 78vw;
   }
 
-  .start-lower-container {
-    bottom: clamp(-2rem, 0.8vw, 1rem);
-  }
-
-  .start-btn {
-    padding: 0.55rem 1.6rem;
-    font-size: 1.05rem;
-  }
-
   .start-desc {
-    font-size: 1.1rem;
-  }
-}
-
-/* Tight breakpoint to fix overlap right below 780px */
-@media (min-width: 738px) and (max-width: 780px) {
-  .start-headline {
-    font-size: clamp(1.4rem, 2.6vw, 1.9rem);
-    top: clamp(0.25rem, 2vw, 1rem);
-    max-width: 82vw;
-  }
-
-  .start-lower-container {
-    bottom: -3rem;
+    font-size: 1.4rem;
   }
 
   .start-btn {
-    padding: 0.55rem 1.6rem;
-    font-size: 1.05rem;
+    font-size: 1.2rem;
+    padding: 0.7rem 2rem;
+  }
+
+  .start-lower-container {
+    bottom: clamp(3rem, 8vh, 5rem);
   }
 }
-</style> 
+</style>
