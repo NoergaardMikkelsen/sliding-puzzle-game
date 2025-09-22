@@ -132,17 +132,17 @@ function updateDisclaimerPosition() {
   if (useMobileImage) {
     // Mobile and tablet up to 1024px: Position at bottom of screen
     disclaimer.value.style.top = 'auto';
-    disclaimer.value.style.bottom = 'calc(env(safe-area-inset-bottom, 0px) + var(--ios-ui-offset, 0px) + 0.5rem)';
+    // Rely on hero-container padding-bottom to reserve UI space
+    disclaimer.value.style.bottom = 'calc(env(safe-area-inset-bottom, 0px) + 0.5rem)';
     disclaimer.value.style.position = 'absolute';
     disclaimer.value.style.left = '50%';
     disclaimer.value.style.transform = 'translateX(-50%)';
   } else {
     // Desktop 1024px+: Position below start-btn
-    if (!startBtn.value) return;
-    
-    const btnRect = startBtn.value.getBoundingClientRect();
+    if (!startLowerContainer.value) return;
+    // Place disclaimer 1rem below the start-lower-container (which holds the button)
     const margin = 16; // 1rem on desktop
-    const topPosition = btnRect.bottom + margin;
+    const topPosition = startLowerContainer.value.offsetTop + startLowerContainer.value.offsetHeight + margin;
     
     disclaimer.value.style.top = `${topPosition}px`;
     disclaimer.value.style.bottom = 'auto';
@@ -212,7 +212,7 @@ onUnmounted(() => {
   justify-content: center;
   min-height: 86svh;
   max-width: 100vw;
-  overflow: hidden;
+  overflow: visible; /* allow disclaimer to be visible at bottom */
 }
 
 .hero-container {
@@ -354,7 +354,7 @@ onUnmounted(() => {
   text-align: center;
   max-width: 80vw;
   padding-bottom: env(safe-area-inset-bottom, 0.5rem);
-  z-index: 10;
+  z-index: 1001; /* ensure above image and overlays */
 }
 
 /* JavaScript handles disclaimer positioning dynamically */
