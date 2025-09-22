@@ -18,30 +18,40 @@
 }
 
 /* CRITICAL: StartOverlay layout - must load first to prevent flash */
+/* Removed heavy global overrides for StartOverlay to allow component CSS to control layout */
+
+/* Lightweight boot styles to prevent flash while component mounts.
+   These intentionally match StartOverlay.vue defaults. */
 .start-screen-overlay {
-  position: fixed !important;
-  top: 0 !important;
-  left: 0 !important;
-  width: 100vw !important;
-  height: 100vh !important;
-  background: #000 !important;
-  display: flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  z-index: 900 !important;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100svh; /* respect visible viewport on mobile */
+  background: #000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 900;
 }
 
 .start-screen-content {
-  display: flex !important;
-  flex-direction: row !important;
-  align-items: flex-end !important;
-  justify-content: center !important;
-  height: 100% !important;
-  color: #fff !important;
-  margin: 0 auto !important;
-  text-align: center !important;
-  gap: 1rem !important;
-  position: relative !important;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 86svh;
+  color: #fff;
+  margin: 0 auto;
+  text-align: center;
+  gap: 1rem;
+  position: relative;
+  overflow: visible;
+}
+
+@supports not (height: 1svh) {
+  .start-screen-overlay { height: 100vh; }
+  .start-screen-content { min-height: 100vh; }
 }
 
 :root {
