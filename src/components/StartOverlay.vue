@@ -81,8 +81,8 @@ function updateContainerPosition() {
       fontSize = '1.6rem';
     } else if (viewportWidth <= 500) {
       // iPhone Plus and similar: medium distance
-      bottomValue = '7rem';
-      topValue = '2rem';
+      bottomValue = '5.5rem';
+      topValue = '1rem';
       fontSize = '2.2rem';
       
     } else if (viewportWidth <= 540) {
