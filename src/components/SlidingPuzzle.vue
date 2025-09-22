@@ -497,6 +497,13 @@ onUnmounted(() => {
   }
 }
 @media (max-width: 768px) {
+  .puzzle-section {
+    padding-top: calc(env(safe-area-inset-top, 0px) + 4px);
+  }
+  .puzzle-section > :first-child {
+    margin-top: 0;
+  }
+
   .puzzle-absolute {
     width: min(90vw, 25rem);
     height: min(90vw, 25rem);
