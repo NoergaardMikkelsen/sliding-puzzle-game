@@ -149,7 +149,6 @@ h2 {
   font-weight: bold;
   line-height: 1.1;
   color: var(--light); /* Make H2 light too */
-  margin: 1.5rem 0 1rem 0;
   letter-spacing: -0.05em;
 } 
 

@@ -40,8 +40,7 @@
       <div v-if="showCountdown" class="countdown-overlay">
         <div class="countdown-text">{{ countdownText }}</div>
       </div>
-      <!-- Temporary button to trigger solved state for modal testing -->
-      <button class="dev-solve-btn" @click="triggerSolved">Trigger Solved (Dev Only)</button>
+      <!-- Dev-only solved trigger removed for production -->
       <!-- Show the completion dialog modal when solved (keeping for now) -->
       <CompletionDialog
         :visible="isSolved && !showScoreboard"
@@ -332,8 +331,7 @@ function triggerSolved() {
 
 // Handle dialog form submission
 function handleDialogSubmit(data) {
-  // For now, just log the data. You can add your own logic here.
-  console.log('Dialog form submitted:', data);
+  // Production: no console noise
 }
 
 // Handle ready set play button click
@@ -449,7 +447,6 @@ onUnmounted(() => {
   font-size: 3rem;
   font-weight: normal;
   color: var(--light);
-  margin-bottom: 0.5rem;
   text-align: center;
 }
 
