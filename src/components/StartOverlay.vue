@@ -49,12 +49,10 @@ function updateImageSize() {
     // Very small screens: Use contain to show full image
     previewImg.value.style.objectFit = 'contain';
     previewImg.value.style.objectPosition = 'center bottom';
-    previewImg.value.style.paddingBottom = '100px'; // Space for mobile browser UI
   } else if (useMobileImage) {
-    // Medium screens 601px-1024px: Use fill to avoid cutoff and fill width
-    previewImg.value.style.objectFit = 'fill';
+    // Medium screens 601px-1024px: Fill and remove side edges
+    previewImg.value.style.objectFit = 'cover';
     previewImg.value.style.objectPosition = 'center bottom';
-    previewImg.value.style.paddingBottom = '90px'; // Space for mobile browser UI
   } else {
     // Desktop 1024px+: Use cover
     previewImg.value.style.objectFit = 'contain';
@@ -77,25 +75,25 @@ function updateContainerPosition() {
     let fontSize; 
     if (viewportWidth <= 375) {
       // iPhone SE and smaller: closer to bottom
-      bottomValue = '10rem';
-      topValue = '2.5rem';
+      bottomValue = '6rem';
+      topValue = '2rem';
       fontSize = '1.6rem';
     } else if (viewportWidth <= 500) {
       // iPhone Plus and similar: medium distance
-      bottomValue = '10rem';
-      topValue = '3.5rem';
+      bottomValue = '7rem';
+      topValue = '2rem';
       fontSize = '2.2rem';
       
     } else if (viewportWidth <= 540) {
       // iPhone Plus and similar: medium distance
       bottomValue = '4.2rem';
-      topValue = '2.5rem';
+      topValue = '2rem';
       fontSize = '2.3rem';
       
     } else {
       // iPad and larger mobile: higher up
       bottomValue = '8rem';
-      topValue = '3.5rem'
+      topValue = '1rem'
       fontSize = '2.8rem';
     }
     startLowerContainer.value.style.bottom = bottomValue;
@@ -104,7 +102,7 @@ function updateContainerPosition() {
   } else if (viewportWidth <= 1024) {
     // Tablet
     startLowerContainer.value.style.bottom = '10rem';
-    startHeadline.value.style.top = '6rem';
+    startHeadline.value.style.top = '3rem';
     startHeadline.value.style.fontSize = '3.5rem';
   } else if (viewportWidth <= 1440) {
     // Small Desktop (MacBook Air 13")
@@ -134,7 +132,7 @@ function updateDisclaimerPosition() {
   if (useMobileImage) {
     // Mobile and tablet up to 1024px: Position at bottom of screen
     disclaimer.value.style.top = 'auto';
-    disclaimer.value.style.bottom = '100px'; // Above mobile browser UI
+    disclaimer.value.style.bottom = 'calc(env(safe-area-inset-bottom, 0) + 0.5rem)';
     disclaimer.value.style.position = 'absolute';
     disclaimer.value.style.left = '50%';
     disclaimer.value.style.transform = 'translateX(-50%)';
@@ -195,7 +193,7 @@ onUnmounted(() => {
   flex-direction: column;
   align-items: flex-end;
   justify-content: center;
-  min-height: 100vh;
+  min-height: 86svh;
   max-width: 100vw;
   overflow: hidden;
 }
@@ -215,7 +213,7 @@ onUnmounted(() => {
 .start-preview-img {
   position: relative;
   width: 100%;
-  height: 100vh;
+  height: 86svh;
   overflow: hidden;
 }
 
@@ -355,6 +353,14 @@ onUnmounted(() => {
 @media (max-width: 768px) {
   .mobile-only {
     display: inline;
+  }
+
+  .start-screen-content {
+    min-height: 86svh;
+  }
+
+  .start-preview-img {
+    height: 86svh;
   }
 
   .start-headline {
