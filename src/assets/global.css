@@ -76,8 +76,9 @@
 html,
 body {
   width: 100%;
-  height: 100%; /* Crucial for children with height: 100% to work */
-  overflow-x: hidden; /* Prevent horizontal scrollbars */
+  height: 100svh; /* Body lock to visible viewport */
+  overflow: hidden; /* Disable scroll on body */
+  overscroll-behavior: none; /* Prevent bounce/pull-to-refresh */
   font-family: 'Arial Rounded MT Pro', Arial, Helvetica, sans-serif;
   background-color: var(--black); /* Set the base background to black */
   color: var(--light);
@@ -90,6 +91,12 @@ body {
   display: flex; /* Helps ensure its child can also take full height if needed */
   flex-direction: column;
   background-color: var(--black); /* Ensure this also has the black background */
+}
+
+@supports not (height: 100svh) {
+  html,
+  body,
+  #app { height: 100vh; }
 }
 
 /* 4. Your Main Application Container */
