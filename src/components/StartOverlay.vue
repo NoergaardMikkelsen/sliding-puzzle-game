@@ -48,7 +48,8 @@ function updateImageSize() {
   if (isSmallScreen) {
     // Very small screens: Use contain to show full image
     previewImg.value.style.objectFit = 'contain';
-    previewImg.value.style.objectPosition = 'center bottom';
+    // Do not hug the bottom on small mobiles; center the image vertically
+    previewImg.value.style.objectPosition = 'center center';
   } else if (useMobileImage) {
     // 501px-1024px: Fill and bias towards bottom so logo stays visible
     previewImg.value.style.objectFit = 'cover';
