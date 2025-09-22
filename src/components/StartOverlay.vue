@@ -43,16 +43,16 @@ function updateImageSize() {
   
   const viewportWidth = window.innerWidth;
   const useMobileImage = viewportWidth <= 1024;
-  const isSmallScreen = viewportWidth <= 600;
+  const isSmallScreen = viewportWidth <= 500; // iPhone 12 portrait ~390px
   
   if (isSmallScreen) {
     // Very small screens: Use contain to show full image
     previewImg.value.style.objectFit = 'contain';
     previewImg.value.style.objectPosition = 'center bottom';
   } else if (useMobileImage) {
-    // Medium screens 601px-1024px: Fill and remove side edges
+    // 501px-1024px: Fill and bias towards bottom so logo stays visible
     previewImg.value.style.objectFit = 'cover';
-    previewImg.value.style.objectPosition = 'center bottom';
+    previewImg.value.style.objectPosition = 'center 95%';
   } else {
     // Desktop 1024px+: Use cover
     previewImg.value.style.objectFit = 'contain';
@@ -132,7 +132,7 @@ function updateDisclaimerPosition() {
   if (useMobileImage) {
     // Mobile and tablet up to 1024px: Position at bottom of screen
     disclaimer.value.style.top = 'auto';
-    disclaimer.value.style.bottom = 'calc(env(safe-area-inset-bottom, 0) + 0.5rem)';
+    disclaimer.value.style.bottom = 'calc(env(safe-area-inset-bottom, 0px) + var(--ios-ui-offset, 0px) + 0.5rem)';
     disclaimer.value.style.position = 'absolute';
     disclaimer.value.style.left = '50%';
     disclaimer.value.style.transform = 'translateX(-50%)';
@@ -197,7 +197,7 @@ onUnmounted(() => {
   top: 0;
   left: 0;
   width: 100vw;
-  height: 100vh;
+  height: 100svh;
   background-color: var(--black);
   display: flex;
   align-items: center;
@@ -372,6 +372,11 @@ onUnmounted(() => {
 @media (max-width: 768px) {
   .mobile-only {
     display: inline;
+  }
+
+  /* Ensure overlay respects visible viewport on mobile Safari */
+  .start-screen-overlay {
+    height: 100svh;
   }
 
   .start-screen-content {
