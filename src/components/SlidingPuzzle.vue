@@ -18,6 +18,10 @@
       <h2 class="game-instruction">Klicka på pusselbitarna <br>så bilden blir komplett</h2>
       <!-- Modern styled timer with fixed width -->
       <div class="timer timer-fixed">{{ formattedTime }}</div>
+      <!-- Ready set play / Give up button moved above puzzle grid -->
+      <button class="shuffle-btn" :class="{ 'ghost-btn': gameInProgress }" @click="gameInProgress ? giveUp() : readySetPlay()">
+        {{ gameInProgress ? 'Hjälp! Jag ger upp!' : 'Klara, färdiga, gå!' }}
+      </button>
       <!-- Puzzle grid with absolute tiles -->
       <div class="puzzle-grid puzzle-absolute" ref="gridRef">
         <div
@@ -31,10 +35,6 @@
           <img v-if="!tile.isEmpty" :src="tile.img" :alt="'Tile ' + tile.id" />
         </div>
       </div>
-      <!-- Ready set play / Give up button -->
-      <button class="shuffle-btn" :class="{ 'ghost-btn': gameInProgress }" @click="gameInProgress ? giveUp() : readySetPlay()">
-        {{ gameInProgress ? 'Hjälp! Jag ger upp!' : 'Klara, färdiga, gå!' }}
-      </button>
       
       <!-- Countdown overlay -->
       <div v-if="showCountdown" class="countdown-overlay">
@@ -438,7 +438,7 @@ onUnmounted(() => {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 1rem;
+  gap: 1.25rem; /* single source of vertical spacing */
   width: 100%;
 }
 
@@ -466,7 +466,7 @@ onUnmounted(() => {
 
 /* Puzzle grid container */
 .puzzle-grid {
-  margin-bottom: 0.5rem;
+  margin: 0; /* rely on container gap */
   border: 1px solid var(--light);
   border-radius: 0;
   padding: 0.5rem;
@@ -575,7 +575,7 @@ onUnmounted(() => {
 
 /* Shuffle button styling */
 .shuffle-btn {
-  margin-top: 0.5rem;
+  margin: 0; /* rely on container gap */
   padding: 0.60rem 2rem;
   border: none;
   background: var(--brand);

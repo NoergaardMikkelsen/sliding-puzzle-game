@@ -240,7 +240,7 @@ onUnmounted(() => {
 .start-preview-img img {
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  object-fit: contain;
   border-radius: var(--radius);
   box-shadow: 0 4px 24px rgba(0,0,0,0.10);
   display: block;
