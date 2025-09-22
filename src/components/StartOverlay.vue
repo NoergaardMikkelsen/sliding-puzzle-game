@@ -160,14 +160,31 @@ function handleResize() {
 }
 
 onMounted(() => {
+  // Compute initial iOS UI offset for safe area handling
+  function updateSafeAreaOffset() {
+    const vv = window.visualViewport;
+    const viewportHeight = vv ? vv.height : window.innerHeight;
+    const uiOffset = Math.max(0, window.innerHeight - viewportHeight);
+    document.documentElement.style.setProperty('--ios-ui-offset', uiOffset + 'px');
+  }
+
+  updateSafeAreaOffset();
   updateImageSize();
   updateContainerPosition();
   updateDisclaimerPosition();
   window.addEventListener('resize', handleResize);
+  if (window.visualViewport) {
+    window.visualViewport.addEventListener('resize', updateSafeAreaOffset);
+    window.visualViewport.addEventListener('scroll', updateSafeAreaOffset);
+  }
 });
 
 onUnmounted(() => {
   window.removeEventListener('resize', handleResize);
+  if (window.visualViewport) {
+    window.visualViewport.removeEventListener('resize', () => {});
+    window.visualViewport.removeEventListener('scroll', () => {});
+  }
 });
 </script>
 
@@ -205,6 +222,8 @@ onUnmounted(() => {
   align-items: flex-end;
   justify-content: center;
   width: 100%;
+  /* Reserve space for disclaimer on mobile/tablet */
+  padding-bottom: calc(env(safe-area-inset-bottom, 0px) + var(--ios-ui-offset, 0px));
 }
 
 /* ===========================
@@ -325,7 +344,7 @@ onUnmounted(() => {
    =========================== */
 .start-disclaimer {
   position: absolute;
-  bottom: 0.5rem;
+  bottom: calc(env(safe-area-inset-bottom, 0px) + 0.5rem);
   left: 50%;
   transform: translateX(-50%);
   width: 100%;
@@ -361,6 +380,10 @@ onUnmounted(() => {
 
   .start-preview-img {
     height: 86svh;
+  }
+
+  .hero-container {
+    padding-bottom: calc(env(safe-area-inset-bottom, 0px) + var(--ios-ui-offset, 0px) + 12px);
   }
 
   .start-headline {
