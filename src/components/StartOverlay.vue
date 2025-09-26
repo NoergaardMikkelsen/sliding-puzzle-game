@@ -77,18 +77,18 @@ function updateContainerPosition() {
     if (viewportWidth <= 375) {
       // iPhone SE and smaller: closer to bottom
       bottomValue = '4.5rem';
-      topValue = '0.5rem';
+      topValue = '0rem';
       fontSize = '1.5rem';
     } else if (viewportWidth <= 500) {
       // iPhone Plus and similar: medium distance
       bottomValue = '5.5rem';
-      topValue = '0.5rem';
+      topValue = '0rem';
       fontSize = '1.8rem';
       
     } else if (viewportWidth <= 540) {
       // iPhone Plus and similar: medium distance
       bottomValue = '4.2rem';
-      topValue = '2rem';
+      topValue = '1rem';
       fontSize = '2.3rem';
       
     } else {
