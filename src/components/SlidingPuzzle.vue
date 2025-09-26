@@ -249,7 +249,7 @@ function shuffleTiles() {
   let lastMovedTile = -1; // Track the last moved tile to avoid repeating
   
   // Fixed number of moves for consistent difficulty
-  const numMoves = 10;
+  const numMoves = 12;
   
   for (let i = 0; i < numMoves; i++) {
     const possibleMoves = [];

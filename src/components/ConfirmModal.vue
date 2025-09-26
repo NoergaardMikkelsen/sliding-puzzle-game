@@ -78,6 +78,17 @@ function onCancel() {
   justify-content: flex-end;
   margin-top: 1rem;
 }
+.btn {
+  padding: 0.60rem 2rem;
+  border-radius: 0.75rem;
+  font-family: 'Arial Rounded MT Pro', Arial, sans-serif;
+  font-weight: 600;
+  font-size: 1rem;
+  cursor: pointer;
+  border: 1px solid transparent;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  transition: background 0.15s, color 0.15s, border-color 0.15s, transform 0.1s;
+}
 
 @keyframes modalIn {
   from { transform: scale(0.98); opacity: 0; }
@@ -107,12 +118,13 @@ function onCancel() {
     flex-direction: column;
     gap: 0.75rem;
     margin-top: 0.75rem;
+    align-items: center;
   }
   
   .btn {
-    width: 100%;
-    padding: 0.75rem 1.5rem;
-    font-size: 1rem;
+    width: 60%;
+    padding: 0.75rem 1rem;
+    font-size: 0.95rem;
   }
 }
 
@@ -130,18 +142,13 @@ function onCancel() {
   .confirm-message {
     font-size: 0.9rem;
   }
+  .btn {
+    width: 60%;
+    padding: 0.75rem 1rem;
+    font-size: 0.8rem
+  }
 }
-.btn {
-  padding: 0.60rem 2rem;
-  border-radius: 0.75rem;
-  font-family: 'Arial Rounded MT Pro', Arial, sans-serif;
-  font-weight: 600;
-  font-size: 1rem;
-  cursor: pointer;
-  border: 1px solid transparent;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-  transition: background 0.15s, color 0.15s, border-color 0.15s, transform 0.1s;
-}
+
 .btn:disabled {
   opacity: 0.6;
   cursor: not-allowed;
