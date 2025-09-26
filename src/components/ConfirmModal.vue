@@ -83,6 +83,54 @@ function onCancel() {
   from { transform: scale(0.98); opacity: 0; }
   to { transform: scale(1); opacity: 1; }
 }
+
+/* Mobile optimizations */
+@media (max-width: 768px) {
+  .confirm-modal {
+    width: min(95vw, 400px);
+    padding: 2rem 1.5rem 1.5rem 1.5rem;
+    margin: 1rem;
+  }
+  
+  .confirm-title {
+    font-size: 1.2rem;
+    margin-bottom: 0.75rem;
+  }
+  
+  .confirm-message {
+    font-size: 0.95rem;
+    margin-bottom: 1.5rem;
+    line-height: 1.5;
+  }
+  
+  .confirm-actions {
+    flex-direction: column;
+    gap: 0.75rem;
+    margin-top: 0.75rem;
+  }
+  
+  .btn {
+    width: 100%;
+    padding: 0.75rem 1.5rem;
+    font-size: 1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .confirm-modal {
+    width: calc(100vw - 2rem);
+    padding: 1.5rem 1.25rem 1.25rem 1.25rem;
+    margin: 0.5rem;
+  }
+  
+  .confirm-title {
+    font-size: 1.1rem;
+  }
+  
+  .confirm-message {
+    font-size: 0.9rem;
+  }
+}
 .btn {
   padding: 0.60rem 2rem;
   border-radius: 0.75rem;

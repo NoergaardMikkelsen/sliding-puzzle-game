@@ -11,7 +11,7 @@
         </picture>
         
         <!-- Modern promo headline overlaid on image -->
-        <div ref="startHeadline" class="start-headline">Ta chansen att vinna 2 biljetter<br>till <span>NHL i Stockholm!</span></div>
+        <div ref="startHeadline" class="start-headline">Ta chansen att vinna 2 biljetter till <br class="mobile-only"><span>NHL i Stockholm!</span></div>
         
         <!-- Lower container with description and button overlaid on image -->
         <div ref="startLowerContainer" class="start-lower-container">
