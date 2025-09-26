@@ -11,14 +11,14 @@
         </picture>
         
         <!-- Modern promo headline overlaid on image -->
-        <div ref="startHeadline" class="start-headline">Vinn 2 biljetter till <br class="mobile-only"><span>NHL i Stockholm!</span></div>
+        <div ref="startHeadline" class="start-headline">Ta chansen att vinna 2 biljetter<br>till <span>NHL i Stockholm!</span></div>
         
         <!-- Lower container with description and button overlaid on image -->
         <div ref="startLowerContainer" class="start-lower-container">
-          <div class="start-desc">Slå Elektrikerpoddens<br><span>pusseltid</span> </div>
+          <div class="start-desc">Kan du slå Elektrikerpoddens<br><span>pusseltid</span> </div>
           <button ref="startBtn" class="start-btn" @click="$emit('start-game')">Klara, färdiga, gå</button>
         </div>
-        <div ref="disclaimer" class="start-disclaimer">För att vara med i tävlingen behöver du fylla i dina kontaktuppgifter efter pusslet</div>
+        <div ref="disclaimer" class="start-disclaimer">För att vara med i tävlingen behöver du fylla dina uppgifter efter pusslet. Alla vinnare slumpas fram.</div>
       </div>
     </div>
   </div>

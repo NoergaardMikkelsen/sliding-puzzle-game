@@ -15,12 +15,24 @@
     <!-- Show puzzle grid, timer, and highscore if game has started -->
     <div v-else class="puzzle-section">
       <!-- Game instruction -->
-      <h2 class="game-instruction">Klicka på pusselbitarna <br>så bilden blir komplett</h2>
+      <h2 class="game-instruction">Flytta pusselbitarna till rätt plats genom att klicka på dem, en i taget och återskapa bilden nedan.</h2>
       <!-- Modern styled timer with fixed width -->
       <div class="timer timer-fixed">{{ formattedTime }}</div>
-      <!-- Ready set play / Give up button moved above puzzle grid -->
-      <button class="shuffle-btn" :class="{ 'ghost-btn': gameInProgress }" @click="gameInProgress ? giveUp() : readySetPlay()">
-        {{ gameInProgress ? 'Hjälp! Jag ger upp!' : 'Klara, färdiga, gå!' }}
+      
+      <!-- Timer-area primary action: before first round => Start; after at least one round => Starta om -->
+      <button 
+        v-if="gameStarted && !showScoreboard && !hasRoundStarted" 
+        class="shuffle-btn"
+        @click="readySetPlay"
+      >
+        Klara, färdiga, gå!
+      </button>
+      <button 
+        v-else-if="gameStarted && !showScoreboard && hasRoundStarted" 
+        class="shuffle-btn"
+        @click="openRestartConfirm"
+      >
+        Starta om
       </button>
       <!-- Puzzle grid with absolute tiles -->
       <div class="puzzle-grid puzzle-absolute" ref="gridRef">
@@ -35,6 +47,15 @@
           <img v-if="!tile.isEmpty" :src="tile.img" :alt="'Tile ' + tile.id" />
         </div>
       </div>
+
+      <!-- Give up button moved under puzzle grid -->
+      <button 
+        v-if="gameInProgress && !showScoreboard" 
+        class="btn-giveup"
+        @click="giveUp()"
+      >
+        Hjälp! Jag ger upp!
+      </button>
       
       <!-- Countdown overlay -->
       <div v-if="showCountdown" class="countdown-overlay">
@@ -47,6 +68,17 @@
         :time-ms="timerMs"
         @submit="handleDialogSubmit"
       />
+
+      <!-- Confirm restart modal -->
+      <ConfirmModal 
+        :visible="showRestartConfirm"
+        title="Är du säker på att du vill starta om?"
+        message="All din nuvarande framsteg försvinner."
+        confirm-label="Starta om"
+        cancel-label="Tillbaka till spelet"
+        @confirm="confirmRestart"
+        @cancel="cancelRestart"
+      />
     </div>
   </div>
 </template>
@@ -57,6 +89,7 @@ import gsap from 'gsap';
 import StartOverlay from './StartOverlay.vue'; // Import the new component
 import CompletionDialog from './CompletionDialog.vue'; // Import the completion dialog
 import ScoreboardView from './ScoreboardView.vue'; // Import the scoreboard view
+import ConfirmModal from './ConfirmModal.vue';
 // Note: animateTilePop is not used for sliding, but can be kept if you want to use it elsewhere or switch back.
 // import { animateTilePop } from '../gsapTileAnimation'; 
 
@@ -97,6 +130,45 @@ const gridRef = ref(null); // Ref for the puzzle grid container DOM element
 const showCountdown = ref(false);
 const countdownText = ref('');
 const countdownInterval = ref(null);
+// Track whether a round has ever started during this session
+const hasRoundStarted = ref(false);
+// Restart confirm modal state
+const showRestartConfirm = ref(false);
+let wasTimerRunningBeforeModal = false;
+
+function openRestartConfirm() {
+  // Pause timer while modal is open
+  wasTimerRunningBeforeModal = !!timerInterval.value;
+  stopTimer();
+  showRestartConfirm.value = true;
+}
+
+function cancelRestart() {
+  showRestartConfirm.value = false;
+  // Resume timer if it was running
+  if (wasTimerRunningBeforeModal && gameInProgress.value) {
+    resumeTimer();
+  }
+}
+
+function confirmRestart() {
+  showRestartConfirm.value = false;
+  // Full restart like starting a new game round
+  gameInProgress.value = false;
+  gaveUp.value = false;
+  isSolved.value = false;
+  resetTimer();
+  // Initialize solved layout then shuffle and start
+  tiles.value = createTiles();
+  requestAnimationFrame(() => {
+    animateAllTiles();
+    // Start countdown flow to keep same UX, or directly shuffle
+    // Here we directly shuffle and start to avoid countdown
+    shuffleTiles();
+    gameInProgress.value = true;
+    startTimer();
+  });
+}
 
 // Loading state
 const imagesLoaded = ref(false);
@@ -188,7 +260,7 @@ function shuffleTiles() {
       
       const canMove =
         (j === emptyIndex - 1 && emptyIndex % size !== 0) || // Left
-        (j === emptyIndex + 1 && j % size !== 0) || // Right
+        (j === emptyIndex + 1 && emptyIndex % size !== size - 1) || // Right (prevent wrap)
         j === emptyIndex - size || // Up
         j === emptyIndex + size;    // Down
       
@@ -237,7 +309,7 @@ function moveTile(clickedVisualIndex) {
 
   const canMove =
     (clickedVisualIndex === emptyTileIndex - 1 && emptyTileIndex % size !== 0) || // Left
-    (clickedVisualIndex === emptyTileIndex + 1 && clickedVisualIndex % size !== 0) || // Right
+    (clickedVisualIndex === emptyTileIndex + 1 && emptyTileIndex % size !== size - 1) || // Right (prevent wrap)
     clickedVisualIndex === emptyTileIndex - size || // Up
     clickedVisualIndex === emptyTileIndex + size;    // Down
 
@@ -312,6 +384,13 @@ function startTimer() {
     timerMs.value += 10;
   }, 10);
 }
+// Resume without resetting the current timer value
+function resumeTimer() {
+  if (timerInterval.value) clearInterval(timerInterval.value);
+  timerInterval.value = setInterval(() => {
+    timerMs.value += 10;
+  }, 10);
+}
 function stopTimer() {
   if (timerInterval.value) clearInterval(timerInterval.value);
   timerInterval.value = null;
@@ -349,6 +428,7 @@ function readySetPlay() {
     }
   } catch (e) {}
   startCountdown();
+  hasRoundStarted.value = true;
 }
 
 // Start countdown from 3 to GO
@@ -444,10 +524,12 @@ onUnmounted(() => {
 
 /* Game instruction styling */
 .game-instruction {
-  font-size: 3rem;
+  font-size: 2rem;
   font-weight: normal;
   color: var(--light);
   text-align: center;
+  max-width: 550px;
+  padding: 0rem 1rem 0 1rem;
 }
 
 /* Timer display styling */
@@ -472,6 +554,25 @@ onUnmounted(() => {
   padding: 0.5rem;
 }
 
+/* Give up button under puzzle */
+.btn-giveup {
+  margin: 0; /* rely on container gap */
+  padding: 0.60rem 2rem;
+  border: 1px solid var(--light);
+  background: #000;
+  color: var(--light);
+  border-radius: 0.75rem;
+  cursor: pointer;
+  font-size: 1.1rem;
+  font-weight: 600;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  transition: background 0.15s, transform 0.1s, border 0.15s;
+  user-select: none;
+}
+.btn-giveup:hover {
+  transform: translateY(-2px) scale(1.03);
+}
+
 /* Container for absolutely positioned tiles in the puzzle grid */
 .puzzle-absolute {
   position: relative;
@@ -479,7 +580,6 @@ onUnmounted(() => {
   height: min(85vw, 30rem);
   max-width: 30rem;
   max-height: 30rem;
-  margin-bottom: 1.5rem;
   overflow: hidden; /* Ensure tiles don't go outside the container */
 }
 
@@ -659,6 +759,13 @@ onUnmounted(() => {
   .countdown-text {
     font-size: 6rem;
   }
+  .puzzle-section {
+  gap: 1rem; /* single source of vertical spacing */
+}
+.btn-giveup {
+  padding: 0.60rem 1.5rem;
+  font-size: 1rem;
+}
 }
 
 </style>

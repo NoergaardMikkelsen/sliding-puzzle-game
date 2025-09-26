@@ -26,7 +26,7 @@
 
     <!-- Call to action text -->
     <div class="call-to-action">
-      Fyll i dina uppgifter för att få chansen att vinna merch eller det stora priset:
+      Fyll i dina uppgifter för att ha chansen att vinna kepsen eller det stora priset:
     </div>
 
     <!-- Prize display -->
@@ -36,7 +36,7 @@
 
     <!-- Action button -->
     <button class="win-button" @click="handleWinClick">
-      Jag vill vinna!
+      Till formuläret
     </button>
   </div>
 </template>
@@ -59,27 +59,33 @@ const props = defineProps({
 // Emits
 const emit = defineEmits(['win-click']);
 
-// Hardcoded ambassador times in milliseconds
-const billyTimeMs = 0 * 60000 + 57 * 1000; // 00:57
-const ambassador1TimeMs = 1 * 60000 + 25 * 1000; // 01:25
-const ambassador2TimeMs = 1 * 60000 + 48 * 1000; // 01:48
+// Hardcoded ambassador times in milliseconds (match displayed labels)
+const billyTimeMs = 8 * 1000;            // 00:08
+const ambassador1TimeMs = 3 * 60000 + 20 * 1000; // 03:20 (Viktor)
+const ambassador2TimeMs = 52 * 1000;     // 00:52 (Peter)
 
 // Computed
 const formattedTime = computed(() => {
   if (props.gaveUp) {
-    return "Gave up";
+    return "Du gav upp";
   }
   const minutes = Math.floor(props.timeMs / 60000);
   const seconds = Math.floor((props.timeMs % 60000) / 1000);
   return `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
 });
 
+function formatMs(ms) {
+  const minutes = Math.floor(ms / 60000).toString().padStart(2, '0');
+  const seconds = Math.floor((ms % 60000) / 1000).toString().padStart(2, '0');
+  return `${minutes}:${seconds}`;
+}
+
 // Create sorted times array with player position
 const sortedTimes = computed(() => {
   const times = [
-    { timeMs: billyTimeMs, label: "Billy:", time: "00:57", isPlayer: false },
-    { timeMs: ambassador1TimeMs, label: "Viktor:", time: "01:25", isPlayer: false },
-    { timeMs: ambassador2TimeMs, label: "Peter:", time: "01:48", isPlayer: false },
+    { timeMs: billyTimeMs, label: "Billy:", time: formatMs(billyTimeMs), isPlayer: false },
+    { timeMs: ambassador1TimeMs, label: "Viktor:", time: formatMs(ambassador1TimeMs), isPlayer: false },
+    { timeMs: ambassador2TimeMs, label: "Peter:", time: formatMs(ambassador2TimeMs), isPlayer: false },
     { timeMs: props.timeMs, label: "Din tid:", time: formattedTime.value, isPlayer: true }
   ];
   
@@ -111,7 +117,7 @@ const congratulationsMessage = computed(() => {
 
 // Methods
 function handleWinClick() {
-  window.open('https://www.se.com/se/sv/partners/electricians/', '_blank');
+  window.open('https://cloud.go.se.com/SE_202509_ProudToBeProPuzzle_MULTI_NONE_ELECTRICIANS_HD_PW1_ACQ_NA-LP', '_blank');
   emit('win-click');
 }
 </script>
