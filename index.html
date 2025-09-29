@@ -17,8 +17,10 @@
     
       .start-screen-overlay {
         position: fixed;
-        top: 0; left: 0;
-        width: 100vw; height: 100vh;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100svh;
         background: #000;
         display: flex;
         align-items: center;
@@ -28,15 +30,16 @@
     
       .start-screen-content {
         display: flex;
-        flex-direction: row;
+        flex-direction: column;
         align-items: center;
         justify-content: center;
-        height: 100%;
+        min-height: 86svh;
         color: #fff;
         margin: 0 auto;
         text-align: center;
         gap: 1rem;
         position: relative;
+        overflow: visible;
       }
     </style>
     
