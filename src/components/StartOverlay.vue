@@ -83,7 +83,7 @@ function updateContainerPosition() {
       // iPhone Plus and similar: medium distance
       bottomValue = '5.5rem';
       topValue = '0rem';
-      fontSize = '1.8rem';
+      fontSize = '1.5rem';
       
     } else if (viewportWidth <= 540) {
       // iPhone Plus and similar: medium distance
