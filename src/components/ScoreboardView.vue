@@ -101,7 +101,7 @@ const playerPosition = computed(() => {
 // Dynamic congratulations message based on position
 const congratulationsMessage = computed(() => {
   if (props.gaveUp) {
-    return "Du slutförde inte pusslet – men ingen fara!";
+    return "Du slutförde inte pusslet – men ingen fara, du har chans till vinst i alla fall";
   }
   const position = playerPosition.value;
   if (position === 1) {
