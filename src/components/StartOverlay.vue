@@ -78,7 +78,7 @@ function updateContainerPosition() {
       // iPhone SE and smaller: closer to bottom
       bottomValue = '4.5rem';
       topValue = '0rem';
-      fontSize = '1.5rem';
+      fontSize = '1.3rem';
     } else if (viewportWidth <= 500) {
       // iPhone Plus and similar: medium distance
       bottomValue = '5.5rem';
