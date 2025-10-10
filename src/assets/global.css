@@ -22,32 +22,28 @@
 
 /* Lightweight boot styles to prevent flash while component mounts.
    These intentionally match StartOverlay.vue defaults. */
-.start-screen-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100svh; /* respect visible viewport on mobile */
-  background: #000;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 900;
-}
+  .start-screen-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100svh;
+    background-color: var(--black);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 900;
+  }
 
 .start-screen-content {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  min-height: 86svh;
-  color: #fff;
-  margin: 0 auto;
-  text-align: center;
-  gap: 1rem;
-  position: relative;
-  overflow: visible;
-}
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    justify-content: center;
+    min-height: 86svh;
+    max-width: 100vw;
+    overflow: visible; /* allow disclaimer to be visible at bottom */
+  }
 
 @supports not (height: 1svh) {
   .start-screen-overlay { height: 100vh; }
@@ -102,14 +98,16 @@ body {
 /* 4. Your Main Application Container */
 .app-container {
   width: 100%;
+  height: auto;
   flex-grow: 1; /* Allows it to take up available space in the #app flex container */
-  min-height: 100vh; /* Fallback to ensure it's at least viewport height */
+  max-height: 95vh; /* Fallback to ensure it's at least viewport height */
   background-color: var(--black); /* This should be the primary visible background */
   text-align: center;
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center; /* Or 'center' if you want content centered vertically */
+  justify-content: center;
+  padding-top: 1rem /* Or 'center' if you want content centered vertically */
 }
 
 

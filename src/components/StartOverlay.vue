@@ -233,8 +233,7 @@ onUnmounted(() => {
 .start-preview-img {
   position: relative;
   width: 100%;
-  height: 86svh;
-  max-height: 100vh; /* Forhindrer stretching i iframe */
+  max-height: 95vh; /* Forhindrer stretching i iframe */
   overflow: hidden;
 }
 
