@@ -1,6 +1,6 @@
 <template>
   <!-- Start screen overlay component -->
-  <div class="start-screen-overlay">
+  <div ref="startScreenOverlay" class="start-screen-overlay">
     <div class="start-screen-content">
       <!-- Hero container with image and overlaid elements -->
       <div class="hero-container">
@@ -31,6 +31,7 @@ import { ref, onMounted, onUnmounted } from 'vue';
 const emit = defineEmits(['start-game']);
 
 // Refs for dynamic positioning
+const startScreenOverlay = ref(null);
 const startLowerContainer = ref(null);
 const startHeadline = ref(null);
 const disclaimer = ref(null);
@@ -49,16 +50,17 @@ function isInIframe() {
 // Function to calculate image size
 function updateImageSize() {
   if (!previewImg.value) return;
+  if (!startScreenOverlay.value) return;
   
   const viewportWidth = window.innerWidth;
   const useMobileImage = viewportWidth <= 1024;
   const isSmallScreen = viewportWidth <= 500; // iPhone 12 portrait ~390px
   
-  // Add/remove iframe class for CSS targeting
+  // Add/remove embedded class directly on overlay element
   if (isInIframe()) {
-    document.body.classList.add('is-embedded');
+    startScreenOverlay.value.classList.add('is-embedded');
   } else {
-    document.body.classList.remove('is-embedded');
+    startScreenOverlay.value.classList.remove('is-embedded');
   }
   
   if (isSmallScreen) {
@@ -223,8 +225,8 @@ onUnmounted(() => {
 }
 
 /* Embedded: Use auto height to prevent stretching in iframe */
-:global(body.is-embedded) .start-screen-overlay {
-  height: auto;
+.start-screen-overlay.is-embedded {
+  height: auto !important;
 }
 
 .start-screen-content {
