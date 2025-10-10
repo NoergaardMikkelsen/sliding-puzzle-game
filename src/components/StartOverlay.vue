@@ -76,19 +76,19 @@ function updateContainerPosition() {
     let fontSize; 
     if (viewportWidth <= 375) {
       // iPhone SE and smaller: closer to bottom
-      bottomValue = '4.5rem';
-      topValue = '0rem';
+      bottomValue = '10%';
+      topValue = '1%';
       fontSize = '1.3rem';
     } else if (viewportWidth <= 500) {
       // iPhone Plus and similar: medium distance
-      bottomValue = '5.5rem';
-      topValue = '0rem';
+      bottomValue = '15%';
+      topValue = '1%';
       fontSize = '1.5rem';
       
     } else if (viewportWidth <= 540) {
       // iPhone Plus and similar: medium distance
-      bottomValue = '4.2rem';
-      topValue = '1rem';
+      bottomValue = '15%';
+      topValue = '1%';
       fontSize = '2.3rem';
       
     } else {
@@ -103,22 +103,22 @@ function updateContainerPosition() {
   } else if (viewportWidth <= 1024) {
     // Tablet
     startLowerContainer.value.style.bottom = '10rem';
-    startHeadline.value.style.top = '3rem';
-    startHeadline.value.style.fontSize = '3.5rem';
+    startHeadline.value.style.top = '2%';
+    startHeadline.value.style.fontSize = '2.5rem';
   } else if (viewportWidth <= 1440) {
     // Small Desktop (MacBook Air 13")
-    startLowerContainer.value.style.bottom = '5rem';
-    startHeadline.value.style.top = '3rem';
+    startLowerContainer.value.style.bottom = '5%';
+    startHeadline.value.style.top = '1%';
     startHeadline.value.style.fontSize = '3rem';
   } else if (viewportWidth <= 1920) {
     // Medium Desktop (MacBook Air 15")
-    startLowerContainer.value.style.bottom = '6rem';
-    startHeadline.value.style.top = '4rem';
+    startLowerContainer.value.style.bottom = '5%';
+    startHeadline.value.style.top = '1%';
     startHeadline.value.style.fontSize = '3.5rem';
   } else {
     // Large Desktop
     startLowerContainer.value.style.bottom = '7rem';
-    startHeadline.value.style.top = '5rem';
+    startHeadline.value.style.top = '1.5%';
     startHeadline.value.style.fontSize = '4rem';
   }
 }
@@ -134,7 +134,7 @@ function updateDisclaimerPosition() {
     // Mobile and tablet up to 1024px: Position at bottom of screen
     disclaimer.value.style.top = 'auto';
     // Rely on hero-container padding-bottom to reserve UI space
-    disclaimer.value.style.bottom = 'calc(env(safe-area-inset-bottom, 0px) + 0.5rem)';
+    disclaimer.value.style.bottom = 'calc(env(safe-area-inset-bottom, 0px) + 0rem)';
     disclaimer.value.style.position = 'absolute';
     disclaimer.value.style.left = '50%';
     disclaimer.value.style.transform = 'translateX(-50%)';
@@ -223,7 +223,7 @@ onUnmounted(() => {
   align-items: flex-end;
   justify-content: center;
   width: 100%;
-  /* Reserve space for disclaimer on mobile/tablet */
+  /* Reserve space for disclaimer on mobile/tablet and browser UI */
   padding-bottom: calc(env(safe-area-inset-bottom, 0px) + var(--ios-ui-offset, 0px));
 }
 
@@ -234,12 +234,14 @@ onUnmounted(() => {
   position: relative;
   width: 100%;
   height: 86svh;
+  max-height: 100vh; /* Forhindrer stretching i iframe */
   overflow: hidden;
 }
 
 .start-preview-img img {
   width: 100%;
   height: 100%;
+  max-height: 100vh; /* Forhindrer stretching i iframe */
   object-fit: contain;
   border-radius: var(--radius);
   box-shadow: 0 4px 24px rgba(0,0,0,0.10);
@@ -263,8 +265,8 @@ onUnmounted(() => {
   max-width: 80vw;
   text-align: center;
   z-index: 2;
-  font-size: clamp(2rem, 5vw, 4.5rem);
-  top: clamp(1rem, 6vh, 6rem);
+  font-size: clamp(2rem, 5vw, 3.5rem);
+  top: 2%;
 }
 
 .start-headline span {
@@ -379,16 +381,14 @@ onUnmounted(() => {
     height: 100svh;
   }
 
-  .start-screen-content {
-    min-height: 86svh;
-  }
 
   .start-preview-img {
-    height: 86svh;
+    height: auto;
   }
 
   .hero-container {
     padding-bottom: calc(env(safe-area-inset-bottom, 0px) + var(--ios-ui-offset, 0px) + 12px);
+    max-height: 90vh; /* Forhindrer at hero containeren bliver for lang på mobil */
   }
 
   .start-headline {
