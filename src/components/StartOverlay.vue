@@ -37,6 +37,15 @@ const disclaimer = ref(null);
 const startBtn = ref(null);
 const previewImg = ref(null);
 
+// Detect if running in iframe
+function isInIframe() {
+  try {
+    return window !== window.top;
+  } catch (e) {
+    return true; // Cross-origin iframe will throw error
+  }
+}
+
 // Function to calculate image size
 function updateImageSize() {
   if (!previewImg.value) return;
@@ -44,6 +53,13 @@ function updateImageSize() {
   const viewportWidth = window.innerWidth;
   const useMobileImage = viewportWidth <= 1024;
   const isSmallScreen = viewportWidth <= 500; // iPhone 12 portrait ~390px
+  
+  // Add/remove iframe class for CSS targeting
+  if (isInIframe()) {
+    document.body.classList.add('is-embedded');
+  } else {
+    document.body.classList.remove('is-embedded');
+  }
   
   if (isSmallScreen) {
     // Very small screens: Use contain to show full image
@@ -204,6 +220,11 @@ onUnmounted(() => {
   align-items: center;
   justify-content: center;
   z-index: 900;
+}
+
+/* Embedded: Use auto height to prevent stretching in iframe */
+:global(body.is-embedded) .start-screen-overlay {
+  height: auto;
 }
 
 .start-screen-content {
@@ -375,10 +396,7 @@ onUnmounted(() => {
     display: inline;
   }
 
-  /* Ensure overlay respects visible viewport on mobile Safari */
-  .start-screen-overlay {
-    height: 100svh;
-  }
+  /* Mobile: height is handled by base CSS + embedded class */
 
 
   .start-preview-img {
