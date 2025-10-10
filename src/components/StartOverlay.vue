@@ -7,7 +7,7 @@
         <!-- Puzzle preview image -->
         <picture class="start-preview-img">
           <source media="(max-width: 1024px)" srcset="/images/43598_SE_Proud_to_be_Pro_Game_01_Start_SE_mobile.webp" fetchpriority="high" />
-          <img ref="previewImg" src="/images/43598_SE_Proud_to_be_Pro_Game_01_Start_SE_desktop.webp" alt="Puzzle preview" fetchpriority="high" />
+          <img ref="previewImg" src="/images/43598_SE_Proud_to_be_Pro_Game_01_Start_SE_desktop.webp" alt="Puzzle preview" fetchpriority="high" @load="handleImageLoad" />
         </picture>
         
         <!-- Modern promo headline overlaid on image -->
@@ -170,6 +170,13 @@ function updateDisclaimerPosition() {
     disclaimer.value.style.left = '50%';
     disclaimer.value.style.transform = 'translateX(-50%)';
   }
+}
+
+// Handle image load - reposition everything when image is ready
+function handleImageLoad() {
+  updateImageSize();
+  updateContainerPosition();
+  updateDisclaimerPosition();
 }
 
 // Update all on resize
