@@ -244,7 +244,7 @@ onUnmounted(() => {
 /* Fade in when content is ready */
 .start-screen-overlay.loaded {
   opacity: 1;
-  transition: opacity 0.05s ease-in;
+  transition: opacity 0.01s ease-in;
 }
 
 /* Embedded: Use auto height to prevent stretching in iframe */
