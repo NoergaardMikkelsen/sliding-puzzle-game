@@ -177,6 +177,11 @@ function handleImageLoad() {
   updateImageSize();
   updateContainerPosition();
   updateDisclaimerPosition();
+  
+  // Show overlay with fade-in when everything is positioned
+  if (startScreenOverlay.value) {
+    startScreenOverlay.value.classList.add('loaded');
+  }
 }
 
 // Update all on resize
@@ -233,6 +238,13 @@ onUnmounted(() => {
   align-items: center;
   justify-content: center;
   z-index: 900;
+  opacity: 0; /* Hide until image is loaded */
+}
+
+/* Fade in when content is ready */
+.start-screen-overlay.loaded {
+  opacity: 1;
+  transition: opacity 0.05s ease-in;
 }
 
 /* Embedded: Use auto height to prevent stretching in iframe */
