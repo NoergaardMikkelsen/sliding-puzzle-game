@@ -25,7 +25,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onUnmounted } from 'vue';
+import { ref, onMounted, onUnmounted, nextTick } from 'vue';
 
 // Defines the events that this component can emit
 const emit = defineEmits(['start-game']);
@@ -50,17 +50,18 @@ function isInIframe() {
 // Function to calculate image size
 function updateImageSize() {
   if (!previewImg.value) return;
-  if (!startScreenOverlay.value) return;
   
   const viewportWidth = window.innerWidth;
   const useMobileImage = viewportWidth <= 1024;
   const isSmallScreen = viewportWidth <= 500; // iPhone 12 portrait ~390px
   
   // Add/remove embedded class directly on overlay element
-  if (isInIframe()) {
-    startScreenOverlay.value.classList.add('is-embedded');
-  } else {
-    startScreenOverlay.value.classList.remove('is-embedded');
+  if (startScreenOverlay.value) {
+    if (isInIframe()) {
+      startScreenOverlay.value.classList.add('puzzle-embedded');
+    } else {
+      startScreenOverlay.value.classList.remove('puzzle-embedded');
+    }
   }
   
   if (isSmallScreen) {
@@ -178,7 +179,10 @@ function handleResize() {
   updateDisclaimerPosition();
 }
 
-onMounted(() => {
+onMounted(async () => {
+  // Wait for DOM to be fully ready
+  await nextTick();
+  
   // Compute initial iOS UI offset for safe area handling
   function updateSafeAreaOffset() {
     const vv = window.visualViewport;
@@ -225,7 +229,7 @@ onUnmounted(() => {
 }
 
 /* Embedded: Use auto height to prevent stretching in iframe */
-.start-screen-overlay.is-embedded {
+.start-screen-overlay.puzzle-embedded {
   height: auto !important;
 }
 
