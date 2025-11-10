@@ -6,19 +6,17 @@
       <div class="hero-container">
         <!-- Puzzle preview image -->
         <picture class="start-preview-img">
-          <source media="(max-width: 1024px)" srcset="/images/43598_SE_Proud_to_be_Pro_Game_01_Start_SE_mobile.webp" fetchpriority="high" />
-          <img ref="previewImg" src="/images/43598_SE_Proud_to_be_Pro_Game_01_Start_SE_desktop.webp" alt="Puzzle preview" fetchpriority="high" @load="handleImageLoad" />
+          <source media="(max-width: 1024px)" srcset="/images/43598_SE_Proud_to_be_Pro_Game_01_Start_SE.webp" fetchpriority="high" />
+          <img ref="previewImg" src="/images/43598_SE_Proud_to_be_Pro_Game_01_Start_SE_2psd.webp" alt="Puzzle preview" fetchpriority="high" @load="handleImageLoad" />
         </picture>
         
         <!-- Modern promo headline overlaid on image -->
-        <div ref="startHeadline" class="start-headline">Ta chansen att vinna 2 biljetter till <br class="mobile-only"><span>NHL i Stockholm!</span></div>
+        <div ref="startHeadline" class="start-headline">Kan du slå Elektrikerpoddens <br class="mobile-only"><span>pusseltid?</span></div>
         
         <!-- Lower container with description and button overlaid on image -->
         <div ref="startLowerContainer" class="start-lower-container">
-          <div class="start-desc">Kan du slå Elektrikerpoddens<br><span>pusseltid</span> </div>
           <button ref="startBtn" class="start-btn" @click="$emit('start-game')">Klara, färdiga, gå</button>
         </div>
-        <div ref="disclaimer" class="start-disclaimer">För att vara med i tävlingen behöver du fylla dina uppgifter efter pusslet. Alla vinnare slumpas fram.</div>
       </div>
     </div>
   </div>
@@ -34,7 +32,6 @@ const emit = defineEmits(['start-game']);
 const startScreenOverlay = ref(null);
 const startLowerContainer = ref(null);
 const startHeadline = ref(null);
-const disclaimer = ref(null);
 const startBtn = ref(null);
 const previewImg = ref(null);
 
@@ -142,41 +139,10 @@ function updateContainerPosition() {
   }
 }
 
-// Function to calculate disclaimer position
-function updateDisclaimerPosition() {
-  if (!disclaimer.value) return;
-  
-  const viewportWidth = window.innerWidth;
-  const useMobileImage = viewportWidth <= 1024; // Same logic as image selection
-  
-  if (useMobileImage) {
-    // Mobile and tablet up to 1024px: Position at bottom of screen
-    disclaimer.value.style.top = 'auto';
-    // Rely on hero-container padding-bottom to reserve UI space
-    disclaimer.value.style.bottom = 'calc(env(safe-area-inset-bottom, 0px) + 0rem)';
-    disclaimer.value.style.position = 'absolute';
-    disclaimer.value.style.left = '50%';
-    disclaimer.value.style.transform = 'translateX(-50%)';
-  } else {
-    // Desktop 1024px+: Position below start-btn
-    if (!startLowerContainer.value) return;
-    // Place disclaimer 1rem below the start-lower-container (which holds the button)
-    const margin = 16; // 1rem on desktop
-    const topPosition = startLowerContainer.value.offsetTop + startLowerContainer.value.offsetHeight + margin;
-    
-    disclaimer.value.style.top = `${topPosition}px`;
-    disclaimer.value.style.bottom = 'auto';
-    disclaimer.value.style.position = 'absolute';
-    disclaimer.value.style.left = '50%';
-    disclaimer.value.style.transform = 'translateX(-50%)';
-  }
-}
-
 // Handle image load - reposition everything when image is ready
 function handleImageLoad() {
   updateImageSize();
   updateContainerPosition();
-  updateDisclaimerPosition();
   
   // Show overlay with fade-in when everything is positioned
   if (startScreenOverlay.value) {
@@ -188,7 +154,6 @@ function handleImageLoad() {
 function handleResize() {
   updateImageSize();
   updateContainerPosition();
-  updateDisclaimerPosition();
 }
 
 onMounted(async () => {
@@ -206,7 +171,6 @@ onMounted(async () => {
   updateSafeAreaOffset();
   updateImageSize();
   updateContainerPosition();
-  updateDisclaimerPosition();
   window.addEventListener('resize', handleResize);
   if (window.visualViewport) {
     window.visualViewport.addEventListener('resize', updateSafeAreaOffset);

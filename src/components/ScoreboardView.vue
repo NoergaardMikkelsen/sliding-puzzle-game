@@ -26,12 +26,10 @@
 
     <!-- Call to action text -->
     <div class="call-to-action">
-      Fyll i dina uppgifter för att ha chansen att vinna kepsen eller det stora priset:
+      Fyll i dina uppgifter för att bli en del av laget!
     </div>
-
-    <!-- Prize display -->
-    <div class="prize">
-      2 biljetter till <br><span class="nhl-highlight">NHL i Stockholm</span>
+    <div class="call-to-action-2">
+      I vårt nyhetsbrev håller vi dig uppdaterad direkt i mejlkorgen - eftersom proffs aldrig går miste på kunskap.
     </div>
 
     <!-- Action button -->
@@ -101,7 +99,7 @@ const playerPosition = computed(() => {
 // Dynamic congratulations message based on position
 const congratulationsMessage = computed(() => {
   if (props.gaveUp) {
-    return "Du slutförde inte pusslet – men ingen fara, du har chans till vinst i alla fall";
+    return "Du slutförde inte pusslet";
   }
   const position = playerPosition.value;
   if (position === 1) {
@@ -111,13 +109,13 @@ const congratulationsMessage = computed(() => {
   } else if (position === 3) {
     return "Wow, grattis! Du har slagit en eller flera av medlemmarna i Elektrikerpodden";
   } else {
-    return "Du slog inte någon av medlemmarna i Elektrikerpodden - ingen fara du kan fortfarande vinna!";
+    return "Du slog inte någon av medlemmarna i Elektrikerpodden - Fyll i dina uppgifter för att bli en del av laget!";
   }
 });
 
 // Methods
 function handleWinClick() {
-  window.open('https://cloud.go.se.com/SE_202509_ProudToBeProPuzzle_MULTI_NONE_ELECTRICIANS_HD_PW1_ACQ_NA-LP', '_blank');
+  window.open('https://cloud.go.se.com/SE_202410_LPElectricians_CNT_NONE_ELECTRICIANS_HD_PW1_ACQ_NA-LP/', '_blank');
   emit('win-click');
 }
 </script>
@@ -203,6 +201,14 @@ function handleWinClick() {
   line-height: 1.4;
 }
 
+.call-to-action-2 {
+  font-size: 1.2rem;
+  max-width: 32rem;
+  color: var(--light);
+  line-height: 1.4;
+  margin-bottom: 3rem;
+}
+
 .prize {
   font-size: 2.5rem;
   font-weight: bold;
@@ -264,6 +270,12 @@ function handleWinClick() {
     font-size: 1.2rem;
   }
   
+  .call-to-action-2 {
+    font-size: 1rem;
+    margin-bottom: 2.5rem;
+    padding: 0 1.5rem;
+  }
+  
   .prize {
     font-size: 1.8rem;
   }
@@ -289,6 +301,11 @@ function handleWinClick() {
   }
   .call-to-action {
     font-size: 0.9rem;
+  }
+  .call-to-action-2 {
+    font-size: 0.85rem;
+    margin-bottom: 2rem;
+    padding: 0 1rem;
   }
   .prize {
     font-size: 1.2rem;
