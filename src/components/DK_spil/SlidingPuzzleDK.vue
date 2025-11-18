@@ -520,6 +520,7 @@ async function startGame(dayNumber) {
   
   gameStarted.value = true;
   gameInProgress.value = false;
+  hasRoundStarted.value = false; // Reset round state when starting a new game
   showFullImage.value = true; // Show full image first
   resetTimer();
   
@@ -696,6 +697,7 @@ function handlePopState(event) {
   if (gameStarted.value) {
     gameStarted.value = false;
     gameInProgress.value = false;
+    hasRoundStarted.value = false; // Reset round state when going back
     showScoreboard.value = false;
     isSolved.value = false;
     gaveUp.value = false;
@@ -710,6 +712,7 @@ function handlePopState(event) {
 onMounted(async () => {
   gameStarted.value = false;
   gameInProgress.value = false;
+  hasRoundStarted.value = false; // Reset round state on mount
   resetTimer();
   // Generate snowflakes
   generateSnowflakes();
