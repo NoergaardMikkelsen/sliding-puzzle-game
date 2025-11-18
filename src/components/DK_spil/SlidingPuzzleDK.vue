@@ -693,6 +693,16 @@ function handleScoreboardWin() {
 
 // Handle browser back button
 function handlePopState(event) {
+  // Check current path to prevent going back to Swedish site
+  const currentPath = window.location.pathname;
+  
+  // If trying to navigate away from DK page, prevent it and stay on DK page
+  if (currentPath !== '/dk_julekalender') {
+    // Push current state back and redirect to DK page
+    window.history.pushState({ dkPage: true, preventBack: true }, '', '/dk_julekalender');
+    return;
+  }
+  
   // If we're going back and the state indicates we were in a game, reset to start screen
   if (gameStarted.value) {
     gameStarted.value = false;
@@ -705,6 +715,10 @@ function handlePopState(event) {
     resetTimer();
     selectedDay.value = null;
     tiles.value = [];
+  } else {
+    // If already on start screen and trying to go back, prevent navigation to Swedish site
+    // Push a new state to stay on DK page
+    window.history.pushState({ dkPage: true, preventBack: true }, '', '/dk_julekalender');
   }
 }
 
@@ -719,6 +733,10 @@ onMounted(async () => {
   
   // Replace current history entry to prevent going back to Swedish site
   window.history.replaceState({ dkPage: true }, '', '/dk_julekalender');
+  
+  // Add an extra history entry so back button stays on DK page
+  // This ensures when user presses back, they go to this entry instead of Swedish site
+  window.history.pushState({ dkPage: true, startScreen: true }, '', '/dk_julekalender');
   
   // Listen for back button
   window.addEventListener('popstate', handlePopState);
