@@ -103,7 +103,7 @@
 
 <script setup>
 import { ref, onMounted, onUnmounted, computed, watch, nextTick } from 'vue';
-import { useRouter } from 'vue-router';
+import { useRouter, onBeforeRouteLeave } from 'vue-router';
 import gsap from 'gsap';
 import StartOverlayDK from './StartOverlayDK.vue';
 import CompletionDialog from '../SE_spil/CompletionDialog.vue';
@@ -691,6 +691,30 @@ function handleScoreboardWin() {
   // You can add form logic here or navigate to a form page
 }
 
+// Prevent navigation away from DK page to Swedish site
+onBeforeRouteLeave((to, from) => {
+  // If trying to navigate to Swedish site (home page), prevent it
+  if (to.path === '/') {
+    // Reset game state if in game
+    if (gameStarted.value) {
+      gameStarted.value = false;
+      gameInProgress.value = false;
+      hasRoundStarted.value = false;
+      showScoreboard.value = false;
+      isSolved.value = false;
+      gaveUp.value = false;
+      showFullImage.value = true;
+      resetTimer();
+      selectedDay.value = null;
+      tiles.value = [];
+    }
+    // Prevent navigation - stay on DK page
+    return false;
+  }
+  // Allow navigation to other routes (if any)
+  return true;
+});
+
 // Handle browser back button
 function handlePopState(event) {
   // Check current path to prevent going back to Swedish site
@@ -700,6 +724,7 @@ function handlePopState(event) {
   if (currentPath !== '/dk_julekalender') {
     // Push current state back and redirect to DK page
     window.history.pushState({ dkPage: true, preventBack: true }, '', '/dk_julekalender');
+    router.replace('/dk_julekalender');
     return;
   }
   
@@ -715,6 +740,9 @@ function handlePopState(event) {
     resetTimer();
     selectedDay.value = null;
     tiles.value = [];
+    
+    // Replace state to prevent going back further
+    window.history.replaceState({ dkPage: true }, '', '/dk_julekalender');
   } else {
     // If already on start screen and trying to go back, prevent navigation to Swedish site
     // Push a new state to stay on DK page
