@@ -70,7 +70,16 @@
           :ref="el => tileRefs[visualIndex] = el"
           @click="!showFullImage && moveTile(visualIndex)"
         >
-          <img v-if="tile.img" :src="tile.img" :alt="tile.isEmpty ? 'Empty tile' : 'Tile ' + tile.id" />
+          <img 
+            v-if="tile.img" 
+            :src="tile.img" 
+            :alt="tile.isEmpty ? 'Empty tile' : 'Tile ' + tile.id"
+            loading="eager"
+            fetchpriority="high"
+            :class="{ 'loaded': loadedImages.has(tile.img) }"
+            @load="handleImageLoad"
+            @error="handleImageError"
+          />
         </div>
       </div>
 
@@ -280,25 +289,102 @@ function confirmRestart() {
 const imagesLoaded = ref(false);
 const loadingProgress = ref(0);
 
+// Track loaded images to prevent blinking
+const loadedImages = ref(new Set());
+
+// Handle individual image load
+function handleImageLoad(event) {
+  const img = event.target;
+  if (img && img.src) {
+    const fullUrl = img.src;
+    const relativePath = img.getAttribute('src') || img.src.split(window.location.origin)[1];
+    loadedImages.value.add(fullUrl);
+    if (relativePath) {
+      loadedImages.value.add(relativePath);
+    }
+    // Add loaded class for fade-in effect
+    img.classList.add('loaded');
+  }
+}
+
+// Handle image error
+function handleImageError(event) {
+  const img = event.target;
+  if (img && img.src) {
+    // Mark as loaded even on error to prevent infinite waiting
+    const relativePath = img.getAttribute('src') || img.src.split(window.location.origin)[1];
+    loadedImages.value.add(img.src);
+    if (relativePath) {
+      loadedImages.value.add(relativePath);
+    }
+    img.classList.add('loaded');
+  }
+}
+
 // Preload all images to prevent loading delays
 async function preloadImages() {
   if (!selectedDay.value || imageFilenames.value.length === 0) return;
   
+  // Reset loaded images set
+  loadedImages.value.clear();
+  
   const prefix = getImagePrefix(selectedDay.value);
+  const activeDays = [1, 2, 3, 4, 5, 8, 9, 10, 11, 12, 15, 16, 17, 18, 19, 22, 23];
+  const positionInSequence = activeDays.indexOf(selectedDay.value) + 1;
+  let isDark;
+  if (positionInSequence <= 10) {
+    isDark = positionInSequence % 2 === 1;
+  } else {
+    isDark = positionInSequence % 2 === 0;
+  }
+  const emptyTileImage = isDark 
+    ? '/images/dk_julekalender/sidste-felt_dark.jpg'
+    : '/images/dk_julekalender/sidste-felt_light.jpg';
+  
+  // Preload all puzzle piece images with full URL paths
   const imagePromises = imageFilenames.value.map((filename, index) => {
     return new Promise((resolve, reject) => {
       const img = new Image();
+      const imageUrl = `/images/dk_julekalender/door${selectedDay.value}/${filename}`;
       img.onload = () => {
-        loadingProgress.value = Math.round(((index + 1) / imageFilenames.value.length) * 100);
+        loadingProgress.value = Math.round(((index + 1) / (imageFilenames.value.length + 1)) * 100);
+        // Store full URL including origin for matching
+        const fullUrl = img.src;
+        loadedImages.value.add(fullUrl);
+        loadedImages.value.add(imageUrl); // Also store relative path
         resolve(img);
       };
-      img.onerror = reject;
-      img.src = `/images/dk_julekalender/door${selectedDay.value}/${filename}`;
+      img.onerror = () => {
+        // Even on error, mark as attempted to prevent infinite waiting
+        loadedImages.value.add(imageUrl);
+        resolve(null);
+      };
+      // Set src after event handlers to ensure they're attached
+      img.src = imageUrl;
     });
   });
   
+  // Also preload empty tile image
+  const emptyTilePromise = new Promise((resolve, reject) => {
+    const img = new Image();
+    img.onload = () => {
+      loadingProgress.value = 100;
+      const fullUrl = img.src;
+      loadedImages.value.add(fullUrl);
+      loadedImages.value.add(emptyTileImage); // Also store relative path
+      resolve(img);
+    };
+    img.onerror = () => {
+      loadedImages.value.add(emptyTileImage);
+      resolve(null);
+    };
+    img.src = emptyTileImage;
+  });
+  
   try {
-    await Promise.all(imagePromises);
+    await Promise.all([...imagePromises, emptyTilePromise]);
+    // Small delay to ensure browser has processed images
+    await new Promise(resolve => setTimeout(resolve, 50));
     imagesLoaded.value = true;
   } catch (error) {
     console.error('Error preloading images:', error);
@@ -541,6 +627,8 @@ async function startGame(dayNumber) {
   
   // Position tiles in solved state immediately so user can see the completed puzzle
   await nextTick();
+  // Wait for DOM to be ready
+  await nextTick();
   requestAnimationFrame(() => {
     const gridContainer = gridRef.value;
     if (!gridContainer || tileRefs.value.length !== tileCount) return;
@@ -558,6 +646,33 @@ async function startGame(dayNumber) {
       domElement.style.transform = `translate(${targetCol * tileDimension}px, ${targetRow * tileDimension}px)`;
       domElement.style.width = `${tileDimension}px`;
       domElement.style.height = `${tileDimension}px`;
+      
+      // Mark images as loaded if they were preloaded or already cached
+      const img = domElement.querySelector('img');
+      if (img) {
+        // Check both full URL and relative path
+        const imgSrc = img.src;
+        const relativePath = tileData.img;
+        if (loadedImages.value.has(imgSrc) || loadedImages.value.has(relativePath)) {
+          img.classList.add('loaded');
+        } else {
+          // If image loads immediately (cached), mark as loaded
+          if (img.complete && img.naturalHeight !== 0) {
+            img.classList.add('loaded');
+            loadedImages.value.add(imgSrc);
+            loadedImages.value.add(relativePath);
+          } else {
+            // Wait a bit and check again for cached images
+            setTimeout(() => {
+              if (img.complete && img.naturalHeight !== 0 && !img.classList.contains('loaded')) {
+                img.classList.add('loaded');
+                loadedImages.value.add(imgSrc);
+                loadedImages.value.add(relativePath);
+              }
+            }, 50);
+          }
+        }
+      }
     });
   });
 }
@@ -757,6 +872,30 @@ function handlePopState(event) {
     window.history.pushState({ dkPage: true, preventBack: true }, '', '/dk_julekalender');
   }
 }
+
+// Watch for tiles changes and mark images as loaded if they're already cached
+watch(tiles, async () => {
+  await nextTick();
+  // Check all images after a short delay to catch cached images
+  setTimeout(() => {
+    tileRefs.value.forEach((domElement) => {
+      if (!domElement) return;
+      const img = domElement.querySelector('img');
+      if (img && !img.classList.contains('loaded')) {
+        // If image is already loaded (cached), mark it
+        if (img.complete && img.naturalHeight !== 0) {
+          img.classList.add('loaded');
+          const imgSrc = img.src;
+          const relativePath = img.getAttribute('src');
+          loadedImages.value.add(imgSrc);
+          if (relativePath) {
+            loadedImages.value.add(relativePath);
+          }
+        }
+      }
+    });
+  }, 100);
+}, { deep: true });
 
 // Clean up countdown on unmount
 onMounted(async () => {
@@ -1370,13 +1509,16 @@ onUnmounted(() => {
   border: 1px dashed #e0e0e000;
   z-index: 1; /* Place empty tile behind other tiles */
 }
-.puzzle-tile.empty img {
-  opacity: 1; /* Show image even for empty tile */
-}
 .puzzle-tile img {
   width: 100%;
   height: 100%;
   object-fit: cover;
+  opacity: 0;
+  transition: opacity 0.3s ease-in-out;
+}
+
+.puzzle-tile img.loaded {
+  opacity: 1;
 }
 
 /* Shuffle button styling */
