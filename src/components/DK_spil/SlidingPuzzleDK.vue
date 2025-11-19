@@ -474,85 +474,102 @@ function shuffleTiles() {
   // Then perform a fixed number of random valid moves to shuffle
   // This ensures the puzzle is always solvable since we only make legal moves
   let emptyIndex = arr.length - 1; // Empty tile starts at last position (bottom-right)
-  let lastMovedTile = -1; // Track the last moved tile to avoid repeating
+  let lastMovedTileIndex = -1; // Track the last moved tile position to avoid immediately reversing
   
   // Fixed number of moves for consistent difficulty
-  const numMoves = 12;
+  const numMoves = 10;
   
   for (let i = 0; i < numMoves; i++) {
-    const allPossibleMoves = [];
-    const preferredMoves = [];
+    const validAdjacentMoves = [];
     
     // Calculate empty tile's grid position
     const emptyRow = Math.floor(emptyIndex / size);
     const emptyCol = emptyIndex % size;
     
-    // Check all four directions: left, right, up, down
-    // Left - tile must be in same row and column -1
+    // Find all valid adjacent tiles that can move into the empty space
+    // We check each direction explicitly and verify adjacency
+    
+    // Left: same row, column - 1
     if (emptyCol > 0) {
       const leftIndex = emptyIndex - 1;
-      // Verify it's actually in the same row
       const leftRow = Math.floor(leftIndex / size);
-      if (leftRow === emptyRow) {
-        allPossibleMoves.push(leftIndex);
-        if (leftIndex !== lastMovedTile) {
-          preferredMoves.push(leftIndex);
-        }
+      const leftCol = leftIndex % size;
+      // Verify: same row, adjacent column, and not the tile we just moved
+      if (leftRow === emptyRow && leftCol === emptyCol - 1 && leftIndex !== lastMovedTileIndex) {
+        validAdjacentMoves.push(leftIndex);
       }
     }
     
-    // Right - tile must be in same row and column +1
+    // Right: same row, column + 1
     if (emptyCol < size - 1) {
       const rightIndex = emptyIndex + 1;
-      // Verify it's actually in the same row
       const rightRow = Math.floor(rightIndex / size);
-      if (rightRow === emptyRow) {
-        allPossibleMoves.push(rightIndex);
-        if (rightIndex !== lastMovedTile) {
-          preferredMoves.push(rightIndex);
-        }
+      const rightCol = rightIndex % size;
+      // Verify: same row, adjacent column, and not the tile we just moved
+      if (rightRow === emptyRow && rightCol === emptyCol + 1 && rightIndex !== lastMovedTileIndex) {
+        validAdjacentMoves.push(rightIndex);
       }
     }
     
-    // Up - tile must be in row -1 and same column
+    // Up: row - 1, same column
     if (emptyRow > 0) {
       const upIndex = emptyIndex - size;
-      // Verify it's actually in the row above
       const upRow = Math.floor(upIndex / size);
-      if (upRow === emptyRow - 1) {
-        allPossibleMoves.push(upIndex);
-        if (upIndex !== lastMovedTile) {
-          preferredMoves.push(upIndex);
-        }
+      const upCol = upIndex % size;
+      // Verify: row above, same column, and not the tile we just moved
+      if (upRow === emptyRow - 1 && upCol === emptyCol && upIndex !== lastMovedTileIndex) {
+        validAdjacentMoves.push(upIndex);
       }
     }
     
-    // Down - tile must be in row +1 and same column
+    // Down: row + 1, same column
     if (emptyRow < size - 1) {
       const downIndex = emptyIndex + size;
-      // Verify it's actually in the row below
       const downRow = Math.floor(downIndex / size);
-      if (downRow === emptyRow + 1) {
-        allPossibleMoves.push(downIndex);
-        if (downIndex !== lastMovedTile) {
-          preferredMoves.push(downIndex);
-        }
+      const downCol = downIndex % size;
+      // Verify: row below, same column, and not the tile we just moved
+      if (downRow === emptyRow + 1 && downCol === emptyCol && downIndex !== lastMovedTileIndex) {
+        validAdjacentMoves.push(downIndex);
       }
     }
     
-    // Use preferred moves (avoiding last moved tile) if available, otherwise use all possible moves
-    const movesToChooseFrom = preferredMoves.length > 0 ? preferredMoves : allPossibleMoves;
+    // If no valid moves (shouldn't happen), allow any adjacent move
+    if (validAdjacentMoves.length === 0) {
+      // Fallback: allow any adjacent move
+      if (emptyCol > 0) validAdjacentMoves.push(emptyIndex - 1);
+      if (emptyCol < size - 1) validAdjacentMoves.push(emptyIndex + 1);
+      if (emptyRow > 0) validAdjacentMoves.push(emptyIndex - size);
+      if (emptyRow < size - 1) validAdjacentMoves.push(emptyIndex + size);
+    }
     
-    // Always make a move if possible
-    if (movesToChooseFrom.length > 0) {
-      const randomMove = movesToChooseFrom[Math.floor(Math.random() * movesToChooseFrom.length)];
-      // Swap the tiles - this is a legal move since we only swap adjacent tiles
-      [arr[emptyIndex], arr[randomMove]] = [arr[randomMove], arr[emptyIndex]];
-      // Update empty index and track the moved tile
-      lastMovedTile = emptyIndex;
-      emptyIndex = randomMove;
+    // Choose a random valid move
+    if (validAdjacentMoves.length > 0) {
+      const randomMoveIndex = validAdjacentMoves[Math.floor(Math.random() * validAdjacentMoves.length)];
+      
+      // Final safety check: ensure the move is valid
+      const moveRow = Math.floor(randomMoveIndex / size);
+      const moveCol = randomMoveIndex % size;
+      const rowDiff = Math.abs(moveRow - emptyRow);
+      const colDiff = Math.abs(moveCol - emptyCol);
+      
+      // Must be exactly one step away (adjacent)
+      if (rowDiff + colDiff === 1 && randomMoveIndex >= 0 && randomMoveIndex < arr.length && !arr[randomMoveIndex].isEmpty) {
+        // Perform the swap: tile at randomMoveIndex moves to emptyIndex, empty tile moves to randomMoveIndex
+        const temp = arr[emptyIndex];
+        arr[emptyIndex] = arr[randomMoveIndex];
+        arr[randomMoveIndex] = temp;
+        
+        // Track which tile was moved (the one now at emptyIndex)
+        lastMovedTileIndex = emptyIndex;
+        // Update empty position
+        emptyIndex = randomMoveIndex;
+      } else {
+        // Invalid move - this shouldn't happen, but skip if it does
+        console.warn('Invalid move detected during shuffle, skipping');
+        continue;
+      }
     } else {
-      // This should never happen, but if it does, break to avoid infinite loop
+      // No valid moves available - this shouldn't happen
       console.warn('No valid moves available during shuffle');
       break;
     }
