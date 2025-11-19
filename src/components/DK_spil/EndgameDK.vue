@@ -31,7 +31,11 @@
       </template>
     </div>
 
-    <!-- Action button -->
+    <!-- Action buttons -->
+    <button class="competition-button" @click="handleCompetitionClick">
+      Deltag i konkurrence
+    </button>
+    
     <button class="win-button" @click="handleWinClick">
       Se flere LK<sup class="registered-symbol">®</sup> One produkter
     </button>
@@ -51,6 +55,10 @@ const props = defineProps({
   gaveUp: {
     type: Boolean,
     default: false
+  },
+  dayNumber: {
+    type: Number,
+    default: null
   }
 });
 
@@ -102,10 +110,11 @@ onMounted(() => {
 
 // Methods
 function handleWinClick() {
-  // Log end click to Vercel (fire-and-forget)
+  // Log LK products click to Vercel (fire-and-forget)
   try {
-    if (import.meta.env.PROD) {
-      const payload = JSON.stringify({ event: 'DK_end_click' });
+    if (import.meta.env.PROD && props.dayNumber) {
+      const eventName = `DK_${props.dayNumber}LKproducts`;
+      const payload = JSON.stringify({ event: eventName });
       if (navigator.sendBeacon) {
         const blob = new Blob([payload], { type: 'application/json' });
         navigator.sendBeacon('/api/track', blob);
@@ -114,9 +123,26 @@ function handleWinClick() {
       }
     }
   } catch (e) {}
-  // TODO: Update with actual Danish products URL
-  window.open('https://cloud.go.se.com/SE_202410_LPElectricians_CNT_NONE_ELECTRICIANS_HD_PW1_ACQ_NA-LP/', '_blank');
+  window.open('https://www.lk.dk/produkter/398/lk-one', '_blank');
   emit('win-click');
+}
+
+function handleCompetitionClick() {
+  // Log end click to Vercel (fire-and-forget)
+  try {
+    if (import.meta.env.PROD && props.dayNumber) {
+      const eventName = `DK_${props.dayNumber}end_click`;
+      const payload = JSON.stringify({ event: eventName });
+      if (navigator.sendBeacon) {
+        const blob = new Blob([payload], { type: 'application/json' });
+        navigator.sendBeacon('/api/track', blob);
+      } else {
+        fetch('/api/track', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: payload, keepalive: true });
+      }
+    }
+  } catch (e) {}
+  // Open competition link (update with actual competition URL when available)
+  // window.open('COMPETITION_URL_HERE', '_blank');
 }
 </script>
 
@@ -362,22 +388,44 @@ function handleWinClick() {
 }
 
 .win-button {
+  margin: 0;
+  padding: 0.80rem 2rem;
+  border: 1px solid var(--light);
+  background: #000;
+  color: var(--light);
+  border-radius: 0.75rem;
+  cursor: pointer;
+  font-family: 'Arial Rounded MT Pro', Arial, sans-serif;
+  font-size: 1rem;
+  font-weight: 600;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  transition: background 0.15s, transform 0.1s, border 0.15s;
+  user-select: none;
+  position: relative;
+  margin-bottom: 1rem;
+  z-index: 3; /* Ensure content is above layout elements */
+}
+
+.win-button:hover {
+  transform: translateY(-2px) scale(1.03);
+}
+
+.competition-button {
   background: var(--brand);
   color: var(--light);
   border: none;
   border-radius: 0.75rem;
   padding: 0.80rem 2rem;
   font-family: 'Arial Rounded MT Pro', Arial, sans-serif;
-  font-size: 1.5rem;
+  font-size: 1rem;
   font-weight: 600;
   cursor: pointer;
   transition: background 0.15s, transform 0.1s;
   position: relative;
-  margin-bottom: 2rem;
   z-index: 3; /* Ensure content is above layout elements */
 }
 
-.win-button:hover {
+.competition-button:hover {
   background: var(--brand-dark);
   transform: translateY(-2px) scale(1.03);
 }
@@ -401,9 +449,17 @@ function handleWinClick() {
     padding: 0 1rem;
   }
   
+  .win-button,
+  .competition-button {
+    padding: 0.60rem 1.5rem;
+    font-size: 1rem;
+  }
+  
+  .competition-button {
+    margin-bottom: 1rem;
+  }
+  
   .win-button {
-    padding: 0.70rem 1.5rem;
-    font-size: 1.3rem;
     margin-bottom: 0rem;
   }
 }
@@ -418,9 +474,17 @@ function handleWinClick() {
     padding: 0 0.5rem;
   }
   
-  .win-button {
+  .win-button,
+  .competition-button {
     padding: 0.60rem 1.2rem;
     font-size: 1.1rem;
+  }
+  
+  .competition-button {
+    margin-bottom: 0rem;
+  }
+  
+  .win-button {
     margin-bottom: 0rem;
   }
 }

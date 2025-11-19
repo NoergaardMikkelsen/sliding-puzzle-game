@@ -20,6 +20,7 @@
       v-else-if="showScoreboard"
       :time-ms="gaveUp ? 999999999 : timerMs"
       :gave-up="gaveUp"
+      :day-number="selectedDay"
       @win-click="handleScoreboardWin"
     />
     
@@ -193,6 +194,40 @@ function generateSnowflakes() {
 // Function to get image prefix based on day number
 // Maps day numbers to the correct image prefix in door folders
 // The image prefix doesn't always match the door number directly
+// localStorage functions for tracking completed days
+// TEMPORARILY DISABLED - localStorage saving is disabled
+function markDayAsCompleted(dayNumber) {
+  // TEMPORARILY DISABLED - Do nothing
+  return;
+  
+  /* PRODUCTION CODE - Uncomment when ready to enable localStorage:
+  try {
+    const completedDays = getCompletedDays();
+    if (!completedDays.includes(dayNumber)) {
+      completedDays.push(dayNumber);
+      localStorage.setItem('dk_julekalender_completed_days', JSON.stringify(completedDays));
+    }
+  } catch (e) {
+    // localStorage might not be available, ignore
+  }
+  */
+}
+
+function getCompletedDays() {
+  // TEMPORARILY DISABLED - Always return empty array
+  return [];
+  
+  /* PRODUCTION CODE - Uncomment when ready to enable localStorage:
+  try {
+    const stored = localStorage.getItem('dk_julekalender_completed_days');
+    return stored ? JSON.parse(stored) : [];
+  } catch (e) {
+    return [];
+  }
+  */
+}
+
+
 function getImagePrefix(dayNumber) {
   // Mapping between door numbers and image prefixes
   const dayToPrefixMap = {
@@ -562,10 +597,15 @@ function moveTile(clickedVisualIndex) {
       if (isSolved.value) {
         stopTimer();
         showScoreboard.value = true;
+        // Mark this day as completed in localStorage
+        if (selectedDay.value) {
+          markDayAsCompleted(selectedDay.value);
+        }
         // Log completed game when puzzle is solved
         try {
-          if (import.meta.env.PROD) {
-            const payload = JSON.stringify({ event: 'DK_completed_game' });
+          if (import.meta.env.PROD && selectedDay.value) {
+            const eventName = `DK_${selectedDay.value}completed_game`;
+            const payload = JSON.stringify({ event: eventName });
             if (navigator.sendBeacon) {
               const blob = new Blob([payload], { type: 'application/json' });
               navigator.sendBeacon('/api/track', blob);
@@ -683,6 +723,10 @@ function triggerSolved() {
   isSolved.value = true;
   stopTimer();
   showScoreboard.value = true;
+  // Mark this day as completed in localStorage
+  if (selectedDay.value) {
+    markDayAsCompleted(selectedDay.value);
+  }
 }
 
 // Handle dialog form submission
@@ -694,8 +738,9 @@ function handleDialogSubmit(data) {
 function readySetPlay() {
   // Log start click to Vercel (fire-and-forget)
   try {
-    if (import.meta.env.PROD) {
-      const payload = JSON.stringify({ event: 'DK_start_click' });
+    if (import.meta.env.PROD && selectedDay.value) {
+      const eventName = `DK_${selectedDay.value}start_click`;
+      const payload = JSON.stringify({ event: eventName });
       if (navigator.sendBeacon) {
         const blob = new Blob([payload], { type: 'application/json' });
         navigator.sendBeacon('/api/track', blob);
@@ -760,10 +805,15 @@ function giveUp() {
   stopTimer();
   gaveUp.value = true;
   showScoreboard.value = true;
+  // Mark this day as completed in localStorage (even if they gave up, they've been in the game)
+  if (selectedDay.value) {
+    markDayAsCompleted(selectedDay.value);
+  }
   // Log give up click
   try {
-    if (import.meta.env.PROD) {
-      const payload = JSON.stringify({ event: 'DK_give_up_click' });
+    if (import.meta.env.PROD && selectedDay.value) {
+      const eventName = `DK_${selectedDay.value}give_up_click`;
+      const payload = JSON.stringify({ event: eventName });
       if (navigator.sendBeacon) {
         const blob = new Blob([payload], { type: 'application/json' });
         navigator.sendBeacon('/api/track', blob);
@@ -778,8 +828,9 @@ function giveUp() {
 function handleScoreboardWin() {
   // Log end click to Vercel (fire-and-forget)
   try {
-    if (import.meta.env.PROD) {
-      const payload = JSON.stringify({ event: 'DK_end_click' });
+    if (import.meta.env.PROD && selectedDay.value) {
+      const eventName = `DK_${selectedDay.value}end_click`;
+      const payload = JSON.stringify({ event: eventName });
       if (navigator.sendBeacon) {
         const blob = new Blob([payload], { type: 'application/json' });
         navigator.sendBeacon('/api/track', blob);
