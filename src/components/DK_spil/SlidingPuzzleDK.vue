@@ -4,6 +4,14 @@
     <!-- SE Logo at top center -->
     <img src="/images/dk_julekalender/SE_logo.png" alt="Schneider Electric" class="se-logo" />
     
+    <!-- Layout elements: People at bottom center, products on left and right -->
+    <div class="layout-people"></div>
+    <div class="layout-products-left"></div>
+    <div class="layout-products-right"></div>
+    
+    <!-- LK® One logo text overlay -->
+    <div class="lk-one-logo">LK<sup class="registered-symbol">®</sup> One</div>
+    
     <!-- Use the DK StartOverlay component -->
     <StartOverlayDK v-if="!gameStarted" @start-game="startGame" />
 
@@ -792,7 +800,7 @@ onUnmounted(() => {
   height: 100svh; /* Match StartOverlayDK - use small viewport height */
   overflow: hidden; /* Hide snowflakes that fall outside */
   background-color: var(--black);
-  background-image: url('/images/dk_julekalender/SE_Julekampagne_bg_desktop.jpg');
+  background-image: url('/images/dk_julekalender/layout/SE_Julekampagne_bg_desktop_2x.webp');
   background-size: cover;
   background-repeat: no-repeat;
 }
@@ -808,7 +816,178 @@ onUnmounted(() => {
 /* Mobile background image - up to 1024px */
 @media (max-width: 1024px) {
   .sliding-puzzle {
-    background-image: url('/images/dk_julekalender/SE_Julekampagne_bg_mobile.jpg');
+    background-image: url('/images/dk_julekalender/layout/SE_Julekampagne_bg_mobile.webp');
+  }
+}
+
+/* Layout elements: People and products */
+.layout-people {
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100%;
+  max-width: 900px; /* Reduced from 1200px to make it smaller */
+  height: auto;
+  aspect-ratio: 16 / 9;
+  background-image: url('/images/dk_julekalender/layout/SE_Julekampagne_elektrikere_2x.webp');
+  background-size: contain;
+  background-position: center bottom;
+  background-repeat: no-repeat;
+  z-index: 1;
+  pointer-events: none;
+}
+
+/* Responsive breakpoint for people image */
+@media (max-width: 1500px) and (min-width: 1025px) {
+  .layout-people {
+    max-width: 600px;
+    width: 50%;
+  }
+}
+
+.layout-products-left {
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(calc(-50% - 110%)); /* Position further left, more spacing from center */
+  width: 20%;
+  max-width: 350px;
+  height: auto;
+  aspect-ratio: 1 / 1;
+  background-image: url('/images/dk_julekalender/layout/products_left_2x.webp');
+  background-size: contain;
+  background-position: center bottom;
+  background-repeat: no-repeat;
+  z-index: 2;
+  pointer-events: none;
+}
+
+.layout-products-right {
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(calc(-50% + 110%)); /* Position further right, more spacing from center */
+  width: 20%;
+  max-width: 350px;
+  height: auto;
+  aspect-ratio: 1 / 1;
+  background-image: url('/images/dk_julekalender/layout/products_right_2x.webp');
+  background-size: contain;
+  background-position: center bottom;
+  background-repeat: no-repeat;
+  z-index: 2;
+  pointer-events: none;
+}
+
+/* Responsive breakpoints for products */
+@media (max-width: 1200px) {
+  .layout-products-left {
+    transform: translateX(calc(-50% - 120%));
+    width: 30%;
+    max-width: 300px;
+  }
+  
+  .layout-products-right {
+    transform: translateX(calc(-50% + 120%));
+    width: 30%;
+    max-width: 300px;
+  }
+}
+
+@media (max-width: 1024px) {
+  .layout-products-left {
+    transform: translateX(calc(-50% - 120%));
+    width: 30%;
+    max-width: 300px;
+  }
+  
+  .layout-products-right {
+    transform: translateX(calc(-50% + 120%));
+    width: 30%;
+    max-width: 300px;
+  }
+}
+
+@media (max-width: 768px) {
+  .layout-products-left {
+    transform: translateX(calc(-50% - 120%));
+    width: 30%;
+    max-width: 250px;
+  }
+  
+  .layout-products-right {
+    transform: translateX(calc(-50% + 120%));
+    width: 30%;
+    max-width: 250px;
+  }
+}
+
+@media (max-width: 480px) {
+  .layout-products-left {
+    transform: translateX(calc(-50% - 120%));
+    width: 30%;
+    max-width: 200px;
+  }
+  
+  .layout-products-right {
+    transform: translateX(calc(-50% + 120%));
+    width: 30%;
+    max-width: 200px;
+  }
+}
+
+/* LK® One logo text overlay */
+.lk-one-logo {
+  position: absolute;
+  bottom: 6%;
+  left: 50%;
+  transform: translateX(-50%);
+  font-family: 'Arial Black', Arial, sans-serif;
+  font-weight: 800;
+  font-size: clamp(2rem, 5vw, 4rem);
+  color: #2a9d3f; /* Slightly lighter dark green color */
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.15); /* Subtle shadow for better visibility */
+  z-index: 2;
+  pointer-events: none;
+  text-align: center;
+  white-space: nowrap;
+}
+
+.lk-one-logo .registered-symbol {
+  font-size: 0.4em;
+  vertical-align: super;
+  line-height: 0;
+  position: relative;
+  top: -0.3em;
+}
+
+/* Responsive adjustments for LK® One logo */
+@media (max-width: 1440px) and (min-width: 1025px) {
+  .lk-one-logo {
+    font-size: clamp(1.8rem, 4vw, 3.5rem);
+    bottom: 18%;
+  }
+}
+
+@media (max-width: 1024px) {
+  .lk-one-logo {
+    font-size: clamp(3rem, 10vw, 4rem);
+    bottom: 8%;
+  }
+}
+
+@media (max-width: 768px) {
+  .lk-one-logo {
+    font-size: clamp(3rem, 8vw, 4rem);
+    bottom: 10%;
+  }
+}
+
+@media (max-width: 480px) {
+  .lk-one-logo {
+    font-size: clamp(2rem, 3.5vw, 3rem);
+    bottom: 6%;
   }
 }
 
@@ -839,6 +1018,7 @@ onUnmounted(() => {
   overflow: hidden; /* Hide snowflakes that fall outside */
   min-height: 100svh; /* Ensure minimum full viewport height */
   padding: 2rem 1rem;
+  z-index: 3; /* Ensure content is above layout elements */
 }
 
 /* Fallback for browsers that don't support svh */

@@ -2,22 +2,32 @@
   <div 
     ref="hoverArea"
     class="calendar-door-wrapper"
-    :class="{ 'animating': isOpening }"
+    :class="{ 'animating': isOpening, 'day-passed': isDayPassed }"
     @mouseenter="handleMouseEnter"
     @mouseleave="handleMouseLeave"
-    @click="handleClick"
+    @click="!isDayPassed && handleClick()"
   >
-    <!-- Image behind the door - show when hovering or door is opened -->
-    <img 
-      v-if="(isHovering || (isDoorOpen && selectedDay === dayNumber)) && isActive" 
-      :src="`/images/dk_julekalender/door${dayNumber}/${getImagePrefix(dayNumber)}_00.jpg`" 
-      alt="Full puzzle image" 
-      class="door-image-behind"
-      @click="handleClick"
-    />
+    <!-- Image behind the door - show when hovering, door is opened, or day has passed -->
+    <div 
+      v-if="(isHovering || (isDoorOpen && selectedDay === dayNumber) || isDayPassed) && isActive"
+      class="door-image-wrapper"
+      :class="{ 
+        'permanently-visible': isDayPassed,
+        'darker-green-overlay': isDarkerGreen && isDayPassed
+      }"
+      @click="!isDayPassed && handleClick()"
+    >
+      <img 
+        :src="`/images/dk_julekalender/door${dayNumber}/${getImagePrefix(dayNumber)}_00.jpg`" 
+        alt="Full puzzle image" 
+        class="door-image-behind"
+      />
+    </div>
     
     <!-- Door container that maintains position - prevents hinge from moving -->
+    <!-- Hide door if day has passed (like ripping off the door in a real calendar) -->
     <div 
+      v-if="!isDayPassed"
       ref="doorContainer"
       class="door-container"
     >
@@ -28,7 +38,7 @@
       :class="{ 
         'active': isActive, 
         'inactive': !isActive, 
-        'glowing': dayNumber === 1 && isActive,
+        'glowing': dayNumber === currentDay && isActive && !isDayPassed,
         'darker-green': isDarkerGreen,
         'opened': isDoorOpen && selectedDay === dayNumber,
         'hovering': isHovering
@@ -93,8 +103,42 @@ const isDarkerGreen = computed(() => {
   return darkerGreenDays.includes(props.dayNumber);
 });
 
+// Get current day
+function getCurrentDay() {
+  const now = new Date();
+  return now.getDate();
+}
+
+// Get current day for glow effect
+const currentDay = computed(() => {
+  return getCurrentDay();
+});
+
+// Check if this day has passed (like ripping off the door in a real calendar)
+// TEMPORARILY DISABLED: No days are "ripped off" - all doors remain clickable
+const isDayPassed = computed(() => {
+  // TEMPORARILY DISABLED - Return false so no doors are "ripped off"
+  return false;
+  
+  /* PRODUCTION CODE - Uncomment when ready to enable date-based door removal:
+  const now = new Date();
+  const currentMonth = now.getMonth(); // 0-11 (0=January, 11=December)
+  const day = getCurrentDay();
+  
+  // If we're not in December, no days have passed yet
+  if (currentMonth !== 11) {
+    return false;
+  }
+  
+  // If current day is greater than this door's day, the day has passed
+  return day > props.dayNumber;
+  */
+});
+
 function handleClick() {
-  if (props.isActive && !props.isDoorOpen) {
+  // Only allow clicking if day is active, door is not open, and day hasn't passed
+  // Once a day has passed, the door is "ripped off" and cannot be clicked
+  if (props.isActive && !props.isDoorOpen && !isDayPassed.value) {
     emit('door-click', props.dayNumber);
   }
 }
@@ -102,6 +146,9 @@ function handleClick() {
 function handleMouseEnter(event) {
   // Only enable hover on desktop (1024px and above)
   if (window.innerWidth < 1024) return;
+  
+  // Don't show hover effect if day has passed (door is already "ripped off")
+  if (isDayPassed.value) return;
   
   if (doorElement.value && doorContainer.value && props.isActive && !props.isDoorOpen) {
     isHovering.value = true;
@@ -169,6 +216,9 @@ function handleMouseEnter(event) {
 function handleMouseLeave(event) {
   // Only enable hover on desktop (1024px and above)
   if (window.innerWidth < 1024) return;
+  
+  // Don't close door if day has passed (door is already "ripped off")
+  if (isDayPassed.value) return;
   
   if (!doorElement.value || !doorContainer.value || !props.isActive || props.isDoorOpen) return;
   
@@ -279,6 +329,12 @@ onMounted(() => {
   cursor: pointer; /* Show pointer cursor on entire area */
 }
 
+/* Disable cursor and pointer events when day has passed */
+.calendar-door-wrapper.day-passed {
+  cursor: default;
+  pointer-events: none;
+}
+
 /* Only show pointer cursor on desktop where hover works */
 @media (max-width: 1023px) {
   .calendar-door-wrapper {
@@ -286,19 +342,118 @@ onMounted(() => {
   }
 }
 
-.door-image-behind {
+.door-image-wrapper {
   position: absolute;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
+  z-index: 1;
+  cursor: pointer;
+  pointer-events: auto;
+}
+
+.door-image-behind {
+  width: 100%;
+  height: 100%;
   object-fit: cover;
   border-radius: 0.25rem;
-  z-index: 1;
   opacity: 1; /* Visible immediately when door starts opening */
   transform: translateZ(-1px); /* Put image behind the door */
-  cursor: pointer; /* Make it clear the image is clickable */
-  pointer-events: auto; /* Ensure image is clickable when visible */
+  display: block;
+}
+
+.door-image-wrapper.permanently-visible {
+  z-index: 3; /* Show above everything when day has passed (door is "ripped off") */
+  cursor: default; /* Not clickable when day has passed */
+  pointer-events: none; /* Disable clicking when day has passed */
+}
+
+.door-image-wrapper.permanently-visible .door-image-behind {
+  transform: translateZ(0); /* Bring image to front */
+  border-radius: 0.25rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2); /* Add subtle shadow for depth */
+  filter: grayscale(100%) brightness(0.6); /* More grayed out when day has passed */
+  opacity: 0.7; /* More reduced opacity for grayed out effect */
+}
+
+/* Greenish overlay on passed days - light green for normal doors */
+.door-image-wrapper.permanently-visible::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(61, 205, 87, 0.4); /* Light green overlay (var(--brand)) with opacity */
+  border-radius: 0.25rem;
+  pointer-events: none;
+  z-index: 2; /* Above the image but below the ripped edge */
+  mix-blend-mode: overlay; /* Blend with the image for a more natural look */
+}
+
+/* Darker green overlay for darker green doors (checkerboard pattern) */
+.door-image-wrapper.permanently-visible.darker-green-overlay::after {
+  background: rgba(42, 157, 63, 0.4); /* Slightly lighter dark green overlay (#2a9d3f) with opacity */
+}
+
+/* Visual indication of "ripped off" door on the left side */
+.door-image-wrapper.permanently-visible::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 10px; /* Width of the "ripped" edge */
+  background: linear-gradient(
+    to right,
+    rgba(0, 0, 0, 0.4) 0%,
+    rgba(0, 0, 0, 0.3) 15%,
+    rgba(0, 0, 0, 0.2) 30%,
+    rgba(0, 0, 0, 0.1) 50%,
+    transparent 100%
+  );
+  border-radius: 0.25rem 0 0 0.25rem;
+  pointer-events: none;
+  z-index: 4; /* Above the image */
+  /* Create a jagged/ripped edge effect */
+  clip-path: polygon(
+    0% 0%,
+    100% 3%,
+    0% 6%,
+    100% 9%,
+    0% 12%,
+    100% 15%,
+    0% 18%,
+    100% 21%,
+    0% 24%,
+    100% 27%,
+    0% 30%,
+    100% 33%,
+    0% 36%,
+    100% 39%,
+    0% 42%,
+    100% 45%,
+    0% 48%,
+    100% 51%,
+    0% 54%,
+    100% 57%,
+    0% 60%,
+    100% 63%,
+    0% 66%,
+    100% 69%,
+    0% 72%,
+    100% 75%,
+    0% 78%,
+    100% 81%,
+    0% 84%,
+    100% 87%,
+    0% 90%,
+    100% 93%,
+    0% 96%,
+    100% 100%,
+    0% 100%
+  );
 }
 
 .door-container {
@@ -347,7 +502,7 @@ onMounted(() => {
 }
 
 .calendar-door.active.darker-green {
-  background-color: #218a30; /* Darker green for checkerboard pattern */
+  background-color: #2a9d3f; /* Slightly lighter dark green for checkerboard pattern */
 }
 
 .calendar-door.inactive {
@@ -357,15 +512,16 @@ onMounted(() => {
 }
 
 .calendar-door.inactive.darker-green {
-  background-color: #218a30; /* Same darker green as active darker-green */
+  background-color: #2a9d3f; /* Same slightly lighter dark green as active darker-green */
   opacity: 0.4; /* Reduced opacity for inactive state */
   color: var(--light); /* White text */
 }
 
 .calendar-door.active.glowing {
-  box-shadow: 0 0 25px rgba(173, 216, 255, 0.5), 
-              0 0 40px rgba(173, 216, 255, 0.3),
-              0 0 55px rgba(173, 216, 255, 0.2);
+  box-shadow: 0 0 30px rgba(173, 216, 255, 0.7), 
+              0 0 50px rgba(173, 216, 255, 0.5),
+              0 0 70px rgba(173, 216, 255, 0.4),
+              0 0 90px rgba(173, 216, 255, 0.3);
 }
 
 /* Hover effect removed - GSAP handles door opening on hover now */
