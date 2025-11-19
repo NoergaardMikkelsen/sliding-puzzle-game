@@ -472,7 +472,7 @@ onUnmounted(() => {
 @media (max-width: 1440px) and (min-width: 1025px) {
   .lk-one-logo {
     font-size: clamp(1.8rem, 4vw, 3.5rem);
-    bottom: 18%;
+    bottom: 8%;
   }
 }
 
