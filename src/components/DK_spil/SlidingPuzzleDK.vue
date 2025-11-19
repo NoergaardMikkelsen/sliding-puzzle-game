@@ -306,17 +306,37 @@ function confirmRestart() {
   gameInProgress.value = false;
   gaveUp.value = false;
   isSolved.value = false;
-  showFullImage.value = true; // Show full image again
-  resetTimer();
-  // Initialize solved layout then shuffle and start
+  showScoreboard.value = false;
+  // Hide full image and show puzzle tiles
+  showFullImage.value = false;
+  // Initialize solved layout
   tiles.value = createTiles();
+  // Position tiles in solved state first
   requestAnimationFrame(() => {
-    animateAllTiles();
-    // Start countdown flow to keep same UX, or directly shuffle
-    // Here we directly shuffle and start to avoid countdown
+    const gridContainer = gridRef.value;
+    if (gridContainer && tileRefs.value.length === tileCount) {
+      const tileDimension = gridContainer.offsetWidth / size;
+      
+      tiles.value.forEach((tileData, visualIndex) => {
+        const domElement = tileRefs.value[visualIndex];
+        if (!domElement) return;
+        
+        const targetRow = Math.floor(visualIndex / size);
+        const targetCol = visualIndex % size;
+        
+        // Set position without animation - use direct style instead of GSAP for speed
+        domElement.style.transform = `translate(${targetCol * tileDimension}px, ${targetRow * tileDimension}px)`;
+        domElement.style.width = `${tileDimension}px`;
+        domElement.style.height = `${tileDimension}px`;
+      });
+    }
+    // Now shuffle tiles and start game
     shuffleTiles();
-    gameInProgress.value = true;
-    startTimer();
+    // Wait for shuffle animation to complete before enabling game
+    setTimeout(() => {
+      gameInProgress.value = true;
+      startTimer();
+    }, 700); // Match the timing from startCountdown (500ms after GO!)
   });
 }
 
