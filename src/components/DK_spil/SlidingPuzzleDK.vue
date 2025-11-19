@@ -337,10 +337,6 @@ async function preloadImages() {
   } else {
     isDark = positionInSequence % 2 === 0;
   }
-  const emptyTileImage = isDark 
-    ? '/images/dk_julekalender/sidste-felt_dark.jpg'
-    : '/images/dk_julekalender/sidste-felt_light.jpg';
-  
   // Preload all puzzle piece images with full URL paths
   const imagePromises = imageFilenames.value.map((filename, index) => {
     return new Promise((resolve, reject) => {
@@ -364,25 +360,8 @@ async function preloadImages() {
     });
   });
   
-  // Also preload empty tile image
-  const emptyTilePromise = new Promise((resolve, reject) => {
-    const img = new Image();
-    img.onload = () => {
-      loadingProgress.value = 100;
-      const fullUrl = img.src;
-      loadedImages.value.add(fullUrl);
-      loadedImages.value.add(emptyTileImage); // Also store relative path
-      resolve(img);
-    };
-    img.onerror = () => {
-      loadedImages.value.add(emptyTileImage);
-      resolve(null);
-    };
-    img.src = emptyTileImage;
-  });
-  
   try {
-    await Promise.all([...imagePromises, emptyTilePromise]);
+    await Promise.all([...imagePromises]);
     // Small delay to ensure browser has processed images
     await new Promise(resolve => setTimeout(resolve, 50));
     imagesLoaded.value = true;
@@ -421,10 +400,8 @@ function createTiles() {
     isDark = positionInSequence % 2 === 0; // Odd positions = light, even positions = dark (flipped)
   }
   
-  const emptyTileImage = isDark 
-    ? '/images/dk_julekalender/sidste-felt_dark.jpg'
-    : '/images/dk_julekalender/sidste-felt_light.jpg';
-  arr.push({ id: 0, img: emptyTileImage, isEmpty: true });
+  // Empty tile has no image - just black background
+  arr.push({ id: 0, img: null, isEmpty: true });
   return arr;
 }
 
