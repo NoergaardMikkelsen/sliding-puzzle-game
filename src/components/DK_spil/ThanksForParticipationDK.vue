@@ -1,5 +1,5 @@
 <template>
-  <div class="endgame-view">
+  <div class="thanks-view">
     <!-- Layout elements: People at bottom center, products on left and right -->
     <div class="layout-people"></div>
     <div class="layout-products-left"></div>
@@ -19,50 +19,28 @@
     />
     
     <!-- Title -->
-    <h1 class="title">{{ props.gaveUp ? 'Godt forsøgt' : 'Godt klaret' }}</h1>
+    <h1 class="title">Tak for din deltagelse!</h1>
 
     <!-- Message -->
     <div class="message">
-      <template v-if="props.gaveUp">
-        Du får alligevel ét lod med i konkurrencen om <span class="line-break-after-om"><br></span>masser af fede præmier 🎁<br><br>Udfyld formularen på næste side og tilmeld dig nyhedsbrevet, så registrerer vi dit lod i konkurrencen.
-      </template>
-      <template v-else>
-        Du har nu ét lod i konkurrencen om <span class="line-break-after-om"><br></span>masser af fede præmier 🎁<br><br>Udfyld formularen på næste side og tilmeld dig nyhedsbrevet, så registrerer vi dit lod i konkurrencen.
-      </template>
+    Vi har registreret dit lod i konkurrencen! <br>
+    Husk at vende tilbage de næste hverdage - der venter nye puslespil og endnu flere chancer for at vinde.
     </div>
 
     <!-- Action button -->
-    <button class="competition-button" @click="handleCompetitionClick">
-      Deltag i konkurrence
+    <button class="products-button" @click="handleProductsClick">
+      Se flere LK<sup class="registered-symbol">®</sup> One produkter
     </button>
   </div>
 </template>
 
 <script setup>
 import { ref, onMounted } from 'vue';
-import { useRouter } from 'vue-router';
+import { useRoute } from 'vue-router';
 import Snowflake from './Snowflake.vue';
 
-const router = useRouter();
-
-// Props
-const props = defineProps({
-  timeMs: {
-    type: Number,
-    required: true
-  },
-  gaveUp: {
-    type: Boolean,
-    default: false
-  },
-  dayNumber: {
-    type: Number,
-    default: null
-  }
-});
-
-// Emits
-const emit = defineEmits(['win-click']);
+const route = useRoute();
+const dayNumber = ref(route.query.day ? parseInt(route.query.day) : null);
 
 // Generate snowflakes
 const snowflakes = ref([]);
@@ -108,12 +86,11 @@ onMounted(() => {
 });
 
 // Methods
-
-function handleCompetitionClick() {
-  // Log end click to Vercel (fire-and-forget)
+function handleProductsClick() {
+  // Log LK products click to Vercel (fire-and-forget)
   try {
-    if (import.meta.env.PROD && props.dayNumber) {
-      const eventName = `DK_${props.dayNumber}end_click`;
+    if (import.meta.env.PROD && dayNumber.value) {
+      const eventName = `DK_${dayNumber.value}LKproducts`;
       const payload = JSON.stringify({ event: eventName });
       if (navigator.sendBeacon) {
         const blob = new Blob([payload], { type: 'application/json' });
@@ -123,16 +100,12 @@ function handleCompetitionClick() {
       }
     }
   } catch (e) {}
-  // Navigate to competition form
-  router.push({ 
-    name: 'competition-form',
-    query: { day: props.dayNumber }
-  });
+  window.open('https://www.lk.dk/produkter/398/lk-one', '_blank');
 }
 </script>
 
 <style scoped>
-.endgame-view {
+.thanks-view {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -141,9 +114,12 @@ function handleCompetitionClick() {
   padding: 2rem;
   text-align: center;
   color: var(--light);
-  position: relative;
-  min-height: 100svh; /* Match StartOverlayDK - use small viewport height */
-  height: 100svh; /* Match StartOverlayDK - use small viewport height */
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  min-height: 100svh;
+  height: 100svh;
   overflow: hidden;
   background-color: var(--black);
   background-image: url('/images/dk_julekalender/layout/SE_Julekampagne_bg_desktop_2x.webp');
@@ -153,7 +129,7 @@ function handleCompetitionClick() {
 
 /* Fallback for browsers that don't support svh */
 @supports not (height: 1svh) {
-  .endgame-view {
+  .thanks-view {
     height: 100vh;
     min-height: 100vh;
   }
@@ -161,14 +137,14 @@ function handleCompetitionClick() {
 
 /* Mobile background image - up to 1024px */
 @media (max-width: 1024px) {
-  .endgame-view {
+  .thanks-view {
     background-image: url('/images/dk_julekalender/layout/SE_Julekampagne_bg_mobile.webp');
   }
 }
 
 /* Small mobile: Position to focus on bottom 80% of image - ensures people are visible */
 @media (max-width: 600px) {
-  .endgame-view {
+  .thanks-view {
     background-position: center 80%;
   }
 }
@@ -180,7 +156,7 @@ function handleCompetitionClick() {
   left: 50%;
   transform: translateX(-50%);
   width: 100%;
-  max-width: 900px; /* Reduced from 1200px to make it smaller */
+  max-width: 900px;
   height: auto;
   aspect-ratio: 16 / 9;
   background-image: url('/images/dk_julekalender/layout/SE_Julekampagne_elektrikere_2x.webp');
@@ -203,7 +179,7 @@ function handleCompetitionClick() {
   position: absolute;
   bottom: 0;
   left: 50%;
-  transform: translateX(calc(-50% - 110%)); /* Position further left, more spacing from center */
+  transform: translateX(calc(-50% - 110%));
   width: 20%;
   max-width: 350px;
   height: auto;
@@ -220,7 +196,7 @@ function handleCompetitionClick() {
   position: absolute;
   bottom: 0;
   left: 50%;
-  transform: translateX(calc(-50% + 110%)); /* Position further right, more spacing from center */
+  transform: translateX(calc(-50% + 110%));
   width: 20%;
   max-width: 350px;
   height: auto;
@@ -299,8 +275,8 @@ function handleCompetitionClick() {
   font-family: 'Arial Black', Arial, sans-serif;
   font-weight: 800;
   font-size: clamp(2rem, 5vw, 4rem);
-  color: #2a9d3f; /* Slightly lighter dark green color */
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.15); /* Subtle shadow for better visibility */
+  color: #2a9d3f;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.15);
   z-index: 2;
   pointer-events: none;
   text-align: center;
@@ -350,9 +326,8 @@ function handleCompetitionClick() {
   color: var(--light);
   font-family: 'Arial Rounded MT Pro', Arial, sans-serif;
   position: relative;
-  z-index: 3; /* Ensure content is above layout elements */
+  z-index: 3;
   margin: 0;
-  margin-top: -8vh;
 }
 
 .message {
@@ -361,29 +336,11 @@ function handleCompetitionClick() {
   line-height: 1.6;
   max-width: 600px;
   position: relative;
-  z-index: 3; /* Ensure content is above layout elements */
+  z-index: 3;
   font-family: 'Arial Rounded MT Pro', Arial, sans-serif;
 }
 
-.line-break-after-om {
-  display: none;
-}
-
-@media (min-width: 481px) {
-  .line-break-after-om {
-    display: inline;
-  }
-}
-
-.registered-symbol {
-  font-size: 0.5em;
-  vertical-align: super;
-  line-height: 0;
-  position: relative;
-  top: -0.3em;
-}
-
-.competition-button {
+.products-button {
   background: var(--brand);
   color: var(--light);
   border: none;
@@ -395,17 +352,25 @@ function handleCompetitionClick() {
   cursor: pointer;
   transition: background 0.15s, transform 0.1s;
   position: relative;
-  z-index: 3; /* Ensure content is above layout elements */
+  z-index: 3;
 }
 
-.competition-button:hover {
+.products-button:hover {
   background: var(--brand-dark);
   transform: translateY(-2px) scale(1.03);
 }
 
+.registered-symbol {
+  font-size: 0.5em;
+  vertical-align: super;
+  line-height: 0;
+  position: relative;
+  top: -0.3em;
+}
+
 /* Responsive design */
 @media (max-width: 768px) {
-  .endgame-view {
+  .thanks-view {
     padding: 1.5rem;
     gap: 1.5rem;
     justify-content: flex-start;
@@ -422,7 +387,7 @@ function handleCompetitionClick() {
     padding: 0 1rem;
   }
   
-  .competition-button {
+  .products-button {
     padding: 0.60rem 1.5rem;
     font-size: 1rem;
   }
@@ -438,7 +403,7 @@ function handleCompetitionClick() {
     padding: 0 0.5rem;
   }
   
-  .competition-button {
+  .products-button {
     padding: 0.60rem 1.2rem;
     font-size: 1.1rem;
   }

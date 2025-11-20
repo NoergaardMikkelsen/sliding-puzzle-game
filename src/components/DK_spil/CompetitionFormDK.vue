@@ -1,5 +1,5 @@
 <template>
-  <div class="endgame-view">
+  <div class="competition-form-view">
     <!-- Layout elements: People at bottom center, products on left and right -->
     <div class="layout-people"></div>
     <div class="layout-products-left"></div>
@@ -19,50 +19,41 @@
     />
     
     <!-- Title -->
-    <h1 class="title">{{ props.gaveUp ? 'Godt forsøgt' : 'Godt klaret' }}</h1>
+    <h1 class="title">Deltag i konkurrencen</h1>
 
-    <!-- Message -->
-    <div class="message">
-      <template v-if="props.gaveUp">
-        Du får alligevel ét lod med i konkurrencen om <span class="line-break-after-om"><br></span>masser af fede præmier 🎁<br><br>Udfyld formularen på næste side og tilmeld dig nyhedsbrevet, så registrerer vi dit lod i konkurrencen.
-      </template>
-      <template v-else>
-        Du har nu ét lod i konkurrencen om <span class="line-break-after-om"><br></span>masser af fede præmier 🎁<br><br>Udfyld formularen på næste side og tilmeld dig nyhedsbrevet, så registrerer vi dit lod i konkurrencen.
-      </template>
+    <!-- Typeform container -->
+    <div class="typeform-container">
+      <!-- Web Typeform -->
+      <div class="typeform-web">
+        <div 
+          data-tf-live="01KAGN31T56MKJ2NRPSYRX9PTX"
+          data-tf-width="100%"
+          data-tf-height="100%"
+        ></div>
+      </div>
+      
+      <!-- Mobile Typeform -->
+      <div class="typeform-mobile">
+        <div 
+          data-tf-live="01KAGN5HMP7M8TQ3JCTAW9ATRY"
+          data-tf-width="100%"
+          data-tf-height="100%"
+        ></div>
+      </div>
     </div>
-
-    <!-- Action button -->
-    <button class="competition-button" @click="handleCompetitionClick">
-      Deltag i konkurrence
-    </button>
   </div>
 </template>
 
 <script setup>
 import { ref, onMounted } from 'vue';
-import { useRouter } from 'vue-router';
+import { useRoute, useRouter } from 'vue-router';
 import Snowflake from './Snowflake.vue';
 
 const router = useRouter();
+const route = useRoute();
 
-// Props
-const props = defineProps({
-  timeMs: {
-    type: Number,
-    required: true
-  },
-  gaveUp: {
-    type: Boolean,
-    default: false
-  },
-  dayNumber: {
-    type: Number,
-    default: null
-  }
-});
-
-// Emits
-const emit = defineEmits(['win-click']);
+// Get day number from route query
+const dayNumber = ref(route.query.day ? parseInt(route.query.day) : null);
 
 // Generate snowflakes
 const snowflakes = ref([]);
@@ -105,45 +96,72 @@ function generateSnowflakes() {
 
 onMounted(() => {
   generateSnowflakes();
+  
+  // Load Typeform script if not already loaded
+  if (!window.typeformEmbed) {
+    const script = document.createElement('script');
+    script.src = '//embed.typeform.com/next/embed.js';
+    script.async = true;
+    document.body.appendChild(script);
+    
+    script.onload = () => {
+      // Wait for Typeform to initialize, then listen for completion and force height
+      setTimeout(() => {
+        setupTypeformListeners();
+        forceTypeformHeight();
+      }, 1500);
+    };
+  } else {
+    setupTypeformListeners();
+    setTimeout(forceTypeformHeight, 500);
+  }
 });
 
-// Methods
+function forceTypeformHeight() {
+  // Force Typeform iframe to use container height
+  const container = document.querySelector('.typeform-container');
+  if (container) {
+    const iframes = container.querySelectorAll('iframe');
+    iframes.forEach(iframe => {
+      iframe.style.height = '100%';
+      iframe.style.minHeight = container.offsetHeight + 'px';
+    });
+  }
+}
 
-function handleCompetitionClick() {
-  // Log end click to Vercel (fire-and-forget)
-  try {
-    if (import.meta.env.PROD && props.dayNumber) {
-      const eventName = `DK_${props.dayNumber}end_click`;
-      const payload = JSON.stringify({ event: eventName });
-      if (navigator.sendBeacon) {
-        const blob = new Blob([payload], { type: 'application/json' });
-        navigator.sendBeacon('/api/track', blob);
-      } else {
-        fetch('/api/track', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: payload, keepalive: true });
-      }
+function setupTypeformListeners() {
+  // Listen for Typeform completion events
+  window.addEventListener('message', (event) => {
+    // Typeform sends completion events
+    if (event.data && event.data.type === 'form-submit' || event.data.type === 'TF_FORM_SUBMIT') {
+      // Navigate to thanks page when form is submitted
+      const dayNumber = route.query.day ? parseInt(route.query.day) : null;
+      router.push({ 
+        name: 'thanks',
+        query: { day: dayNumber }
+      });
     }
-  } catch (e) {}
-  // Navigate to competition form
-  router.push({ 
-    name: 'competition-form',
-    query: { day: props.dayNumber }
   });
 }
+
 </script>
 
 <style scoped>
-.endgame-view {
+.competition-form-view {
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
-  gap: 2rem;
-  padding: 2rem;
+  justify-content: flex-start;
+  gap: 1.5rem;
+  padding: 1.5rem 2rem;
   text-align: center;
   color: var(--light);
-  position: relative;
-  min-height: 100svh; /* Match StartOverlayDK - use small viewport height */
-  height: 100svh; /* Match StartOverlayDK - use small viewport height */
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  min-height: 100svh;
+  height: 100svh;
   overflow: hidden;
   background-color: var(--black);
   background-image: url('/images/dk_julekalender/layout/SE_Julekampagne_bg_desktop_2x.webp');
@@ -153,7 +171,7 @@ function handleCompetitionClick() {
 
 /* Fallback for browsers that don't support svh */
 @supports not (height: 1svh) {
-  .endgame-view {
+  .competition-form-view {
     height: 100vh;
     min-height: 100vh;
   }
@@ -161,14 +179,14 @@ function handleCompetitionClick() {
 
 /* Mobile background image - up to 1024px */
 @media (max-width: 1024px) {
-  .endgame-view {
+  .competition-form-view {
     background-image: url('/images/dk_julekalender/layout/SE_Julekampagne_bg_mobile.webp');
   }
 }
 
 /* Small mobile: Position to focus on bottom 80% of image - ensures people are visible */
 @media (max-width: 600px) {
-  .endgame-view {
+  .competition-form-view {
     background-position: center 80%;
   }
 }
@@ -180,7 +198,7 @@ function handleCompetitionClick() {
   left: 50%;
   transform: translateX(-50%);
   width: 100%;
-  max-width: 900px; /* Reduced from 1200px to make it smaller */
+  max-width: 900px;
   height: auto;
   aspect-ratio: 16 / 9;
   background-image: url('/images/dk_julekalender/layout/SE_Julekampagne_elektrikere_2x.webp');
@@ -203,7 +221,7 @@ function handleCompetitionClick() {
   position: absolute;
   bottom: 0;
   left: 50%;
-  transform: translateX(calc(-50% - 110%)); /* Position further left, more spacing from center */
+  transform: translateX(calc(-50% - 110%));
   width: 20%;
   max-width: 350px;
   height: auto;
@@ -220,7 +238,7 @@ function handleCompetitionClick() {
   position: absolute;
   bottom: 0;
   left: 50%;
-  transform: translateX(calc(-50% + 110%)); /* Position further right, more spacing from center */
+  transform: translateX(calc(-50% + 110%));
   width: 20%;
   max-width: 350px;
   height: auto;
@@ -299,8 +317,8 @@ function handleCompetitionClick() {
   font-family: 'Arial Black', Arial, sans-serif;
   font-weight: 800;
   font-size: clamp(2rem, 5vw, 4rem);
-  color: #2a9d3f; /* Slightly lighter dark green color */
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.15); /* Subtle shadow for better visibility */
+  color: #2a9d3f;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.15);
   z-index: 2;
   pointer-events: none;
   text-align: center;
@@ -345,33 +363,76 @@ function handleCompetitionClick() {
 }
 
 .title {
-  font-size: 3rem;
+  font-size: 2.5rem;
   font-weight: bold;
   color: var(--light);
   font-family: 'Arial Rounded MT Pro', Arial, sans-serif;
   position: relative;
-  z-index: 3; /* Ensure content is above layout elements */
-  margin: 0;
-  margin-top: -8vh;
+  z-index: 3;
+  margin: 1rem 0 0.5rem 0;
 }
 
-.message {
-  font-size: 1.5rem;
-  color: var(--light);
-  line-height: 1.6;
-  max-width: 600px;
+.typeform-container {
   position: relative;
-  z-index: 3; /* Ensure content is above layout elements */
-  font-family: 'Arial Rounded MT Pro', Arial, sans-serif;
+  width: 100%;
+  max-width: 550px;
+  height: 87vh;
+  min-height: 800px;
+  max-height: 1100px;
+  z-index: 3;
+  margin: 0.5rem 0;
+  transform-origin: center top;
+  overflow: hidden;
 }
 
-.line-break-after-om {
+.typeform-web {
+  display: block;
+  width: 100%;
+  height: 100%;
+  transform: scale(0.8);
+  transform-origin: center top;
+}
+
+.typeform-mobile {
   display: none;
+  width: 100%;
+  height: 100%;
+  transform: scale(0.8);
+  transform-origin: center top;
 }
 
-@media (min-width: 481px) {
-  .line-break-after-om {
-    display: inline;
+.typeform-container iframe,
+.typeform-container [data-tf-live],
+.typeform-container [data-tf-live] iframe {
+  width: 100% !important;
+  height: 100% !important;
+  min-height: 100% !important;
+  border: none;
+  border-radius: 0.5rem;
+  display: block;
+}
+
+/* Show mobile typeform on mobile devices */
+@media (max-width: 768px) {
+  .typeform-web {
+    display: none;
+  }
+  
+  .typeform-mobile {
+    display: block;
+  }
+  
+  .typeform-container {
+    height: 75vh;
+    min-height: 650px;
+    max-height: 900px;
+    max-width: 100%;
+    padding: 0 1rem;
+  }
+  
+  .typeform-web,
+  .typeform-mobile {
+    transform: scale(0.85);
   }
 }
 
@@ -383,64 +444,24 @@ function handleCompetitionClick() {
   top: -0.3em;
 }
 
-.competition-button {
-  background: var(--brand);
-  color: var(--light);
-  border: none;
-  border-radius: 0.75rem;
-  padding: 0.80rem 2rem;
-  font-family: 'Arial Rounded MT Pro', Arial, sans-serif;
-  font-size: 1rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: background 0.15s, transform 0.1s;
-  position: relative;
-  z-index: 3; /* Ensure content is above layout elements */
-}
-
-.competition-button:hover {
-  background: var(--brand-dark);
-  transform: translateY(-2px) scale(1.03);
-}
-
 /* Responsive design */
 @media (max-width: 768px) {
-  .endgame-view {
+  .competition-form-view {
     padding: 1.5rem;
     gap: 1.5rem;
     justify-content: flex-start;
-    padding-top: 10rem;
+    padding-top: 8rem;
   }
   
   .title {
     font-size: 2.5rem;
     margin-top: 0;
   }
-  
-  .message {
-    font-size: 1.2rem;
-    padding: 0 1rem;
-  }
-  
-  .competition-button {
-    padding: 0.60rem 1.5rem;
-    font-size: 1rem;
-  }
 }
 
 @media (max-width: 400px) {
   .title {
     font-size: 2rem;
-  }
-  
-  .message {
-    font-size: 1rem;
-    padding: 0 0.5rem;
-  }
-  
-  .competition-button {
-    padding: 0.60rem 1.2rem;
-    font-size: 1.1rem;
   }
 }
 

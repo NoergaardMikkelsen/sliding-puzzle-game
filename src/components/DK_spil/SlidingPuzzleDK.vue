@@ -694,10 +694,10 @@ function moveTile(clickedVisualIndex) {
           }
         } catch (e) {}
         
-        // Wait 5 seconds before showing endgame screen to let user see completed puzzle
+        // Wait 3 seconds before showing endgame screen to let user see completed puzzle
         setTimeout(() => {
           showScoreboard.value = true;
-        }, 5000);
+        }, 3000);
       }
     });
   }
