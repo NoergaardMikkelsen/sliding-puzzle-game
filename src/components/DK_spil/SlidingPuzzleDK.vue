@@ -477,7 +477,7 @@ function createTiles() {
 }
 
 // Animate all tiles to their correct position based on their current index in the tiles array
-function animateAllTiles() {
+function animateAllTiles(shuffleMode = false) {
   const gridContainer = gridRef.value;
   if (!gridContainer || tileRefs.value.length !== tileCount) return;
 
@@ -492,130 +492,144 @@ function animateAllTiles() {
     const targetCol = visualIndex % size;
 
     // Use GSAP to animate the tile to its new position and set its size
+    // Shorter duration during shuffle for faster animation
     gsap.to(domElement, {
       x: targetCol * tileDimension,
       y: targetRow * tileDimension,
       width: tileDimension,
       height: tileDimension,
-      duration: 0.6, 
-      ease: 'power3.out',
+      duration: shuffleMode ? 0.15 : 0.6, // Much faster during shuffle
+      ease: shuffleMode ? 'power2.inOut' : 'power3.out',
     });
   });
 }
 
 function shuffleTiles() {
-  const arr = createTiles();
+  // Ensure we start with tiles array in solved state
+  tiles.value = createTiles();
   
-  // Start with solved state
-  // Then perform a fixed number of random valid moves to shuffle
-  // This ensures the puzzle is always solvable since we only make legal moves
-  let emptyIndex = arr.length - 1; // Empty tile starts at last position (bottom-right)
-  let lastMovedTileIndex = -1; // Track the last moved tile position to avoid immediately reversing
-  
-  // Fixed number of moves for consistent difficulty
-  const numMoves = 10;
-  
-  for (let i = 0; i < numMoves; i++) {
-    const validAdjacentMoves = [];
-    
-    // Calculate empty tile's grid position
-    const emptyRow = Math.floor(emptyIndex / size);
-    const emptyCol = emptyIndex % size;
-    
-    // Find all valid adjacent tiles that can move into the empty space
-    // We check each direction explicitly and verify adjacency
-    
-    // Left: same row, column - 1
-    if (emptyCol > 0) {
-      const leftIndex = emptyIndex - 1;
-      const leftRow = Math.floor(leftIndex / size);
-      const leftCol = leftIndex % size;
-      // Verify: same row, adjacent column, and not the tile we just moved
-      if (leftRow === emptyRow && leftCol === emptyCol - 1 && leftIndex !== lastMovedTileIndex) {
-        validAdjacentMoves.push(leftIndex);
-      }
+  // Wait for DOM to be ready, then position tiles correctly before shuffling
+  requestAnimationFrame(() => {
+    const gridContainer = gridRef.value;
+    if (!gridContainer || tileRefs.value.length !== tileCount) {
+      // Retry if DOM not ready
+      setTimeout(shuffleTiles, 50);
+      return;
     }
     
-    // Right: same row, column + 1
-    if (emptyCol < size - 1) {
-      const rightIndex = emptyIndex + 1;
-      const rightRow = Math.floor(rightIndex / size);
-      const rightCol = rightIndex % size;
-      // Verify: same row, adjacent column, and not the tile we just moved
-      if (rightRow === emptyRow && rightCol === emptyCol + 1 && rightIndex !== lastMovedTileIndex) {
-        validAdjacentMoves.push(rightIndex);
-      }
-    }
+    const tileDimension = gridContainer.offsetWidth / size;
     
-    // Up: row - 1, same column
-    if (emptyRow > 0) {
-      const upIndex = emptyIndex - size;
-      const upRow = Math.floor(upIndex / size);
-      const upCol = upIndex % size;
-      // Verify: row above, same column, and not the tile we just moved
-      if (upRow === emptyRow - 1 && upCol === emptyCol && upIndex !== lastMovedTileIndex) {
-        validAdjacentMoves.push(upIndex);
-      }
-    }
-    
-    // Down: row + 1, same column
-    if (emptyRow < size - 1) {
-      const downIndex = emptyIndex + size;
-      const downRow = Math.floor(downIndex / size);
-      const downCol = downIndex % size;
-      // Verify: row below, same column, and not the tile we just moved
-      if (downRow === emptyRow + 1 && downCol === emptyCol && downIndex !== lastMovedTileIndex) {
-        validAdjacentMoves.push(downIndex);
-      }
-    }
-    
-    // If no valid moves (shouldn't happen), allow any adjacent move
-    if (validAdjacentMoves.length === 0) {
-      // Fallback: allow any adjacent move
-      if (emptyCol > 0) validAdjacentMoves.push(emptyIndex - 1);
-      if (emptyCol < size - 1) validAdjacentMoves.push(emptyIndex + 1);
-      if (emptyRow > 0) validAdjacentMoves.push(emptyIndex - size);
-      if (emptyRow < size - 1) validAdjacentMoves.push(emptyIndex + size);
-    }
-    
-    // Choose a random valid move
-    if (validAdjacentMoves.length > 0) {
-      const randomMoveIndex = validAdjacentMoves[Math.floor(Math.random() * validAdjacentMoves.length)];
+    // First, ensure all tiles are in correct solved positions
+    tiles.value.forEach((tileData, visualIndex) => {
+      const domElement = tileRefs.value[visualIndex];
+      if (!domElement) return;
       
-      // Final safety check: ensure the move is valid
-      const moveRow = Math.floor(randomMoveIndex / size);
-      const moveCol = randomMoveIndex % size;
-      const rowDiff = Math.abs(moveRow - emptyRow);
-      const colDiff = Math.abs(moveCol - emptyCol);
+      const targetRow = Math.floor(visualIndex / size);
+      const targetCol = visualIndex % size;
       
-      // Must be exactly one step away (adjacent)
-      if (rowDiff + colDiff === 1 && randomMoveIndex >= 0 && randomMoveIndex < arr.length && !arr[randomMoveIndex].isEmpty) {
-        // Perform the swap: tile at randomMoveIndex moves to emptyIndex, empty tile moves to randomMoveIndex
-        const temp = arr[emptyIndex];
-        arr[emptyIndex] = arr[randomMoveIndex];
-        arr[randomMoveIndex] = temp;
+      // Set position directly to solved state
+      gsap.set(domElement, {
+        x: targetCol * tileDimension,
+        y: targetRow * tileDimension,
+        width: tileDimension,
+        height: tileDimension,
+      });
+    });
+    
+    // Now perform shuffle moves - exactly like when user plays
+    let emptyIndex = tiles.value.length - 1; // Empty tile starts at last position (bottom-right)
+    let lastMovedTileIndex = -1; // Track the last moved tile to avoid immediate reverse
+    const numMoves = 10;
+    let movesMade = 0;
+    
+    const performShuffle = () => {
+      if (movesMade >= numMoves) {
+        // Shuffle complete
+        isSolved.value = false;
+        resetTimer();
+        return;
+      }
+      
+      const validAdjacentMoves = [];
+      const emptyRow = Math.floor(emptyIndex / size);
+      const emptyCol = emptyIndex % size;
+      
+      // Find all valid adjacent tiles (exactly like moveTile function)
+      if (emptyCol > 0) {
+        const leftIndex = emptyIndex - 1;
+        if (leftIndex !== lastMovedTileIndex && leftIndex >= 0 && leftIndex < tiles.value.length && !tiles.value[leftIndex].isEmpty) {
+          const leftRow = Math.floor(leftIndex / size);
+          const leftCol = leftIndex % size;
+          if (leftRow === emptyRow && leftCol === emptyCol - 1) {
+            validAdjacentMoves.push(leftIndex);
+          }
+        }
+      }
+      
+      if (emptyCol < size - 1) {
+        const rightIndex = emptyIndex + 1;
+        if (rightIndex !== lastMovedTileIndex && rightIndex >= 0 && rightIndex < tiles.value.length && !tiles.value[rightIndex].isEmpty) {
+          const rightRow = Math.floor(rightIndex / size);
+          const rightCol = rightIndex % size;
+          if (rightRow === emptyRow && rightCol === emptyCol + 1) {
+            validAdjacentMoves.push(rightIndex);
+          }
+        }
+      }
+      
+      if (emptyRow > 0) {
+        const upIndex = emptyIndex - size;
+        if (upIndex !== lastMovedTileIndex && upIndex >= 0 && upIndex < tiles.value.length && !tiles.value[upIndex].isEmpty) {
+          const upRow = Math.floor(upIndex / size);
+          const upCol = upIndex % size;
+          if (upRow === emptyRow - 1 && upCol === emptyCol) {
+            validAdjacentMoves.push(upIndex);
+          }
+        }
+      }
+      
+      if (emptyRow < size - 1) {
+        const downIndex = emptyIndex + size;
+        if (downIndex !== lastMovedTileIndex && downIndex >= 0 && downIndex < tiles.value.length && !tiles.value[downIndex].isEmpty) {
+          const downRow = Math.floor(downIndex / size);
+          const downCol = downIndex % size;
+          if (downRow === emptyRow + 1 && downCol === emptyCol) {
+            validAdjacentMoves.push(downIndex);
+          }
+        }
+      }
+      
+      // Choose a random valid move
+      if (validAdjacentMoves.length > 0) {
+        const randomMoveIndex = validAdjacentMoves[Math.floor(Math.random() * validAdjacentMoves.length)];
         
-        // Track which tile was moved (the one now at emptyIndex)
+        // Perform the swap (exactly like moveTile)
+        [tiles.value[emptyIndex], tiles.value[randomMoveIndex]] = [tiles.value[randomMoveIndex], tiles.value[emptyIndex]];
+        
+        // Track the move immediately
         lastMovedTileIndex = emptyIndex;
-        // Update empty position
         emptyIndex = randomMoveIndex;
+        movesMade++;
+        
+        // Animate the swap quickly
+        requestAnimationFrame(() => {
+          animateAllTiles(true); // Use fast shuffle mode
+          
+          // Continue with next move very quickly (after a very short delay for animation)
+          setTimeout(() => {
+            performShuffle();
+          }, 20); // Very short delay - just enough for animation to start
+        });
       } else {
-        // Invalid move - this shouldn't happen, but skip if it does
-        console.warn('Invalid move detected during shuffle, skipping');
-        continue;
+        // No valid moves - reset and continue
+        lastMovedTileIndex = -1;
+        performShuffle();
       }
-    } else {
-      // No valid moves available - this shouldn't happen
-      console.warn('No valid moves available during shuffle');
-      break;
-    }
-  }
-  
-  tiles.value = arr;
-  isSolved.value = false;
-  resetTimer();
-  // Use requestAnimationFrame for smoother animation
-  requestAnimationFrame(() => animateAllTiles()); 
+    };
+    
+    // Start shuffling
+    performShuffle();
+  });
 }
 
 function isSolvedArr(arr) {
