@@ -37,10 +37,14 @@
     
     <!-- Show puzzle grid, timer, and highscore if game has started -->
     <div v-if="gameStarted && !showScoreboard" class="puzzle-section">
-      <!-- Game instruction -->
-      <h2 class="game-instruction">
+      <!-- Game instruction / Completion message -->
+      <h2 class="game-instruction" v-if="!isSolved">
         <span class="instruction-line-1">Løs dagens puslespil</span>
         <span class="instruction-line-2">og vær med i LK<sup class="registered-symbol">®</sup> One konkurrencen</span>
+      </h2>
+      <h2 class="game-instruction completion-message" v-else>
+        <span class="instruction-line-1 completion-title-text">Godt klaret!</span>
+        <span class="instruction-line-2">Du har løst dagens LK<sup class="registered-symbol">®</sup> One puslespil!</span>
       </h2>
       <!-- Modern styled timer with fixed width -->
       <div class="timer timer-fixed">{{ formattedTime }}</div>
@@ -54,7 +58,7 @@
         Klar, parat, start!
       </button>
       <button 
-        v-else-if="gameStarted && !showScoreboard && hasRoundStarted" 
+        v-else-if="gameStarted && !showScoreboard && hasRoundStarted && !isSolved" 
         class="shuffle-btn"
         @click="openRestartConfirm"
       >
@@ -69,7 +73,7 @@
           class="puzzle-tile"
           :class="{ empty: tile.isEmpty }"
           :ref="el => tileRefs[visualIndex] = el"
-          @click="!showFullImage && moveTile(visualIndex)"
+          @click.stop="handleTileClick(visualIndex)"
         >
           <img 
             v-if="tile.img" 
@@ -86,7 +90,7 @@
 
       <!-- Give up button moved under puzzle grid -->
       <button 
-        v-if="gameInProgress && !showScoreboard" 
+        v-if="gameInProgress && !showScoreboard && !isSolved" 
         class="btn-giveup"
         @click="giveUp()"
       >
@@ -97,13 +101,9 @@
       <div v-if="showCountdown" class="countdown-overlay">
         <div class="countdown-text">{{ countdownText }}</div>
       </div>
-      <!-- Dev-only solved trigger removed for production -->
-      <!-- Show the completion dialog modal when solved (keeping for now) -->
-      <CompletionDialog
-        :visible="isSolved && !showScoreboard"
-        :time-ms="timerMs"
-        @submit="handleDialogSubmit"
-      />
+      
+      <!-- Confetti canvas for celebration -->
+      <canvas v-if="isSolved && !showScoreboard" ref="confettiCanvas" class="confetti-canvas"></canvas>
 
       <!-- Confirm restart modal -->
       <ConfirmModalDK 
@@ -122,9 +122,9 @@
 <script setup>
 import { ref, onMounted, onUnmounted, computed, watch, nextTick } from 'vue';
 import { useRouter, onBeforeRouteLeave } from 'vue-router';
+import confetti from 'canvas-confetti';
 import gsap from 'gsap';
 import StartOverlayDK from './StartOverlayDK.vue';
-import CompletionDialog from '../SE_spil/CompletionDialog.vue';
 import EndgameDK from './EndgameDK.vue';
 import ConfirmModalDK from './ConfirmModalDK.vue';
 import Snowflake from './Snowflake.vue';
@@ -274,6 +274,22 @@ const gaveUp = ref(false);
 const showFullImage = ref(true); // Show full image before game starts
 const tileRefs = ref([]); // Refs for each tile DOM element
 const gridRef = ref(null); // Ref for the puzzle grid container DOM element
+const confettiCanvas = ref(null); // Ref for the confetti canvas
+
+// Watch for puzzle being solved to trigger confetti
+watch(isSolved, async (newVal) => {
+  if (newVal) {
+    await nextTick(); // Wait for canvas to be in DOM
+    if (confettiCanvas.value) {
+      // Fire confetti using the custom canvas with a high z-index
+      confetti.create(confettiCanvas.value, { resize: true, useWorker: true })({
+        particleCount: 120,
+        spread: 80,
+        origin: { y: 0.6 }
+      });
+    }
+  }
+});
 
 // Countdown state
 const showCountdown = ref(false);
@@ -612,6 +628,19 @@ function isSolvedArr(arr) {
   return true;
 }
 
+// Handle tile click - start game if not started, otherwise move tile
+function handleTileClick(clickedVisualIndex) {
+  // If game hasn't started yet, start it
+  if (!hasRoundStarted.value) {
+    readySetPlay();
+    return;
+  }
+  // Otherwise, move the tile (but only if full image is not showing)
+  if (!showFullImage.value) {
+    moveTile(clickedVisualIndex);
+  }
+}
+
 function moveTile(clickedVisualIndex) {
   if (!gameInProgress.value || isSolved.value) return;
   const emptyTileIndex = tiles.value.findIndex(t => t.isEmpty);
@@ -633,7 +662,6 @@ function moveTile(clickedVisualIndex) {
       isSolved.value = isSolvedArr(tiles.value);
       if (isSolved.value) {
         stopTimer();
-        showScoreboard.value = true;
         // Mark this day as completed in localStorage
         if (selectedDay.value) {
           markDayAsCompleted(selectedDay.value);
@@ -651,6 +679,11 @@ function moveTile(clickedVisualIndex) {
             }
           }
         } catch (e) {}
+        
+        // Wait 5 seconds before showing endgame screen to let user see completed puzzle
+        setTimeout(() => {
+          showScoreboard.value = true;
+        }, 5000);
       }
     });
   }
@@ -767,10 +800,6 @@ function triggerSolved() {
 }
 
 // Handle dialog form submission
-function handleDialogSubmit(data) {
-  // Production: no console noise
-}
-
 // Handle ready set play button click
 function readySetPlay() {
   // Log start click to Vercel (fire-and-forget)
@@ -1258,6 +1287,23 @@ onUnmounted(() => {
   display: block;
 }
 
+/* Completion message styling */
+.game-instruction.completion-message {
+  animation: completionFadeIn 0.5s ease-in-out;
+}
+
+.completion-title-text {
+  font-size: 2.5rem;
+  font-weight: bold;
+  color: var(--brand);
+  text-shadow: 0 0 20px rgba(61, 205, 87, 0.5);
+  margin-bottom: 0.5rem;
+}
+
+.game-instruction.completion-message .instruction-line-2 {
+  font-size: 1.5rem;
+}
+
 .registered-symbol {
   font-size: 0.5em;
   vertical-align: super;
@@ -1681,6 +1727,49 @@ onUnmounted(() => {
   padding: 0.60rem 1.5rem;
   font-size: 1rem;
 }
+}
+
+/* Confetti canvas styling: covers viewport, always on top */
+.confetti-canvas {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  pointer-events: none;
+  z-index: 3000;
+}
+
+@keyframes completionFadeIn {
+  0% { 
+    transform: scale(0.8);
+    opacity: 0;
+  }
+  100% { 
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+/* Responsive completion message */
+@media (max-width: 768px) {
+  .completion-title-text {
+    font-size: 2rem;
+  }
+  
+  .game-instruction.completion-message .instruction-line-2 {
+    font-size: 1.2rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .completion-title-text {
+    font-size: 1.8rem;
+  }
+  
+  .game-instruction.completion-message .instruction-line-2 {
+    font-size: 1rem;
+  }
 }
 
 </style>

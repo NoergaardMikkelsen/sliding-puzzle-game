@@ -141,8 +141,8 @@ function handleCompetitionClick() {
       }
     }
   } catch (e) {}
-  // Open competition link (update with actual competition URL when available)
-  // window.open('COMPETITION_URL_HERE', '_blank');
+  // Open competition link
+  window.open('https://schneider-dk.typeform.com/to/Z7s0LSWk', '_blank');
 }
 </script>
 
