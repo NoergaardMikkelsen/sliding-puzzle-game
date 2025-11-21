@@ -2,18 +2,18 @@
   <div 
     ref="hoverArea"
     class="calendar-door-wrapper"
-    :class="{ 'animating': isOpening, 'day-passed': isDayPassed }"
+    :class="{ 'animating': isOpening, 'day-passed': isDayPassed, 'future-door': isFuture }"
     @mouseenter="handleMouseEnter"
     @mouseleave="handleMouseLeave"
-    @click="!isDayPassed && handleClick()"
+    @click="!isDayPassed && !isFuture && handleClick()"
   >
-    <!-- Image behind the door - show when hovering, door is opened, or day has passed -->
+    <!-- Image behind the door - show when hovering, door is opened, or (ACTIVE) day has passed -->
     <div 
-      v-if="(isHovering || (isDoorOpen && selectedDay === dayNumber) || isDayPassed) && isActive"
+      v-if="(isHovering || (isDoorOpen && selectedDay === dayNumber) || (isDayPassed && isActive)) && isActive"
       class="door-image-wrapper"
       :class="{ 
-        'permanently-visible': isDayPassed,
-        'darker-green-overlay': isDarkerGreen && isDayPassed
+        'permanently-visible': isDayPassed && isActive,
+        'darker-green-overlay': isDarkerGreen && isDayPassed && isActive
       }"
       @click="!isDayPassed && handleClick()"
     >
@@ -25,9 +25,9 @@
     </div>
     
     <!-- Door container that maintains position - prevents hinge from moving -->
-    <!-- Hide door if day has passed (like ripping off the door in a real calendar) -->
+    <!-- Hide door ONLY if it's an ACTIVE day that has passed (inactive days always show the door) -->
     <div 
-      v-if="!isDayPassed"
+      v-if="!(isDayPassed && isActive)"
       ref="doorContainer"
       class="door-container"
     >
@@ -37,7 +37,8 @@
       class="calendar-door"
       :class="{ 
         'active': isActive, 
-        'inactive': !isActive, 
+        'inactive': !isActive && !isFuture, 
+        'future': isFuture,
         'glowing': dayNumber === currentDay && isActive && !isDayPassed,
         'darker-green': isDarkerGreen,
         'opened': isDoorOpen && selectedDay === dayNumber,
@@ -60,6 +61,10 @@ const props = defineProps({
     required: true
   },
   isActive: {
+    type: Boolean,
+    default: false
+  },
+  isFuture: {
     type: Boolean,
     default: false
   },
@@ -103,9 +108,11 @@ const isDarkerGreen = computed(() => {
   return darkerGreenDays.includes(props.dayNumber);
 });
 
-// Get current day
+// Get current day - TEST: December 3rd
 function getCurrentDay() {
   const now = new Date();
+  now.setMonth(11); // December
+  now.setDate(3); // 3rd
   return now.getDate();
 }
 
@@ -114,16 +121,32 @@ const currentDay = computed(() => {
   return getCurrentDay();
 });
 
+// Check if this day has been completed (game finished) - PRODUCTION VERSION
+function isDayCompleted(dayNumber) {
+  try {
+    const stored = localStorage.getItem('dk_julekalender_completed_days');
+    if (!stored) return false;
+    const completedDays = JSON.parse(stored);
+    return completedDays.includes(dayNumber);
+  } catch (e) {
+    return false;
+  }
+}
+
 // Check if this day has passed (like ripping off the door in a real calendar)
-// TEMPORARILY DISABLED: No days are "ripped off" - all doors remain clickable
+// OR if the game has been completed for this day - TEST: December 3rd
 const isDayPassed = computed(() => {
-  // TEMPORARILY DISABLED - Return false so no doors are "ripped off"
-  return false;
+  // First check if the game has been completed for this day
+  if (isDayCompleted(props.dayNumber)) {
+    return true;
+  }
   
-  /* PRODUCTION CODE - Uncomment when ready to enable date-based door removal:
+  // Use the same test date logic as getCurrentDay()
   const now = new Date();
+  now.setMonth(11); // December
+  now.setDate(3); // 3rd (TEST DATE)
   const currentMonth = now.getMonth(); // 0-11 (0=January, 11=December)
-  const day = getCurrentDay();
+  const day = now.getDate();
   
   // If we're not in December, no days have passed yet
   if (currentMonth !== 11) {
@@ -131,14 +154,15 @@ const isDayPassed = computed(() => {
   }
   
   // If current day is greater than this door's day, the day has passed
+  // E.g., if it's December 3rd, days 1 and 2 have passed
   return day > props.dayNumber;
-  */
 });
 
 function handleClick() {
-  // Only allow clicking if day is active, door is not open, and day hasn't passed
+  // Only allow clicking if day is active, door is not open, day hasn't passed, and it's not a future day
   // Once a day has passed, the door is "ripped off" and cannot be clicked
-  if (props.isActive && !props.isDoorOpen && !isDayPassed.value) {
+  // Future days cannot be clicked either
+  if (props.isActive && !props.isFuture && !props.isDoorOpen && !isDayPassed.value) {
     emit('door-click', props.dayNumber);
   }
 }
@@ -147,11 +171,16 @@ function handleMouseEnter(event) {
   // Only enable hover on desktop (1024px and above)
   if (window.innerWidth < 1024) return;
   
-  // Don't show hover effect if day has passed (door is already "ripped off")
-  if (isDayPassed.value) return;
+  // Don't show hover effect if day has passed (door is already "ripped off") or if it's a future day
+  if (isDayPassed.value || props.isFuture) return;
   
   if (doorElement.value && doorContainer.value && props.isActive && !props.isDoorOpen) {
     isHovering.value = true;
+    
+    // Stop CSS wiggle animation explicitly
+    if (doorElement.value) {
+      doorElement.value.style.animation = 'none';
+    }
     
     // Kill any existing animation
     if (doorAnimation) {
@@ -251,6 +280,10 @@ function handleMouseLeave(event) {
       // This prevents the image from blinking away just before door closes
       setTimeout(() => {
         isHovering.value = false;
+        // Restart wiggle animation when door is fully closed (if door is glowing)
+        if (doorElement.value && props.isActive && !isDayPassed.value) {
+          doorElement.value.style.animation = '';
+        }
       }, 100); // Small delay to ensure smooth transition
     }
   });
@@ -259,6 +292,11 @@ function handleMouseLeave(event) {
 // Keep door open when isDoorOpen is true (after click)
 watch(() => props.isDoorOpen, (isDoorOpen) => {
   if (isDoorOpen && doorElement.value && doorContainer.value && props.selectedDay === props.dayNumber) {
+    // Stop CSS wiggle animation when door is permanently opened
+    if (doorElement.value) {
+      doorElement.value.style.animation = 'none';
+    }
+    
     // Kill any existing animation
     if (doorAnimation) {
       doorAnimation.kill();
@@ -331,6 +369,12 @@ onMounted(() => {
 
 /* Disable cursor and pointer events when day has passed */
 .calendar-door-wrapper.day-passed {
+  cursor: default;
+  pointer-events: none;
+}
+
+/* Disable pointer events for future doors - but keep default cursor */
+.calendar-door-wrapper.future-door {
   cursor: default;
   pointer-events: none;
 }
@@ -488,12 +532,14 @@ onMounted(() => {
   /* GSAP handles the animation, disable pointer events when door is permanently open (after click) */
   pointer-events: none;
   will-change: transform;
+  animation: none; /* Stop wiggle animation when door is opened */
 }
 
 .calendar-door.hovering {
   /* When door is open on hover, allow clicks to pass through to image behind */
   /* The image behind will handle the click */
   pointer-events: none;
+  animation: none; /* Stop wiggle animation when door is hovering/open */
 }
 
 .calendar-door.active {
@@ -517,11 +563,55 @@ onMounted(() => {
   color: var(--light); /* White text */
 }
 
+/* Future doors (not yet reached) - look exactly like active doors but not clickable */
+.calendar-door.future {
+  background-color: var(--brand); /* Bright green - same as active */
+  color: var(--light); /* White text - same as active */
+  opacity: 1; /* Full opacity - no transparency like inactive doors */
+  cursor: default; /* Default cursor - not clickable */
+  /* No special border or shadow - looks exactly like active door */
+}
+
+.calendar-door.future.darker-green {
+  background-color: #2a9d3f; /* Slightly lighter dark green for checkerboard pattern - same as active darker-green */
+  opacity: 1; /* Full opacity */
+  /* No special border or shadow - looks exactly like active darker-green door */
+}
+
 .calendar-door.active.glowing {
   box-shadow: 0 0 30px rgba(173, 216, 255, 0.7), 
               0 0 50px rgba(173, 216, 255, 0.5),
               0 0 70px rgba(173, 216, 255, 0.4),
               0 0 90px rgba(173, 216, 255, 0.3);
+  animation: wiggle 2s ease-in-out infinite;
+}
+
+/* Wiggle animation for active glowing door */
+@keyframes wiggle {
+  0%, 100% {
+    transform: rotate(0deg);
+  }
+  10% {
+    transform: rotate(-3deg);
+  }
+  20% {
+    transform: rotate(3deg);
+  }
+  30% {
+    transform: rotate(-2deg);
+  }
+  40% {
+    transform: rotate(2deg);
+  }
+  50% {
+    transform: rotate(-1deg);
+  }
+  60% {
+    transform: rotate(1deg);
+  }
+  70%, 100% {
+    transform: rotate(0deg);
+  }
 }
 
 /* Hover effect removed - GSAP handles door opening on hover now */

@@ -5,6 +5,7 @@
       :key="day"
       :day-number="day"
       :is-active="isDayActive(day)"
+      :is-future="isDayFuture(day)"
       :is-opening="selectedDay === day && isDoorOpening"
       :selected-day="selectedDay"
       :is-door-open="isDoorOpen"
@@ -37,29 +38,22 @@ const emit = defineEmits(['door-click']);
 // Track which days have puzzle images (not disabled)
 const activeDays = ref([1, 2, 3, 4, 5, 8, 9, 10, 11, 12, 15, 16, 17, 18, 19, 22, 23]); // Based on the image
 
-// Check if a specific date has been reached
-// TEMPORARILY DISABLED: All doors are now accessible regardless of date
-// To re-enable: Remove the return true below and uncomment the logic
+// Check if a specific date has been reached - TEST: December 3rd
 function isDateReached(day) {
-  // TEMPORARILY DISABLED - Allow all doors
-  return true;
-  
-  /* COMMENTED OUT - Original date checking logic
+  // TEST DATE: December 3rd
   const now = new Date();
+  now.setMonth(11); // December
+  now.setDate(3); // 3rd
+  now.setHours(0, 0, 1, 0); // Just after midnight
+  
   const currentYear = now.getFullYear();
   const currentMonth = now.getMonth(); // 0-11 (0=January, 11=December)
   const currentDay = now.getDate();
   
-  // Door 1 (December 1st) is always available
-  if (day === 1) {
-    return true;
-  }
-  
   // Target date for this door: December [day], current year, 00:00:00
   const targetDate = new Date(currentYear, 11, day, 0, 0, 0);
   
-  // If we're before December (January - November), no doors should be open yet (except door 1)
-  // We need to check if we're before December starts (before December 1st)
+  // If we're before December (January - November), no doors should be open yet
   if (currentMonth < 11) {
     return false;
   }
@@ -71,7 +65,6 @@ function isDateReached(day) {
   
   // This shouldn't happen (month is always 0-11), but just in case
   return false;
-  */
 }
 
 // Check if a day is both in the active days list AND the date has been reached
@@ -86,7 +79,41 @@ function isDayActive(day) {
   return isDateReached(day);
 }
 
+// Check if a day is in the future (in activeDays but date not reached yet)
+function isDayFuture(day) {
+  // Day must be in the active days list
+  if (!activeDays.value.includes(day)) {
+    return false; // Not in activeDays = permanently disabled, not future
+  }
+  
+  // If day is in activeDays but date hasn't been reached, it's future
+  return !isDateReached(day);
+}
+
+// Check if a day has been completed (game finished)
+// TEMPORARILY DISABLED - Always return false
+function isDayCompleted(dayNumber) {
+  // TEMPORARILY DISABLED - Always return false
+  return false;
+  
+  /* PRODUCTION CODE - Uncomment when ready to enable localStorage:
+  try {
+    const stored = localStorage.getItem('dk_julekalender_completed_days');
+    if (!stored) return false;
+    const completedDays = JSON.parse(stored);
+    return completedDays.includes(dayNumber);
+  } catch (e) {
+    return false;
+  }
+  */
+}
+
 function handleDoorClick(dayNumber) {
+  // Don't allow click if day has been completed
+  if (isDayCompleted(dayNumber)) {
+    return;
+  }
+  
   // Only allow click if day is active (both in activeDays and date reached)
   if (isDayActive(dayNumber)) {
     emit('door-click', dayNumber);
@@ -147,7 +174,6 @@ function handleDoorClick(dayNumber) {
   .calendar-container {
     gap: 0.4rem;
     padding: 0;
-    margin-top: 1rem;
   }
 }
 </style>
