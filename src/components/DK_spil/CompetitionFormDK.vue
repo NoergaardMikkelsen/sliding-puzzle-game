@@ -1,5 +1,8 @@
 <template>
   <div class="competition-form-view">
+    <!-- SE Logo at top center -->
+    <img src="/images/dk_julekalender/SE_logo.png" alt="Schneider Electric" class="se-logo" />
+    
     <!-- Layout elements: People at bottom center, products on left and right -->
     <div class="layout-people"></div>
     <div class="layout-products-left"></div>
@@ -26,6 +29,7 @@
       <!-- Web Typeform -->
       <div class="typeform-web">
         <div 
+            class="typeform-embed"
           data-tf-live="01KAGN31T56MKJ2NRPSYRX9PTX"
           data-tf-width="100%"
           data-tf-height="100%"
@@ -35,6 +39,7 @@
       <!-- Mobile Typeform -->
       <div class="typeform-mobile">
         <div 
+          class="typeform-embed"
           data-tf-live="01KAGN5HMP7M8TQ3JCTAW9ATRY"
           data-tf-width="100%"
           data-tf-height="100%"
@@ -45,7 +50,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, onBeforeUnmount } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import Snowflake from './Snowflake.vue';
 
@@ -59,6 +64,22 @@ const dayNumber = ref(route.query.day ? parseInt(route.query.day) : null);
 const snowflakes = ref([]);
 const snowflakeSizes = ['small', 'medium', 'large'];
 const numberOfSnowflakes = 65;
+const RESIZE_DEBOUNCE_MS = 200;
+let resizeTimeoutId = null;
+
+const typeformMessageHandler = (event) => {
+  const isTypeformSubmit =
+    event?.data &&
+    (event.data.type === 'form-submit' || event.data.type === 'TF_FORM_SUBMIT');
+
+  if (isTypeformSubmit) {
+    const dayNumber = route.query.day ? parseInt(route.query.day) : null;
+    router.push({
+      name: 'thanks',
+      query: { day: dayNumber }
+    });
+  }
+};
 
 function generateSnowflakes() {
   const flakes = [];
@@ -94,8 +115,17 @@ function generateSnowflakes() {
   snowflakes.value = flakes;
 }
 
+function handleResize() {
+  window.clearTimeout(resizeTimeoutId);
+  resizeTimeoutId = window.setTimeout(() => {
+    forceTypeformHeight();
+  }, RESIZE_DEBOUNCE_MS);
+}
+
 onMounted(() => {
   generateSnowflakes();
+  window.addEventListener('resize', handleResize);
+  handleResize();
   
   // Load Typeform script if not already loaded
   if (!window.typeformEmbed) {
@@ -131,18 +161,15 @@ function forceTypeformHeight() {
 
 function setupTypeformListeners() {
   // Listen for Typeform completion events
-  window.addEventListener('message', (event) => {
-    // Typeform sends completion events
-    if (event.data && event.data.type === 'form-submit' || event.data.type === 'TF_FORM_SUBMIT') {
-      // Navigate to thanks page when form is submitted
-      const dayNumber = route.query.day ? parseInt(route.query.day) : null;
-      router.push({ 
-        name: 'thanks',
-        query: { day: dayNumber }
-      });
-    }
-  });
+  window.removeEventListener('message', typeformMessageHandler);
+  window.addEventListener('message', typeformMessageHandler);
 }
+
+onBeforeUnmount(() => {
+  window.removeEventListener('message', typeformMessageHandler);
+  window.removeEventListener('resize', handleResize);
+  window.clearTimeout(resizeTimeoutId);
+});
 
 </script>
 
@@ -152,8 +179,8 @@ function setupTypeformListeners() {
   flex-direction: column;
   align-items: center;
   justify-content: flex-start;
-  gap: 1.5rem;
-  padding: 1.5rem 2rem;
+  gap: 1rem;
+  padding: 2rem 1rem; /* Match SlidingPuzzleDK padding */
   text-align: center;
   color: var(--light);
   position: fixed;
@@ -189,6 +216,19 @@ function setupTypeformListeners() {
   .competition-form-view {
     background-position: center 80%;
   }
+}
+
+/* SE Logo */
+.se-logo {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 10;
+  max-width: 130px;
+  width: auto;
+  height: auto;
+  pointer-events: none;
 }
 
 /* Layout elements: People and products */
@@ -363,42 +403,67 @@ function setupTypeformListeners() {
 }
 
 .title {
-  font-size: 2.5rem;
+  font-size: clamp(1.5rem, 4vw, 3rem); /* Match StartOverlayDK sizes */
   font-weight: bold;
   color: var(--light);
   font-family: 'Arial Rounded MT Pro', Arial, sans-serif;
   position: relative;
   z-index: 3;
-  margin: 1rem 0 0.5rem 0;
+  margin: 0;
+  margin-top: 2.5rem; /* Match SlidingPuzzleDK placement */
+  margin-bottom: 0.5rem;
+  text-align: center;
+  width: 80vw;
+  max-width: 80vw;
+  padding: 0 1rem;
 }
 
 .typeform-container {
+  --tf-desktop-scale: 0.9;
   position: relative;
-  width: 100%;
-  max-width: 550px;
-  height: 87vh;
-  min-height: 800px;
-  max-height: 1100px;
+  width: min(78vw, 520px);
+  max-width: 520px;
+  min-width: 320px;
+  height: clamp(500px, 75vh, 860px);
+  min-height: 500px;
+  max-height: 860px;
   z-index: 3;
-  margin: 0.5rem 0;
+  margin: 1.25rem auto 0;
+  display: flex;
+  align-items: stretch;
+  justify-content: center;
   transform-origin: center top;
   overflow: hidden;
 }
 
-.typeform-web {
-  display: block;
+.typeform-web,
+.typeform-mobile {
   width: 100%;
   height: 100%;
-  transform: scale(0.8);
-  transform-origin: center top;
+  flex: 1;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
 }
 
 .typeform-mobile {
   display: none;
+}
+
+.typeform-embed {
   width: 100%;
   height: 100%;
-  transform: scale(0.8);
   transform-origin: center top;
+  display: block;
+}
+
+.typeform-web .typeform-embed {
+  transform: scale(var(--tf-desktop-scale));
+}
+
+.typeform-mobile .typeform-embed {
+  transform: none;
+  width: 100%;
 }
 
 .typeform-container iframe,
@@ -418,21 +483,17 @@ function setupTypeformListeners() {
     display: none;
   }
   
-  .typeform-mobile {
-    display: block;
-  }
-  
   .typeform-container {
-    height: 75vh;
-    min-height: 650px;
-    max-height: 900px;
-    max-width: 100%;
-    padding: 0 1rem;
+    width: 95vw;
+    max-width: 95vw;
+    height: clamp(460px, 82vh, 760px);
+    min-height: 460px;
+    max-height: 820px;
+    padding: 0 0.75rem;
   }
   
-  .typeform-web,
   .typeform-mobile {
-    transform: scale(0.85);
+    display: flex;
   }
 }
 
@@ -447,21 +508,158 @@ function setupTypeformListeners() {
 /* Responsive design */
 @media (max-width: 768px) {
   .competition-form-view {
-    padding: 1.5rem;
-    gap: 1.5rem;
-    justify-content: flex-start;
-    padding-top: 8rem;
+    padding: 1rem 1rem; /* Match SlidingPuzzleDK mobile padding */
+    gap: 1rem; /* Match SlidingPuzzleDK mobile gap */
+  }
+  
+  .se-logo {
+    max-width: 140px;
   }
   
   .title {
-    font-size: 2.5rem;
-    margin-top: 0;
+    font-size: clamp(1.2rem, 3.5vw, 1.8rem); /* Match StartOverlayDK mobile */
+    margin-top: 2.5rem; /* Match SlidingPuzzleDK placement */
+    width: 90vw;
+    max-width: 90vw;
+    padding: 0 0.5rem;
   }
 }
 
-@media (max-width: 400px) {
+@media (max-width: 600px) {
+  .se-logo {
+    max-width: 100px;
+  }
+  
+  .typeform-container {
+    height: clamp(440px, 85vh, 700px);
+    min-height: 440px;
+    padding: 0 0.5rem;
+  }
+}
+
+@media (max-width: 480px) {
   .title {
-    font-size: 2rem;
+    font-size: 16.5px; /* Match StartOverlayDK small mobile */
+    margin-top: 2.5rem; /* Match SlidingPuzzleDK placement */
+    width: 95vw;
+    max-width: 95vw;
+    padding: 0 0.5rem;
+  }
+  
+  .typeform-container {
+    height: clamp(420px, 85vh, 660px);
+    min-height: 420px;
+    padding: 0 0.25rem;
+  }
+}
+
+/* Tablet - Smaller tablets around 820px */
+@media (min-width: 769px) and (max-width: 900px) {
+  .competition-form-view {
+    padding: 2rem 1rem;
+  }
+  
+  .se-logo {
+    max-width: 160px;
+  }
+  
+  .title {
+    font-size: clamp(2rem, 3.5vw, 2.8rem); /* Match StartOverlayDK tablet */
+    margin-top: 2.5rem; /* Match SlidingPuzzleDK placement */
+    width: 78vw;
+    max-width: 78vw;
+  }
+}
+
+/* Tablet - Larger tablets */
+@media (min-width: 901px) and (max-width: 1200px) {
+  .competition-form-view {
+    padding: 2rem 1rem;
+  }
+  
+  .se-logo {
+    max-width: 180px;
+  }
+  
+  .title {
+    font-size: clamp(2.4rem, 4vw, 4rem); /* Match StartOverlayDK tablet */
+    margin-top: 2.5rem; /* Match SlidingPuzzleDK placement */
+    width: 78vw;
+    max-width: 78vw;
+  }
+}
+
+/* Smaller desktop (MacBook Air 13", etc.) */
+@media (min-width: 1200px) and (max-width: 1600px) {
+  .competition-form-view {
+    padding: 2rem 1rem;
+  }
+  
+  .se-logo {
+    max-width: 180px;
+  }
+  
+  .title {
+    font-size: clamp(1.5rem, 3vw, 2.4rem); /* Match StartOverlayDK small desktop */
+    margin-top: 2.5rem; /* Match SlidingPuzzleDK placement */
+    width: 75vw;
+    max-width: 75vw;
+  }
+}
+
+/* Larger desktop screens (1920px+, etc.) */
+@media (min-width: 1600px) {
+  .competition-form-view {
+    padding: 2rem 1rem;
+  }
+  
+  .se-logo {
+    max-width: 190px;
+  }
+  
+  .title {
+    font-size: clamp(1.6rem, 2.8vw, 2.6rem); /* Match StartOverlayDK large desktop */
+    margin-top: 2.5rem; /* Match SlidingPuzzleDK placement */
+    width: 70vw;
+    max-width: 70vw;
+  }
+}
+
+/* Typeform container responsive helpers */
+@media (max-width: 1200px) {
+  .typeform-container {
+    width: min(84vw, 520px);
+    height: clamp(520px, 78vh, 900px);
+  }
+}
+
+@media (max-width: 1024px) {
+  .typeform-container {
+    width: min(88vw, 520px);
+    height: clamp(500px, 78vh, 860px);
+    --tf-desktop-scale: 1;
+  }
+}
+
+@media (min-width: 1400px) {
+  .typeform-container {
+    --tf-desktop-scale: 0.86;
+    width: min(68vw, 500px);
+    height: clamp(520px, 72vh, 900px);
+  }
+}
+
+@media (min-width: 1700px) {
+  .typeform-container {
+    --tf-desktop-scale: 0.82;
+    width: min(60vw, 480px);
+    height: clamp(520px, 70vh, 880px);
+  }
+}
+
+@media (min-width: 2000px) {
+  .typeform-container {
+    --tf-desktop-scale: 0.78;
   }
 }
 

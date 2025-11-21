@@ -1,5 +1,8 @@
 <template>
   <div class="endgame-view">
+    <!-- SE Logo at top center -->
+    <img src="/images/dk_julekalender/SE_logo.png" alt="Schneider Electric" class="se-logo" />
+    
     <!-- Layout elements: People at bottom center, products on left and right -->
     <div class="layout-people"></div>
     <div class="layout-products-left"></div>
@@ -24,10 +27,10 @@
     <!-- Message -->
     <div class="message">
       <template v-if="props.gaveUp">
-        Du får alligevel ét lod med i konkurrencen om <span class="line-break-after-om"><br></span>masser af fede præmier 🎁<br><br>Udfyld formularen på næste side og tilmeld dig nyhedsbrevet, så registrerer vi dit lod i konkurrencen.
+        Udfyld formularen på næste side og tilmeld dig nyhedsbrevet.<br><br>Så har du ét lod i konkurrencen om <span class="line-break-after-om"><br></span>masser af fede præmier 🎁
       </template>
       <template v-else>
-        Du har nu ét lod i konkurrencen om <span class="line-break-after-om"><br></span>masser af fede præmier 🎁<br><br>Udfyld formularen på næste side og tilmeld dig nyhedsbrevet, så registrerer vi dit lod i konkurrencen.
+        Udfyld formularen på næste side og tilmeld dig nyhedsbrevet.<br><br>Så har du ét lod i konkurrencen om <span class="line-break-after-om"><br></span>masser af fede præmier 🎁
       </template>
     </div>
 
@@ -123,11 +126,11 @@ function handleCompetitionClick() {
       }
     }
   } catch (e) {}
-  // Navigate to competition form
-  router.push({ 
-    name: 'competition-form',
-    query: { day: props.dayNumber }
-  });
+  // Navigate using explicit path to avoid undefined URLs
+  const targetPath = props.dayNumber
+    ? `/dk_julekalender/konkurrence?day=${props.dayNumber}`
+    : '/dk_julekalender/konkurrence';
+  router.push(targetPath);
 }
 </script>
 
@@ -136,14 +139,17 @@ function handleCompetitionClick() {
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
-  gap: 2rem;
-  padding: 2rem;
+  justify-content: flex-start; /* Match CompetitionFormDK */
+  gap: 1rem;
+  padding: 2rem 1rem; /* Match CompetitionFormDK padding */
   text-align: center;
   color: var(--light);
-  position: relative;
-  min-height: 100svh; /* Match StartOverlayDK - use small viewport height */
-  height: 100svh; /* Match StartOverlayDK - use small viewport height */
+  position: fixed; /* Match CompetitionFormDK - fixed to fill screen */
+  top: 0;
+  left: 0;
+  width: 100vw;
+  min-height: 100svh; /* Match CompetitionFormDK - use small viewport height */
+  height: 100svh; /* Match CompetitionFormDK - use small viewport height */
   overflow: hidden;
   background-color: var(--black);
   background-image: url('/images/dk_julekalender/layout/SE_Julekampagne_bg_desktop_2x.webp');
@@ -171,6 +177,19 @@ function handleCompetitionClick() {
   .endgame-view {
     background-position: center 80%;
   }
+}
+
+/* SE Logo */
+.se-logo {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 10;
+  max-width: 130px;
+  width: auto;
+  height: auto;
+  pointer-events: none;
 }
 
 /* Layout elements: People and products */
@@ -345,24 +364,31 @@ function handleCompetitionClick() {
 }
 
 .title {
-  font-size: 3rem;
+  font-size: clamp(1.5rem, 4vw, 3rem); /* Match StartOverlayDK sizes */
   font-weight: bold;
   color: var(--light);
   font-family: 'Arial Rounded MT Pro', Arial, sans-serif;
   position: relative;
   z-index: 3; /* Ensure content is above layout elements */
   margin: 0;
-  margin-top: -8vh;
+  margin-top: 2.5rem; /* Match StartOverlayDK placement */
+  margin-bottom: 0.5rem;
+  text-align: center;
+  width: 80vw;
+  max-width: 80vw;
+  padding: 0 1rem;
 }
 
 .message {
-  font-size: 1.5rem;
+  font-size: 1.2rem; /* Desktop size - larger than mobile */
   color: var(--light);
   line-height: 1.6;
   max-width: 600px;
+  width: 100%;
   position: relative;
   z-index: 3; /* Ensure content is above layout elements */
   font-family: 'Arial Rounded MT Pro', Arial, sans-serif;
+  margin-top: 0;
 }
 
 .line-break-after-om {
@@ -390,7 +416,7 @@ function handleCompetitionClick() {
   border-radius: 0.75rem;
   padding: 0.80rem 2rem;
   font-family: 'Arial Rounded MT Pro', Arial, sans-serif;
-  font-size: 1rem;
+  font-size: 1rem; /* Desktop size - larger than mobile */
   font-weight: 600;
   cursor: pointer;
   transition: background 0.15s, transform 0.1s;
@@ -406,41 +432,128 @@ function handleCompetitionClick() {
 /* Responsive design */
 @media (max-width: 768px) {
   .endgame-view {
-    padding: 1.5rem;
-    gap: 1.5rem;
-    justify-content: flex-start;
-    padding-top: 10rem;
+    padding: 1rem 1rem; /* Match CompetitionFormDK mobile padding */
+    gap: 1rem; /* Match CompetitionFormDK mobile gap */
+  }
+  
+  .se-logo {
+    max-width: 140px;
   }
   
   .title {
-    font-size: 2.5rem;
-    margin-top: 0;
+    font-size: clamp(1.2rem, 3.5vw, 1.8rem); /* Match StartOverlayDK mobile */
+    margin-top: 2.5rem; /* Match CompetitionFormDK placement */
+    width: 90vw;
+    max-width: 90vw;
+    padding: 0 0.5rem;
   }
   
   .message {
-    font-size: 1.2rem;
+    font-size: 13px; /* Slightly smaller on mobile */
     padding: 0 1rem;
   }
   
   .competition-button {
     padding: 0.60rem 1.5rem;
-    font-size: 1rem;
+    font-size: 13px; /* Responsive - slightly smaller on mobile */
   }
 }
 
-@media (max-width: 400px) {
+@media (max-width: 600px) {
+  .se-logo {
+    max-width: 100px;
+  }
+}
+
+@media (max-width: 480px) {
   .title {
-    font-size: 2rem;
+    font-size: 16.5px; /* Match StartOverlayDK small mobile */
+    margin-top: 2.5rem; /* Match CompetitionFormDK placement */
+    width: 95vw;
+    max-width: 95vw;
+    padding: 0 0.5rem;
   }
   
   .message {
-    font-size: 1rem;
+    font-size: 12px; /* Smaller on small mobile */
     padding: 0 0.5rem;
   }
   
   .competition-button {
     padding: 0.60rem 1.2rem;
-    font-size: 1.1rem;
+    font-size: 12px; /* Smaller on small mobile */
+  }
+}
+
+/* Tablet - Smaller tablets around 820px */
+@media (min-width: 769px) and (max-width: 900px) {
+  .endgame-view {
+    padding: 2rem 1rem;
+  }
+  
+  .se-logo {
+    max-width: 160px;
+  }
+  
+  .title {
+    font-size: clamp(2rem, 3.5vw, 2.8rem); /* Match StartOverlayDK tablet */
+    margin-top: 2.5rem; /* Match CompetitionFormDK placement */
+    width: 78vw;
+    max-width: 78vw;
+  }
+}
+
+/* Tablet - Larger tablets */
+@media (min-width: 901px) and (max-width: 1200px) {
+  .endgame-view {
+    padding: 2rem 1rem;
+  }
+  
+  .se-logo {
+    max-width: 180px;
+  }
+  
+  .title {
+    font-size: clamp(2.4rem, 4vw, 4rem); /* Match StartOverlayDK tablet */
+    margin-top: 2.5rem; /* Match CompetitionFormDK placement */
+    width: 78vw;
+    max-width: 78vw;
+  }
+}
+
+/* Smaller desktop (MacBook Air 13", etc.) */
+@media (min-width: 1200px) and (max-width: 1600px) {
+  .endgame-view {
+    padding: 2rem 1rem;
+  }
+  
+  .se-logo {
+    max-width: 180px;
+  }
+  
+  .title {
+    font-size: clamp(1.5rem, 3vw, 2.4rem); /* Match StartOverlayDK small desktop */
+    margin-top: 2.5rem; /* Match SlidingPuzzleDK placement */
+    width: 75vw;
+    max-width: 75vw;
+  }
+}
+
+/* Larger desktop screens (1920px+, etc.) */
+@media (min-width: 1600px) {
+  .endgame-view {
+    padding: 2rem 1rem;
+  }
+  
+  .se-logo {
+    max-width: 190px;
+  }
+  
+  .title {
+    font-size: clamp(1.6rem, 2.8vw, 2.6rem); /* Match StartOverlayDK large desktop */
+    margin-top: 2.5rem; /* Match SlidingPuzzleDK placement */
+    width: 70vw;
+    max-width: 70vw;
   }
 }
 

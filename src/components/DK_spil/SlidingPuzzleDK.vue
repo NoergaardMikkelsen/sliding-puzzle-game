@@ -37,84 +37,84 @@
     
     <!-- Show puzzle grid, timer, and highscore if game has started -->
     <div v-if="gameStarted && !showScoreboard" class="puzzle-section">
-      <!-- Game instruction / Completion message -->
-      <h2 class="game-instruction" v-if="!isSolved">
-        <span class="instruction-line-1">Løs dagens puslespil</span>
-        <span class="instruction-line-2">og vær med i LK<sup class="registered-symbol">®</sup> One konkurrencen</span>
-      </h2>
-      <h2 class="game-instruction completion-message" v-else>
-        <span class="instruction-line-1 completion-title-text">Godt klaret!</span>
-        <span class="instruction-line-2">Du har løst dagens LK<sup class="registered-symbol">®</sup> One puslespil!</span>
-      </h2>
-      <!-- Modern styled timer with fixed width -->
-      <div class="timer timer-fixed">{{ formattedTime }}</div>
-      
-      <!-- Timer-area primary action: before first round => Start; after at least one round => Starta om -->
-      <button 
-        v-if="gameStarted && !showScoreboard && !hasRoundStarted" 
-        class="shuffle-btn"
-        @click="readySetPlay"
-      >
-        Klar, parat, start!
-      </button>
-      <button 
-        v-else-if="gameStarted && !showScoreboard && hasRoundStarted && !isSolved" 
-        class="shuffle-btn"
-        @click="openRestartConfirm"
-      >
-        Genstart spillet
-      </button>
-      <!-- Puzzle grid with absolute tiles -->
-      <div class="puzzle-grid puzzle-absolute" ref="gridRef">
-        <!-- Show puzzle tiles (solved state before game starts, shuffled after start button) -->
-        <div
-          v-for="(tile, visualIndex) in tiles"
-          :key="tile.id"
-          class="puzzle-tile"
-          :class="{ empty: tile.isEmpty }"
-          :ref="el => tileRefs[visualIndex] = el"
-          @click.stop="handleTileClick(visualIndex)"
+        <!-- Game instruction / Completion message -->
+        <h2 class="game-instruction" v-if="!isSolved">
+          <span class="instruction-line-1">Løs dagens puslespil</span>
+          <span class="instruction-line-2">og vær med i LK<sup class="registered-symbol">®</sup> One konkurrencen</span>
+        </h2>
+        <h2 class="game-instruction completion-message" v-else>
+          <span class="instruction-line-1 completion-title-text">Godt klaret!</span>
+          <span class="instruction-line-2">Du har løst dagens LK<sup class="registered-symbol">®</sup> One puslespil!</span>
+        </h2>
+        <!-- Modern styled timer with fixed width -->
+        <div class="timer timer-fixed">{{ formattedTime }}</div>
+        
+        <!-- Timer-area primary action: before first round => Start; after at least one round => Starta om -->
+        <button 
+          v-if="gameStarted && !showScoreboard && !hasRoundStarted" 
+          class="shuffle-btn"
+          @click="readySetPlay"
         >
-          <img 
-            v-if="tile.img" 
-            :src="tile.img" 
-            :alt="tile.isEmpty ? 'Empty tile' : 'Tile ' + tile.id"
-            loading="eager"
-            fetchpriority="high"
-            :class="{ 'loaded': loadedImages.has(tile.img) }"
-            @load="handleImageLoad"
-            @error="handleImageError"
-          />
+          Klar, parat, start!
+        </button>
+        <button 
+          v-else-if="gameStarted && !showScoreboard && hasRoundStarted && !isSolved" 
+          class="shuffle-btn"
+          @click="openRestartConfirm"
+        >
+          Genstart spillet
+        </button>
+        <!-- Puzzle grid with absolute tiles -->
+        <div class="puzzle-grid puzzle-absolute" ref="gridRef">
+          <!-- Show puzzle tiles (solved state before game starts, shuffled after start button) -->
+          <div
+            v-for="(tile, visualIndex) in tiles"
+            :key="tile.id"
+            class="puzzle-tile"
+            :class="{ empty: tile.isEmpty }"
+            :ref="el => tileRefs[visualIndex] = el"
+            @click.stop="handleTileClick(visualIndex)"
+          >
+            <img 
+              v-if="tile.img" 
+              :src="tile.img" 
+              :alt="tile.isEmpty ? 'Empty tile' : 'Tile ' + tile.id"
+              loading="eager"
+              fetchpriority="high"
+              :class="{ 'loaded': loadedImages.has(tile.img) }"
+              @load="handleImageLoad"
+              @error="handleImageError"
+            />
+          </div>
         </div>
-      </div>
 
-      <!-- Give up button moved under puzzle grid -->
-      <button 
-        v-if="gameInProgress && !showScoreboard && !isSolved" 
-        class="btn-giveup"
-        @click="giveUp()"
-      >
-        Hjælp, jeg giver op!
-      </button>
-      
-      <!-- Countdown overlay -->
-      <div v-if="showCountdown" class="countdown-overlay">
-        <div class="countdown-text">{{ countdownText }}</div>
-      </div>
-      
-      <!-- Confetti canvas for celebration -->
-      <canvas v-if="isSolved && !showScoreboard" ref="confettiCanvas" class="confetti-canvas"></canvas>
+        <!-- Give up button moved under puzzle grid -->
+        <button 
+          v-if="gameInProgress && !showScoreboard && !isSolved" 
+          class="btn-giveup"
+          @click="giveUp()"
+        >
+          Hjælp, jeg giver op!
+        </button>
+        
+        <!-- Countdown overlay -->
+        <div v-if="showCountdown" class="countdown-overlay">
+          <div class="countdown-text">{{ countdownText }}</div>
+        </div>
+        
+        <!-- Confetti canvas for celebration -->
+        <canvas v-if="isSolved && !showScoreboard" ref="confettiCanvas" class="confetti-canvas"></canvas>
 
-      <!-- Confirm restart modal -->
-      <ConfirmModalDK 
-        :visible="showRestartConfirm"
-        title="Er du sikker på, at du vil genstarte?"
-        message="Du mister dine fremskridt fra denne runde."
-        confirm-label="Genstart spillet"
-        cancel-label="Tilbage til spillet"
-        @confirm="confirmRestart"
-        @cancel="cancelRestart"
-      />
+        <!-- Confirm restart modal -->
+        <ConfirmModalDK 
+          :visible="showRestartConfirm"
+          title="Er du sikker på, at du vil genstarte?"
+          message="Du mister dine fremskridt fra denne runde."
+          confirm-label="Genstart spillet"
+          cancel-label="Tilbage til spillet"
+          @confirm="confirmRestart"
+          @cancel="cancelRestart"
+        />
     </div>
   </div>
 </template>
@@ -194,13 +194,8 @@ function generateSnowflakes() {
 // Function to get image prefix based on day number
 // Maps day numbers to the correct image prefix in door folders
 // The image prefix doesn't always match the door number directly
-// localStorage functions for tracking completed days
-// TEMPORARILY DISABLED - localStorage saving is disabled
+// localStorage functions for tracking completed days - PRODUCTION VERSION
 function markDayAsCompleted(dayNumber) {
-  // TEMPORARILY DISABLED - Do nothing
-  return;
-  
-  /* PRODUCTION CODE - Uncomment when ready to enable localStorage:
   try {
     const completedDays = getCompletedDays();
     if (!completedDays.includes(dayNumber)) {
@@ -210,21 +205,15 @@ function markDayAsCompleted(dayNumber) {
   } catch (e) {
     // localStorage might not be available, ignore
   }
-  */
 }
 
 function getCompletedDays() {
-  // TEMPORARILY DISABLED - Always return empty array
-  return [];
-  
-  /* PRODUCTION CODE - Uncomment when ready to enable localStorage:
   try {
     const stored = localStorage.getItem('dk_julekalender_completed_days');
     return stored ? JSON.parse(stored) : [];
   } catch (e) {
     return [];
   }
-  */
 }
 
 
@@ -539,7 +528,7 @@ function shuffleTiles() {
     // Now perform shuffle moves - exactly like when user plays
     let emptyIndex = tiles.value.length - 1; // Empty tile starts at last position (bottom-right)
     let lastMovedTileIndex = -1; // Track the last moved tile to avoid immediate reverse
-    const numMoves = 10;
+    const numMoves = 7; // Reduced from 10 to make the puzzle easier
     let movesMade = 0;
     
     const performShuffle = () => {
@@ -1039,17 +1028,50 @@ onUnmounted(() => {
 
 /* Sliding puzzle container */
 .sliding-puzzle {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start; /* Match CompetitionFormDK */
+  gap: 1rem; /* Match CompetitionFormDK */
+  padding: 2rem 1rem; /* Match CompetitionFormDK padding */
+  text-align: center;
+  color: var(--light);
   position: fixed;
   top: 0;
   left: 0;
   width: 100vw;
-  min-height: 100svh; /* Match StartOverlayDK - use small viewport height */
-  height: 100svh; /* Match StartOverlayDK - use small viewport height */
-  overflow: hidden; /* Hide snowflakes that fall outside */
+  min-height: 100svh;
+  height: 100svh;
+  overflow: hidden;
   background-color: var(--black);
   background-image: url('/images/dk_julekalender/layout/SE_Julekampagne_bg_desktop_2x.webp');
   background-size: cover;
   background-repeat: no-repeat;
+}
+
+.content-frame {
+  width: min(90vw, 1200px);
+  margin: 2rem auto 0;
+  padding: 0 1.5rem 2rem;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+@media (max-width: 1024px) {
+  .content-frame {
+    width: 92vw;
+  }
+}
+
+@media (max-width: 768px) {
+  .content-frame {
+    width: 95vw;
+    margin-top: 1.25rem;
+    padding: 0 1rem 1.5rem;
+  }
 }
 
 /* Fallback for browsers that don't support svh */
@@ -1254,6 +1276,21 @@ onUnmounted(() => {
 /* --- Styles from puzzle.css (puzzle grid, timer, highscore, etc.) --- */
 
 /* Layout for the main puzzle section */
+.content-frame {
+  width: min(90vw, 1200px);
+  margin: 2rem auto 0;
+  padding: 0 1rem 2rem;
+  box-sizing: border-box;
+}
+
+@media (max-width: 768px) {
+  .content-frame {
+    width: 95vw;
+    margin-top: 1.5rem;
+    padding: 0 0.75rem 1.5rem;
+  }
+}
+
 .puzzle-section {
   display: flex;
   flex-direction: column;
@@ -1261,10 +1298,14 @@ onUnmounted(() => {
   justify-content: flex-start;
   gap: 1.25rem; /* single source of vertical spacing */
   width: 100%;
+  max-width: 1100px;
+  margin: 0 auto;
   position: relative;
   overflow: hidden; /* Hide snowflakes that fall outside */
   min-height: 100svh; /* Ensure minimum full viewport height */
-  padding: 2rem 1rem;
+  padding: 0 1rem 2rem;
+  box-sizing: border-box;
+  margin-top: 0;
   z-index: 3; /* Ensure content is above layout elements */
 }
 
@@ -1277,11 +1318,13 @@ onUnmounted(() => {
 
 /* Game instruction styling */
 .game-instruction {
-  font-size: 2rem;
-  font-weight: 600;
+  font-size: clamp(1.5rem, 4vw, 3rem); /* Match StartOverlayDK sizes */
+  font-weight: bold;
   text-align: center;
-  max-width: 550px;
-  padding: 0rem 1rem 0 1rem;
+  width: 100%;
+  max-width: 900px;
+  padding: 0 1rem;
+  margin-bottom: 0; /* Remove bottom margin */
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
@@ -1294,11 +1337,15 @@ onUnmounted(() => {
   color: var(--brand); /* Green color */
   display: block;
   margin-top: 2.5rem;
+  font-size: clamp(1.5rem, 4vw, 3rem); /* Match StartOverlayDK sizes */
+  font-weight: bold;
 }
 
 .instruction-line-2 {
   color: var(--light); /* White color */
   display: block;
+  font-size: clamp(1.5rem, 4vw, 3rem); /* Match StartOverlayDK sizes */
+  font-weight: bold;
 }
 
 /* Completion message styling */
@@ -1310,7 +1357,6 @@ onUnmounted(() => {
   font-size: 2.5rem;
   font-weight: bold;
   color: var(--brand);
-  text-shadow: 0 0 20px rgba(61, 205, 87, 0.5);
   margin-bottom: 0.5rem;
 }
 
@@ -1389,7 +1435,12 @@ onUnmounted(() => {
     font-size: 3rem;
   }
   .game-instruction {
-    font-size: 3.5rem;
+    font-size: clamp(2.4rem, 4vw, 4rem); /* Match StartOverlayDK tablet */
+    margin-bottom: 0; /* Remove bottom margin */
+  }
+  .instruction-line-1,
+  .instruction-line-2 {
+    font-size: clamp(2.4rem, 4vw, 4rem); /* Match StartOverlayDK tablet */
   }
   .shuffle-btn {
     font-size: 1.8rem !important;
@@ -1398,7 +1449,7 @@ onUnmounted(() => {
   .instruction-line-1 {
     color: var(--brand); /* Green color */
     display: block;
-    margin-top: 1.5rem;
+    margin-top: 2.5rem; /* Keep placement */
  }
 }
 @media (max-width: 768px) {
@@ -1407,9 +1458,8 @@ onUnmounted(() => {
   }
   
   .puzzle-section {
-    padding-top: calc(env(safe-area-inset-top, 0px) + 4px);
-    padding: 1rem 1rem;
-    gap: 1rem; /* Reduced gap on mobile */
+    margin-top: 0;
+    gap: 1.25rem; /* Keep standard gap */
   }
   .puzzle-section > :first-child {
     margin-top: 0;
@@ -1421,9 +1471,14 @@ onUnmounted(() => {
   }
   
   .game-instruction {
-    font-size: 1.1rem; /* Smaller on mobile */
-    max-width: 90vw;
+    font-size: clamp(1.2rem, 3.5vw, 1.8rem); /* Match StartOverlayDK mobile */
     padding: 0 0.5rem;
+    margin-bottom: 0; /* Remove bottom margin */
+  }
+  
+  .instruction-line-1,
+  .instruction-line-2 {
+    font-size: clamp(1.2rem, 3.5vw, 1.8rem); /* Match StartOverlayDK mobile */
   }
   
   .timer {
@@ -1453,7 +1508,7 @@ onUnmounted(() => {
     max-width: 100px;
   }
   .instruction-line-1 {
-    margin-top: 0rem;
+    margin-top: 2rem; /* Keep placement */
   }
 }
 
@@ -1467,12 +1522,16 @@ onUnmounted(() => {
   }
   
   .game-instruction {
-    font-size: 1.1rem; /* Even smaller */
-    max-width: 95vw;
+    font-size: 16.5px; /* Match StartOverlayDK small mobile */
+  }
+  
+  .instruction-line-1,
+  .instruction-line-2 {
+    font-size: 16.5px; /* Match StartOverlayDK small mobile */
   }
 
   .puzzle-section {
-    margin-top: 3rem;
+    margin-top: 0;
   }
   
   .timer {
@@ -1500,8 +1559,8 @@ onUnmounted(() => {
 /* iPad and tablet size (769px-1024px) */
 @media (min-width: 769px) and (max-width: 1024px) {
   .puzzle-section {
-    margin-top: 2rem;
-    padding-top: 3rem;
+    margin-top: 0;
+    padding: 0;
   }
   
   .puzzle-absolute {
@@ -1512,8 +1571,15 @@ onUnmounted(() => {
   }
   
   .game-instruction {
-    font-size: 2rem;
-    max-width: 85vw;
+    font-size: clamp(2rem, 3.5vw, 2.8rem); /* Match StartOverlayDK tablet */
+    width: 78vw;
+    max-width: 78vw; /* Match StartOverlayDK tablet width */
+    margin-bottom: 0; /* Remove bottom margin */
+  }
+  
+  .instruction-line-1,
+  .instruction-line-2 {
+    font-size: clamp(2rem, 3.5vw, 2.8rem); /* Match StartOverlayDK tablet */
   }
   
   .timer {
@@ -1562,8 +1628,15 @@ onUnmounted(() => {
   }
   
   .game-instruction {
-    font-size: 1.7rem;
-    max-width: 480px;
+    font-size: clamp(1.5rem, 3vw, 2.4rem); /* Match StartOverlayDK small desktop */
+    width: 75vw;
+    max-width: 75vw; /* Match StartOverlayDK small desktop width */
+    margin-bottom: 0; /* Remove bottom margin */
+  }
+  
+  .instruction-line-1,
+  .instruction-line-2 {
+    font-size: clamp(1.5rem, 3vw, 2.4rem); /* Match StartOverlayDK small desktop */
   }
   
   .timer {
@@ -1593,8 +1666,15 @@ onUnmounted(() => {
   }
   
   .game-instruction {
-    font-size: 1.9rem;
-    max-width: 520px;
+    font-size: clamp(1.6rem, 2.8vw, 2.6rem); /* Match StartOverlayDK large desktop */
+    width: 70vw;
+    max-width: 70vw; /* Match StartOverlayDK large desktop width */
+    margin-bottom: 0; /* Remove bottom margin */
+  }
+  
+  .instruction-line-1,
+  .instruction-line-2 {
+    font-size: clamp(1.6rem, 2.8vw, 2.6rem); /* Match StartOverlayDK large desktop */
   }
   
   .timer {
@@ -1735,8 +1815,8 @@ onUnmounted(() => {
     font-size: 6rem;
   }
   .puzzle-section {
-  gap: 1rem; /* single source of vertical spacing */
-}
+    gap: 1rem; /* single source of vertical spacing */
+  }
 .btn-giveup {
   padding: 0.60rem 1.5rem;
   font-size: 1rem;

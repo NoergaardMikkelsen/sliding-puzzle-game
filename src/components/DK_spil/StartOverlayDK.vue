@@ -166,61 +166,38 @@ function updateImageSize() {
 // Function to position start-lower-container
 function updateContainerPosition() {
   if (!startLowerContainer.value) return;
-  if (!startHeadline.value) return;
   
   const viewportWidth = window.innerWidth;
   
   if (viewportWidth <= 768) {
     // Mobile: Responsive positioning - smaller screen = closer to bottom
     let bottomValue;
-    let topValue;
-    let fontSize; 
     if (viewportWidth <= 375) {
       // iPhone SE and smaller: closer to bottom
       bottomValue = '10%';
-      topValue = '1%';
-      fontSize = '1.3rem';
     } else if (viewportWidth <= 500) {
       // iPhone Plus and similar: medium distance
       bottomValue = '15%';
-      topValue = '1%';
-      fontSize = '1.5rem';
-      
     } else if (viewportWidth <= 540) {
       // iPhone Plus and similar: medium distance
       bottomValue = '15%';
-      topValue = '1%';
-      fontSize = '2.3rem';
-      
     } else {
       // iPad and larger mobile: higher up
       bottomValue = '8rem';
-      topValue = '1rem'
-      fontSize = '2.8rem';
     }
     startLowerContainer.value.style.bottom = bottomValue;
-    startHeadline.value.style.top = topValue; 
-    startHeadline.value.style.fontSize = fontSize;
   } else if (viewportWidth <= 1024) {
     // Tablet
     startLowerContainer.value.style.bottom = '10rem';
-    startHeadline.value.style.top = '2%';
-    startHeadline.value.style.fontSize = '2.5rem';
   } else if (viewportWidth <= 1440) {
     // Small Desktop (MacBook Air 13")
     startLowerContainer.value.style.bottom = '5%';
-    startHeadline.value.style.top = '1%';
-    startHeadline.value.style.fontSize = '3rem';
   } else if (viewportWidth <= 1920) {
     // Medium Desktop (MacBook Air 15")
     startLowerContainer.value.style.bottom = '5%';
-    startHeadline.value.style.top = '1%';
-    startHeadline.value.style.fontSize = '3.5rem';
   } else {
     // Large Desktop
     startLowerContainer.value.style.bottom = '7rem';
-    startHeadline.value.style.top = '1.5%';
-    startHeadline.value.style.fontSize = '4rem';
   }
 }
 
@@ -518,23 +495,16 @@ onUnmounted(() => {
   min-height: 86svh;
   max-width: 100vw;
   overflow: visible; /* allow disclaimer to be visible at bottom */
-  padding: 1rem 1rem;
+  padding: 0;
+  margin-top: 2.5rem; /* Match SlidingPuzzleDK spacing from SE logo */
   position: relative;
   z-index: 3; /* Ensure content is above layout elements and snowflakes */
 }
 
-/* Mobile and tablet: Add margin-top to push content down */
-@media (max-width: 1200px) {
-  .start-screen-content {
-    margin-top: 3rem;
-  }
-}
-
-/* Mobile: Remove padding */
+/* Mobile and tablet: Adjust margin-top */
 @media (max-width: 768px) {
   .start-screen-content {
-    padding: 0;
-    margin-top: 2rem; /* Adjust as needed */
+    margin-top: 2.5rem;
   }
 }
 
@@ -542,8 +512,8 @@ onUnmounted(() => {
   position: relative;
   display: flex;
   flex-direction: column;
-  align-items: flex-end;
-  justify-content: center;
+  align-items: center;
+  justify-content: flex-start;
   width: 100%;
   /* Reserve space for disclaimer on mobile/tablet and browser UI */
   padding-bottom: calc(env(safe-area-inset-bottom, 0px) + var(--ios-ui-offset, 0px));
@@ -582,6 +552,7 @@ onUnmounted(() => {
   text-align: center;
   z-index: 2;
   font-size: clamp(1.5rem, 4vw, 3rem);
+  margin: 0;
   margin-bottom: 2rem;
   display: flex;
   flex-direction: column;
@@ -720,7 +691,6 @@ onUnmounted(() => {
   .start-headline {
     font-size: clamp(1.2rem, 3.5vw, 1.8rem); /* Smaller font size on mobile */
     width: 90vw;
-    top: clamp(0.5rem, 3vh, 2rem);
     margin-bottom: 1.5rem; /* Reduced margin */
   }
 
@@ -746,7 +716,6 @@ onUnmounted(() => {
 @media (max-width: 480px) {
   .start-headline {
     font-size: 16.5px;
-    margin-top: 3rem; /* Fixed 18px for small screens */
   }
 }
 
@@ -754,7 +723,6 @@ onUnmounted(() => {
 @media (min-width: 769px) and (max-width: 900px) {
   .start-headline {
     font-size: clamp(2rem, 3.5vw, 2.8rem);
-    top: clamp(1rem, 4vh, 3rem);
     max-width: 78vw;
     margin-bottom: 2rem; /* Ensure spacing between headline and calendar */
   }
@@ -767,7 +735,6 @@ onUnmounted(() => {
 @media (min-width: 901px) and (max-width: 1200px) {
   .start-headline {
     font-size: clamp(2.4rem, 4vw, 4rem);
-    top: clamp(1rem, 4vh, 3rem);
     max-width: 78vw;
     margin-bottom: 2rem; /* Ensure spacing between headline and calendar */
   }
