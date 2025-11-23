@@ -1471,14 +1471,14 @@ onUnmounted(() => {
   }
   
   .game-instruction {
-    font-size: clamp(1.2rem, 3.5vw, 1.8rem); /* Match StartOverlayDK mobile */
+    font-size: clamp(1.6rem, 4.5vw, 2.2rem); /* Match StartOverlayDK - larger for better readability */
     padding: 0 0.5rem;
     margin-bottom: 0; /* Remove bottom margin */
   }
   
   .instruction-line-1,
   .instruction-line-2 {
-    font-size: clamp(1.2rem, 3.5vw, 1.8rem); /* Match StartOverlayDK mobile */
+    font-size: clamp(1.6rem, 4.5vw, 2.2rem); /* Match StartOverlayDK - larger for better readability */
   }
   
   .timer {
@@ -1522,12 +1522,12 @@ onUnmounted(() => {
   }
   
   .game-instruction {
-    font-size: 16.5px; /* Match StartOverlayDK small mobile */
+    font-size: 20px; /* Match StartOverlayDK - larger for better readability */
   }
   
   .instruction-line-1,
   .instruction-line-2 {
-    font-size: 16.5px; /* Match StartOverlayDK small mobile */
+    font-size: 20px; /* Match StartOverlayDK - larger for better readability */
   }
 
   .puzzle-section {

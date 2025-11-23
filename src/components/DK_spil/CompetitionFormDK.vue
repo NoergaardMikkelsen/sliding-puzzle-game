@@ -179,7 +179,6 @@ onBeforeUnmount(() => {
   flex-direction: column;
   align-items: center;
   justify-content: flex-start;
-  gap: 1rem;
   padding: 2rem 1rem; /* Match SlidingPuzzleDK padding */
   text-align: center;
   color: var(--light);
@@ -509,7 +508,6 @@ onBeforeUnmount(() => {
 @media (max-width: 768px) {
   .competition-form-view {
     padding: 1rem 1rem; /* Match SlidingPuzzleDK mobile padding */
-    gap: 1rem; /* Match SlidingPuzzleDK mobile gap */
   }
   
   .se-logo {
@@ -539,7 +537,7 @@ onBeforeUnmount(() => {
 
 @media (max-width: 480px) {
   .title {
-    font-size: 16.5px; /* Match StartOverlayDK small mobile */
+    font-size: 20px; /* Match StartOverlayDK - larger for better readability */
     margin-top: 2.5rem; /* Match SlidingPuzzleDK placement */
     width: 95vw;
     max-width: 95vw;

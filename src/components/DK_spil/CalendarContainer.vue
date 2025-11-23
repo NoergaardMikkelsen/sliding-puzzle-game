@@ -136,12 +136,7 @@ function handleDoorClick(dayNumber) {
   perspective-origin: center center;
 }
 
-/* Tablet */
-@media (min-width: 768px) and (max-width: 1200px) {
-  .calendar-container {
-    margin-top: 3rem;
-  }
-}
+
 
 /* Smaller desktop (MacBook Air 13", etc.) */
 @media (min-width: 1200px) and (max-width: 1600px) {

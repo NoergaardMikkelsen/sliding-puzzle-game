@@ -449,13 +449,13 @@ function handleCompetitionClick() {
   }
   
   .message {
-    font-size: 13px; /* Slightly smaller on mobile */
+    font-size: 17px; /* Match heading sizes - larger on mobile for better readability */
     padding: 0 1rem;
   }
   
   .competition-button {
     padding: 0.60rem 1.5rem;
-    font-size: 13px; /* Responsive - slightly smaller on mobile */
+    font-size: 17px; /* Match heading sizes - larger on mobile for better readability */
   }
 }
 
@@ -467,7 +467,7 @@ function handleCompetitionClick() {
 
 @media (max-width: 480px) {
   .title {
-    font-size: 16.5px; /* Match StartOverlayDK small mobile */
+    font-size: 20px; /* Match StartOverlayDK - larger for better readability */
     margin-top: 2.5rem; /* Match CompetitionFormDK placement */
     width: 95vw;
     max-width: 95vw;
@@ -475,13 +475,13 @@ function handleCompetitionClick() {
   }
   
   .message {
-    font-size: 12px; /* Smaller on small mobile */
+    font-size: 17px; /* Follow heading size increase - larger on small mobile for better readability */
     padding: 0 0.5rem;
   }
   
   .competition-button {
     padding: 0.60rem 1.2rem;
-    font-size: 12px; /* Smaller on small mobile */
+    font-size: 17px; /* Follow heading size increase - larger on small mobile for better readability */
   }
 }
 

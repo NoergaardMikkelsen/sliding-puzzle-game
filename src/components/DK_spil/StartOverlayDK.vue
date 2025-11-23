@@ -689,7 +689,7 @@ onUnmounted(() => {
   }
 
   .start-headline {
-    font-size: clamp(1.2rem, 3.5vw, 1.8rem); /* Smaller font size on mobile */
+    font-size: clamp(1.6rem, 4.5vw, 2.2rem); /* Larger font size on mobile for better readability */
     width: 90vw;
     margin-bottom: 1.5rem; /* Reduced margin */
   }
@@ -715,7 +715,7 @@ onUnmounted(() => {
 /* Very small mobile: Fixed font size */
 @media (max-width: 480px) {
   .start-headline {
-    font-size: 16.5px;
+    font-size: 20px; /* Larger for better readability on small screens */
   }
 }
 
