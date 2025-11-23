@@ -457,7 +457,7 @@ function handleProductsClick() {
   }
   
   .title {
-    font-size: clamp(2rem, 3.5vw, 2.8rem); /* Match StartOverlayDK tablet */
+    font-size: clamp(2.2rem, 4vw, 2.8rem); /* Larger to ensure it's not smaller than mobile */
     margin-top: 2.5rem; /* Match SlidingPuzzleDK placement */
     width: 78vw;
     max-width: 78vw;

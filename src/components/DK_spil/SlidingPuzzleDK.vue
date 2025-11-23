@@ -1571,7 +1571,7 @@ onUnmounted(() => {
   }
   
   .game-instruction {
-    font-size: clamp(2rem, 3.5vw, 2.8rem); /* Match StartOverlayDK tablet */
+    font-size: clamp(2.2rem, 4vw, 2.8rem); /* Larger to ensure it's not smaller than mobile */
     width: 78vw;
     max-width: 78vw; /* Match StartOverlayDK tablet width */
     margin-bottom: 0; /* Remove bottom margin */
@@ -1579,7 +1579,7 @@ onUnmounted(() => {
   
   .instruction-line-1,
   .instruction-line-2 {
-    font-size: clamp(2rem, 3.5vw, 2.8rem); /* Match StartOverlayDK tablet */
+    font-size: clamp(2.2rem, 4vw, 2.8rem); /* Larger to ensure it's not smaller than mobile */
   }
   
   .timer {
