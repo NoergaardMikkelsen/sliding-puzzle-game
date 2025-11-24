@@ -196,6 +196,8 @@ function generateSnowflakes() {
 // The image prefix doesn't always match the door number directly
 // localStorage functions for tracking completed days - PRODUCTION VERSION
 function markDayAsCompleted(dayNumber) {
+  // Temporarily disabled while testing – uncomment when ready to persist progress
+  /*
   try {
     const completedDays = getCompletedDays();
     if (!completedDays.includes(dayNumber)) {
@@ -205,15 +207,12 @@ function markDayAsCompleted(dayNumber) {
   } catch (e) {
     // localStorage might not be available, ignore
   }
+  */
 }
 
 function getCompletedDays() {
-  try {
-    const stored = localStorage.getItem('dk_julekalender_completed_days');
-    return stored ? JSON.parse(stored) : [];
-  } catch (e) {
-    return [];
-  }
+  // Temporarily disabled while testing – always return empty list
+  return [];
 }
 
 

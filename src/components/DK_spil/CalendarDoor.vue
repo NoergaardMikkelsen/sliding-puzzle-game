@@ -131,14 +131,8 @@ const currentDay = computed(() => {
 
 // Check if this day has been completed (game finished) - PRODUCTION VERSION
 function isDayCompleted(dayNumber) {
-  try {
-    const stored = localStorage.getItem('dk_julekalender_completed_days');
-    if (!stored) return false;
-    const completedDays = JSON.parse(stored);
-    return completedDays.includes(dayNumber);
-  } catch (e) {
-    return false;
-  }
+  // Temporarily disabled until final launch
+  return false;
 }
 
 // Check if this day has passed (like ripping off the door in a real calendar)
