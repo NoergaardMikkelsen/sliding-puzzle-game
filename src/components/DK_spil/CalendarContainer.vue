@@ -38,9 +38,21 @@ const emit = defineEmits(['door-click']);
 // Track which days have puzzle images (not disabled)
 const activeDays = ref([1, 2, 3, 4, 5, 8, 9, 10, 11, 12, 15, 16, 17, 18, 19, 22, 23]); // Based on the image
 
-// Check if a specific date has been reached - production logic
-function isDateReached(day) {
+const TEST_FORCE_DECEMBER_FIRST = true; // TODO: remove when real schedule should apply
+
+function getReferenceDate() {
   const now = new Date();
+  if (TEST_FORCE_DECEMBER_FIRST) {
+    now.setMonth(11); // December
+    now.setDate(1); // Unlock door 1 for testing
+    now.setHours(0, 0, 1, 0);
+  }
+  return now;
+}
+
+// Check if a specific date has been reached
+function isDateReached(day) {
+  const now = getReferenceDate();
   const currentYear = now.getFullYear();
   const currentMonth = now.getMonth(); // 0-11 (0=January, 11=December)
   

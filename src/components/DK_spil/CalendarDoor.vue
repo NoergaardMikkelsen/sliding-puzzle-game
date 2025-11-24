@@ -108,12 +108,20 @@ const isDarkerGreen = computed(() => {
   return darkerGreenDays.includes(props.dayNumber);
 });
 
-// Get current day - TEST: December 3rd
-function getCurrentDay() {
+const TEST_FORCE_DECEMBER_FIRST = true; // Aligns with CalendarContainer testing override
+
+function getReferenceDate() {
   const now = new Date();
-  now.setMonth(11); // December
-  now.setDate(3); // 3rd
-  return now.getDate();
+  if (TEST_FORCE_DECEMBER_FIRST) {
+    now.setMonth(11); // December
+    now.setDate(1); // Unlock door 1 without marking it as passed
+    now.setHours(0, 0, 1, 0);
+  }
+  return now;
+}
+
+function getCurrentDay() {
+  return getReferenceDate().getDate();
 }
 
 // Get current day for glow effect
@@ -141,10 +149,7 @@ const isDayPassed = computed(() => {
     return true;
   }
   
-  // Use the same test date logic as getCurrentDay()
-  const now = new Date();
-  now.setMonth(11); // December
-  now.setDate(3); // 3rd (TEST DATE)
+  const now = getReferenceDate();
   const currentMonth = now.getMonth(); // 0-11 (0=January, 11=December)
   const day = now.getDate();
   
