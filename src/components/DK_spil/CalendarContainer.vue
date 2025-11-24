@@ -38,17 +38,11 @@ const emit = defineEmits(['door-click']);
 // Track which days have puzzle images (not disabled)
 const activeDays = ref([1, 2, 3, 4, 5, 8, 9, 10, 11, 12, 15, 16, 17, 18, 19, 22, 23]); // Based on the image
 
-// Check if a specific date has been reached - TEST: December 3rd
+// Check if a specific date has been reached - production logic
 function isDateReached(day) {
-  // TEST DATE: December 3rd
   const now = new Date();
-  now.setMonth(11); // December
-  now.setDate(3); // 3rd
-  now.setHours(0, 0, 1, 0); // Just after midnight
-  
   const currentYear = now.getFullYear();
   const currentMonth = now.getMonth(); // 0-11 (0=January, 11=December)
-  const currentDay = now.getDate();
   
   // Target date for this door: December [day], current year, 00:00:00
   const targetDate = new Date(currentYear, 11, day, 0, 0, 0);
