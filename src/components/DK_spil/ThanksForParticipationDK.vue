@@ -45,6 +45,9 @@ import Snowflake from './Snowflake.vue';
 const route = useRoute();
 const dayNumber = ref(route.query.day ? parseInt(route.query.day) : null);
 
+// DEBUG: Log to see if dayNumber is set correctly
+console.log('ThanksForParticipation - dayNumber:', dayNumber.value, 'PROD:', import.meta.env.PROD);
+
 // Generate snowflakes
 const snowflakes = ref([]);
 const snowflakeSizes = ['small', 'medium', 'large'];
@@ -94,15 +97,22 @@ function handleProductsClick() {
   try {
     if (import.meta.env.PROD && dayNumber.value) {
       const eventName = `DK_${dayNumber.value}LK_click`;
+      console.log('Sending event:', eventName); // DEBUG
       const payload = JSON.stringify({ event: eventName });
       if (navigator.sendBeacon) {
         const blob = new Blob([payload], { type: 'application/json' });
-        navigator.sendBeacon('/api/track', blob);
+        const sent = navigator.sendBeacon('/api/track', blob);
+        console.log('SendBeacon result:', sent); // DEBUG
       } else {
-        fetch('/api/track', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: payload, keepalive: true });
+        fetch('/api/track', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: payload, keepalive: true })
+          .then(res => console.log('Fetch result:', res.status)); // DEBUG
       }
+    } else {
+      console.log('Tracking skipped - PROD:', import.meta.env.PROD, 'dayNumber:', dayNumber.value); // DEBUG
     }
-  } catch (e) {}
+  } catch (e) {
+    console.error('Tracking error:', e); // DEBUG
+  }
   window.open('https://www.lk.dk/lk-one/', '_blank');
 }
 </script>
