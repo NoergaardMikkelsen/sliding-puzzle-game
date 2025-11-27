@@ -25,8 +25,17 @@ export default async function handler(request) {
     eventName === 'give_up_click';
   
   if (isDKEvent || isLegacyEvent) {
+    const now = new Date();
+    const copenhagenTime = now.toLocaleString('sv-SE', {
+      timeZone: 'Europe/Copenhagen',
+      hour12: false
+    });
     // Log as structured JSON so it is easy to filter in Vercel Logs
-    console.log(JSON.stringify({ event: eventName, ts: new Date().toISOString() }));
+    console.log(JSON.stringify({
+      event: eventName,
+      ts_utc: now.toISOString(),
+      ts_cet: copenhagenTime
+    }));
   }
 
   // Always return 204 to keep the request lightweight
