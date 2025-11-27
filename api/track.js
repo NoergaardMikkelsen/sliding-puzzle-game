@@ -14,12 +14,17 @@ export default async function handler(request) {
   }
 
   // Only allow the whitelisted events; ignore everything else
-  if (
+  // Match DK events: DK_{day}start_click, DK_{day}end_click, DK_{day}completed_game, DK_{day}give_up_click, DK_{day}LK_click
+  const isDKEvent = /^DK_\d+(start_click|end_click|completed_game|give_up_click|LK_click)$/.test(eventName);
+  
+  // Legacy events (without DK_ prefix)
+  const isLegacyEvent = 
     eventName === 'start_click' ||
     eventName === 'end_click' ||
     eventName === 'completed_game' ||
-    eventName === 'give_up_click'
-  ) {
+    eventName === 'give_up_click';
+  
+  if (isDKEvent || isLegacyEvent) {
     // Log as structured JSON so it is easy to filter in Vercel Logs
     console.log(JSON.stringify({ event: eventName, ts: new Date().toISOString() }));
   }
