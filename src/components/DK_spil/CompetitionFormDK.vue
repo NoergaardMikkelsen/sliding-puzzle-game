@@ -67,6 +67,20 @@ const numberOfSnowflakes = 65;
 const RESIZE_DEBOUNCE_MS = 200;
 let resizeTimeoutId = null;
 
+// Mark day as completed in localStorage
+function markDayAsCompleted(dayNumber) {
+  try {
+    const stored = localStorage.getItem('dk_julekalender_completed_days');
+    const completedDays = stored ? JSON.parse(stored) : [];
+    if (!completedDays.includes(dayNumber)) {
+      completedDays.push(dayNumber);
+      localStorage.setItem('dk_julekalender_completed_days', JSON.stringify(completedDays));
+    }
+  } catch (e) {
+    // localStorage might not be available, ignore
+  }
+}
+
 const typeformMessageHandler = (event) => {
   const isTypeformSubmit =
     event?.data &&
@@ -74,6 +88,12 @@ const typeformMessageHandler = (event) => {
 
   if (isTypeformSubmit) {
     const dayNumber = route.query.day ? parseInt(route.query.day) : null;
+    
+    // Mark this day as completed when form is submitted
+    if (dayNumber) {
+      markDayAsCompleted(dayNumber);
+    }
+    
     router.push({
       name: 'thanks',
       query: { day: dayNumber }

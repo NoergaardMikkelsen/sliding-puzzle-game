@@ -108,16 +108,8 @@ const isDarkerGreen = computed(() => {
   return darkerGreenDays.includes(props.dayNumber);
 });
 
-const TEST_FORCE_DECEMBER_FIRST = true; // Aligns with CalendarContainer testing override
-
 function getReferenceDate() {
-  const now = new Date();
-  if (TEST_FORCE_DECEMBER_FIRST) {
-    now.setMonth(11); // December
-    now.setDate(1); // Unlock door 1 without marking it as passed
-    now.setHours(0, 0, 1, 0);
-  }
-  return now;
+  return new Date();
 }
 
 function getCurrentDay() {
@@ -131,21 +123,34 @@ const currentDay = computed(() => {
 
 // Check if this day has been completed (game finished) - PRODUCTION VERSION
 function isDayCompleted(dayNumber) {
-  // Temporarily disabled until final launch
-  return false;
+  try {
+    const stored = localStorage.getItem('dk_julekalender_completed_days');
+    if (!stored) return false;
+    const completedDays = JSON.parse(stored);
+    return completedDays.includes(dayNumber);
+  } catch (e) {
+    return false;
+  }
 }
 
 // Check if this day has passed (like ripping off the door in a real calendar)
-// OR if the game has been completed for this day - TEST: December 3rd
+// A day is "passed" (shows ripped state) ONLY if the current date has moved past it
+// NOT if it's still the current day - even if completed
 const isDayPassed = computed(() => {
-  // First check if the game has been completed for this day
-  if (isDayCompleted(props.dayNumber)) {
-    return true;
-  }
-  
   const now = getReferenceDate();
   const currentMonth = now.getMonth(); // 0-11 (0=January, 11=December)
   const day = now.getDate();
+  
+  // Special case: Door 1 only passes on December 2nd or later
+  if (props.dayNumber === 1) {
+    if (currentMonth < 11) {
+      return false; // Before December, door 1 is not passed
+    }
+    if (currentMonth === 11) {
+      return day >= 2; // Passed on December 2nd or later
+    }
+    return false;
+  }
   
   // If we're not in December, no days have passed yet
   if (currentMonth !== 11) {
@@ -153,7 +158,7 @@ const isDayPassed = computed(() => {
   }
   
   // If current day is greater than this door's day, the day has passed
-  // E.g., if it's December 3rd, days 1 and 2 have passed
+  // E.g., if it's December 3rd, days 1 and 2 have passed (but not day 3)
   return day > props.dayNumber;
 });
 

@@ -112,6 +112,18 @@ onMounted(() => {
 
 // Methods
 
+// Check if this day has been completed (form filled out)
+function isDayCompleted(dayNumber) {
+  try {
+    const stored = localStorage.getItem('dk_julekalender_completed_days');
+    if (!stored) return false;
+    const completedDays = JSON.parse(stored);
+    return completedDays.includes(dayNumber);
+  } catch (e) {
+    return false;
+  }
+}
+
 function handleCompetitionClick() {
   // Log end click to Vercel (fire-and-forget)
   try {
@@ -126,7 +138,15 @@ function handleCompetitionClick() {
       }
     }
   } catch (e) {}
-  // Navigate using explicit path to avoid undefined URLs
+  
+  // Check if day is already completed - if so, skip form and go to thanks page
+  if (props.dayNumber && isDayCompleted(props.dayNumber)) {
+    const targetPath = `/dk_julekalender/tak?day=${props.dayNumber}`;
+    router.push(targetPath);
+    return;
+  }
+  
+  // Navigate to competition form
   const targetPath = props.dayNumber
     ? `/dk_julekalender/konkurrence?day=${props.dayNumber}`
     : '/dk_julekalender/konkurrence';

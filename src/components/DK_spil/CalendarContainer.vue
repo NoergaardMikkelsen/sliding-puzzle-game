@@ -38,16 +38,8 @@ const emit = defineEmits(['door-click']);
 // Track which days have puzzle images (not disabled)
 const activeDays = ref([1, 2, 3, 4, 5, 8, 9, 10, 11, 12, 15, 16, 17, 18, 19, 22, 23]); // Based on the image
 
-const TEST_FORCE_DECEMBER_FIRST = true; // TODO: remove when real schedule should apply
-
 function getReferenceDate() {
-  const now = new Date();
-  if (TEST_FORCE_DECEMBER_FIRST) {
-    now.setMonth(11); // December
-    now.setDate(1); // Unlock door 1 for testing
-    now.setHours(0, 0, 1, 0);
-  }
-  return now;
+  return new Date();
 }
 
 // Check if a specific date has been reached
@@ -55,6 +47,19 @@ function isDateReached(day) {
   const now = getReferenceDate();
   const currentYear = now.getFullYear();
   const currentMonth = now.getMonth(); // 0-11 (0=January, 11=December)
+  const currentDay = now.getDate();
+  
+  // Special case: Door 1 is always accessible until December 2nd
+  if (day === 1) {
+    // Door 1 is open from now until December 2nd
+    if (currentMonth < 11) {
+      return true; // Always open before December
+    }
+    if (currentMonth === 11 && currentDay < 2) {
+      return true; // Open on December 1st
+    }
+    return false; // Closed from December 2nd onwards
+  }
   
   // Target date for this door: December [day], current year, 00:00:00
   const targetDate = new Date(currentYear, 11, day, 0, 0, 0);
@@ -97,12 +102,7 @@ function isDayFuture(day) {
 }
 
 // Check if a day has been completed (game finished)
-// TEMPORARILY DISABLED - Always return false
 function isDayCompleted(dayNumber) {
-  // TEMPORARILY DISABLED - Always return false
-  return false;
-  
-  /* PRODUCTION CODE - Uncomment when ready to enable localStorage:
   try {
     const stored = localStorage.getItem('dk_julekalender_completed_days');
     if (!stored) return false;
@@ -111,16 +111,43 @@ function isDayCompleted(dayNumber) {
   } catch (e) {
     return false;
   }
-  */
+}
+
+// Check if a day has passed (date is now in the past)
+function isDayPassed(dayNumber) {
+  const now = getReferenceDate();
+  const currentMonth = now.getMonth();
+  const currentDay = now.getDate();
+  
+  // Special case: Door 1 only passes on December 2nd or later
+  if (dayNumber === 1) {
+    if (currentMonth < 11) {
+      return false; // Before December, door 1 is not passed
+    }
+    if (currentMonth === 11) {
+      return currentDay >= 2; // Passed on December 2nd or later
+    }
+    return false;
+  }
+  
+  // If we're not in December, no days have passed
+  if (currentMonth !== 11) {
+    return false;
+  }
+  
+  // A day has passed if current day is GREATER than this day
+  // E.g., if it's December 3rd, days 1 and 2 have passed (but not day 3)
+  return currentDay > dayNumber;
 }
 
 function handleDoorClick(dayNumber) {
-  // Don't allow click if day has been completed
-  if (isDayCompleted(dayNumber)) {
+  // Don't allow click if day has passed (date moved to next day)
+  if (isDayPassed(dayNumber)) {
     return;
   }
   
-  // Only allow click if day is active (both in activeDays and date reached)
+  // Allow click if day is active (both in activeDays and date reached)
+  // Even if completed - user can replay the game on the same day
   if (isDayActive(dayNumber)) {
     emit('door-click', dayNumber);
   }

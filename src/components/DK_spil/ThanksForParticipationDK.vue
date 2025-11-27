@@ -93,7 +93,7 @@ function handleProductsClick() {
   // Log LK products click to Vercel (fire-and-forget)
   try {
     if (import.meta.env.PROD && dayNumber.value) {
-      const eventName = `DK_${dayNumber.value}LKproducts`;
+      const eventName = `DK_${dayNumber.value}LK_click`;
       const payload = JSON.stringify({ event: eventName });
       if (navigator.sendBeacon) {
         const blob = new Blob([payload], { type: 'application/json' });

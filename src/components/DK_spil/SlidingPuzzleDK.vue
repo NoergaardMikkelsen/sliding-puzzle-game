@@ -196,8 +196,6 @@ function generateSnowflakes() {
 // The image prefix doesn't always match the door number directly
 // localStorage functions for tracking completed days - PRODUCTION VERSION
 function markDayAsCompleted(dayNumber) {
-  // Temporarily disabled while testing – uncomment when ready to persist progress
-  /*
   try {
     const completedDays = getCompletedDays();
     if (!completedDays.includes(dayNumber)) {
@@ -207,12 +205,15 @@ function markDayAsCompleted(dayNumber) {
   } catch (e) {
     // localStorage might not be available, ignore
   }
-  */
 }
 
 function getCompletedDays() {
-  // Temporarily disabled while testing – always return empty list
-  return [];
+  try {
+    const stored = localStorage.getItem('dk_julekalender_completed_days');
+    return stored ? JSON.parse(stored) : [];
+  } catch (e) {
+    return [];
+  }
 }
 
 
@@ -664,10 +665,8 @@ function moveTile(clickedVisualIndex) {
       isSolved.value = isSolvedArr(tiles.value);
       if (isSolved.value) {
         stopTimer();
-        // Mark this day as completed in localStorage
-        if (selectedDay.value) {
-          markDayAsCompleted(selectedDay.value);
-        }
+        // NOTE: Do NOT mark as completed here - only mark when form is submitted
+        // This allows users to play multiple times on the same day
         // Log completed game when puzzle is solved
         try {
           if (import.meta.env.PROD && selectedDay.value) {
