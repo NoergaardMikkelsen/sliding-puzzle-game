@@ -7,13 +7,13 @@
     @mouseleave="handleMouseLeave"
     @click="!isDayPassed && !isFuture && handleClick()"
   >
-    <!-- Image behind the door - show when hovering, door is opened, or (ACTIVE) day has passed -->
-    <div 
-      v-if="(isHovering || (isDoorOpen && selectedDay === dayNumber) || (isDayPassed && isActive)) && isActive"
+    <!-- Image behind the door - show when hovering, door is opened, or day has passed -->
+    <div
+      v-if="(isHovering || (isDoorOpen && selectedDay === dayNumber) || isDayPassed) && (isActive || isDayPassed)"
       class="door-image-wrapper"
-      :class="{ 
-        'permanently-visible': isDayPassed && isActive,
-        'darker-green-overlay': isDarkerGreen && isDayPassed && isActive
+      :class="{
+        'permanently-visible': isDayPassed,
+        'darker-green-overlay': isDarkerGreen && isDayPassed
       }"
       @click="!isDayPassed && handleClick()"
     >
@@ -25,9 +25,9 @@
     </div>
     
     <!-- Door container that maintains position - prevents hinge from moving -->
-    <!-- Hide door ONLY if it's an ACTIVE day that has passed (inactive days always show the door) -->
-    <div 
-      v-if="!(isDayPassed && isActive)"
+    <!-- Hide door if it has passed (show torn image instead) -->
+    <div
+      v-if="!isDayPassed"
       ref="doorContainer"
       class="door-container"
     >
