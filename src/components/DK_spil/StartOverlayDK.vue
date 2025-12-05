@@ -300,7 +300,7 @@ onUnmounted(() => {
 
 /* Embedded: Use auto height to prevent stretching in iframe */
 .start-screen-overlay.puzzle-embedded {
-  height: auto !important;
+  height: 100% !important;
 }
 
 /* Layout elements: People and products */
