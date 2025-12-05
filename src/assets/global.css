@@ -100,7 +100,7 @@ body {
   width: 100%;
   height: auto;
   flex-grow: 1; /* Allows it to take up available space in the #app flex container */
-  max-height: 95vh; /* Fallback to ensure it's at least viewport height */
+  max-height: 100%; /* Fallback to ensure it's at least viewport height */
   background-color: var(--black); /* This should be the primary visible background */
   text-align: center;
   display: flex;
