@@ -5,6 +5,7 @@
       :key="day"
       :day-number="day"
       :is-active="isDayActive(day)"
+      :is-configured="isDayConfigured(day)"
       :is-future="isDayFuture(day)"
       :is-opening="selectedDay === day && isDoorOpening"
       :selected-day="selectedDay"
@@ -37,6 +38,11 @@ const emit = defineEmits(['door-click']);
 
 // Track which days have puzzle images (not disabled)
 const activeDays = ref([1, 2, 3, 4, 5, 8, 9, 10, 11, 12, 15, 16, 17, 18, 19, 22, 23]); // Based on the image
+// Check if a day is part of the active calendar configuration (has assets)
+function isDayConfigured(day) {
+  return activeDays.value.includes(day);
+}
+
 
 function getReferenceDate() {
   return new Date();

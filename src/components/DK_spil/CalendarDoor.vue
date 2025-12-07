@@ -64,6 +64,11 @@ const props = defineProps({
     type: Boolean,
     default: false
   },
+  // Indicates the day exists in the active calendar lineup (has assets)
+  isConfigured: {
+    type: Boolean,
+    default: true
+  },
   isFuture: {
     type: Boolean,
     default: false
@@ -137,6 +142,11 @@ function isDayCompleted(dayNumber) {
 // A day is "passed" (shows ripped state) ONLY if the current date has moved past it
 // NOT if it's still the current day - even if completed
 const isDayPassed = computed(() => {
+  // If the day is not part of the active calendar lineup, it should never
+  // transition into a "passed" (ripped off) state. Keep it disabled instead.
+  if (!props.isConfigured) {
+    return false;
+  }
   const now = getReferenceDate();
   const currentMonth = now.getMonth(); // 0-11 (0=January, 11=December)
   const day = now.getDate();
