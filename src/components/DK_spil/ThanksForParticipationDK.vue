@@ -103,7 +103,7 @@ function handleProductsClick() {
       }
     }
   } catch (e) {}
-  window.open('https://www.lk.dk/lk-one/', '_blank');
+  window.open('https://www.lk.dk/inspiration/afbrydermateriel/lk-one', '_blank');
 }
 </script>
 
